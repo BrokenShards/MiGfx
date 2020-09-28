@@ -130,7 +130,6 @@ namespace SharpGfx
 				else
 					count = new Vector2u( count.X, texsize.Y / size.Y );
 
-				tex?.Dispose();
 				return count;
 			}
 		}
