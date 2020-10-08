@@ -102,15 +102,17 @@ namespace SharpGfx
 			{
 				if( value.X <= 0.0f )
 				{
-					Console.WriteLine( "Transforms' width must be greater than zero and has been adjusted." );
-					Console.ReadLine();
-					value.X = 1.0f;
+					Logger.Log( "Transforms' width must be greater than zero and has been adjusted.", LogType.Warning );
+
+					float x = Math.Abs( value.X );
+					value.X = x > 0.0f ? x : 1.0f;
 				}
 				if( value.Y <= 0.0f )
 				{
-					Console.WriteLine( "Transforms' height must be greater than zero and has been adjusted." );
-					Console.ReadLine();
-					value.Y = 1.0f;
+					Logger.Log( "Transforms' height must be greater than zero and has been adjusted.", LogType.Warning );
+
+					float y = Math.Abs( value.Y );
+					value.Y = y > 0.0f ? y : 1.0f;
 				}
 
 				m_size = value;
