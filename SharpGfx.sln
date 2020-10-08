@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.1259
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpGfx", "SharpGfx.csproj", "{12DDFD76-8249-43E8-A4D0-AF314D0C6647}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F8503691-7649-4E33-83E9-41C68D428198} = {F8503691-7649-4E33-83E9-41C68D428198}
+		{C06CD8DC-5A9E-4215-877D-B8AFC9B07A63} = {C06CD8DC-5A9E-4215-877D-B8AFC9B07A63}
+		{F0D47DDD-7B9E-40D7-BD38-B9B2636BE6BD} = {F0D47DDD-7B9E-40D7-BD38-B9B2636BE6BD}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{B241CAFB-294A-4822-A83C-07589C62662E}"
 EndProject
@@ -12,6 +17,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpLogger", "Dependencies\SharpLogger\SharpLogger.csproj", "{F0D47DDD-7B9E-40D7-BD38-B9B2636BE6BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpSerial", "Dependencies\SharpSerial\SharpSerial.csproj", "{F8503691-7649-4E33-83E9-41C68D428198}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F0D47DDD-7B9E-40D7-BD38-B9B2636BE6BD} = {F0D47DDD-7B9E-40D7-BD38-B9B2636BE6BD}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
