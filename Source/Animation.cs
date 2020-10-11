@@ -27,6 +27,7 @@ using SFML.Graphics;
 using SFML.System;
 
 using SharpID;
+using SharpLogger;
 using SharpSerial;
 
 namespace SharpGfx
@@ -52,12 +53,12 @@ namespace SharpGfx
 		///   The texture rect to display on the frame.
 		/// </param>
 		/// <param name="len">
-		///   The length of time the frame lasts.
+		///   The length of time the frame lasts; defaults to 1.0 if null.
 		/// </param>
-		public Frame( FloatRect rect, Time len )
+		public Frame( FloatRect rect, Time? len = null )
 		{
 			Rect   = rect;
-			Length = len;
+			Length = len ?? Time.FromSeconds( 1.0f );
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -86,16 +87,16 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load frame from null stream.", false, LogType.Error );
 
 			try
 			{
 				Rect   = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
 				Length = Time.FromMicroseconds( br.ReadInt64() ); 
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load frame from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -103,16 +104,16 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save frame to null stream.", false, LogType.Error );
 
 			try
 			{
 				bw.Write( Rect.Left ); bw.Write( Rect.Top ); bw.Write( Rect.Width ); bw.Write( Rect.Height );
 				bw.Write( Length.AsMicroseconds() );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to save frame to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -349,18 +350,18 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load animation from null stream.", false, LogType.Error );
 
 			try
 			{
 				ID = br.ReadString();
 				for( int i = 0; i < Count; i++ )
 					if( !m_frames[ i ].LoadFromStream( br ) )
-						return false;
+						return Logger.LogReturn( "Unable to load animation from stream.", false, LogType.Error );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load animation from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -368,12 +369,19 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save animation to null stream.", false, LogType.Error );
 
-			bw.Write( ID );
-			for( int i = 0; i < Count; i++ )
-				if( !m_frames[ i ].SaveToStream( bw ) )
-					return false;
+			try
+			{
+				bw.Write( ID );
+				for( int i = 0; i < Count; i++ )
+					if( !m_frames[ i ].SaveToStream( bw ) )
+						return Logger.LogReturn( "Unable to save animation to stream.", false, LogType.Error );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Unable to save animation to stream: " + e.Message, false, LogType.Error );
+			}
 
 			return true;
 		}

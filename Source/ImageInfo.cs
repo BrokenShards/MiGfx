@@ -141,6 +141,15 @@ namespace SharpGfx
 			tex?.Dispose();
 		}
 
+		/// <summary>
+		///   Loads the image info from a stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader.
+		/// </param>
+		/// <returns>
+		///   True if the image info was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -159,6 +168,15 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the image info to a stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		/// <returns>
+		///   True if the image info was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )

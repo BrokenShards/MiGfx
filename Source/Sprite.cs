@@ -88,6 +88,12 @@ namespace SharpGfx
 			get; set;
 		}
 
+		/// <summary>
+		///   Updates the sprite geometry. Call this before drawing.
+		/// </summary>
+		/// <param name="dt">
+		///   Delta time.
+		/// </param>
 		public virtual void Update( float dt )
 		{
 			if( Image == null )
@@ -100,6 +106,15 @@ namespace SharpGfx
 			m_verts[ 2 ] = new Vertex( Transform.Position + size, Image.Color, new Vector2f( Image.Rect.Left + Image.Rect.Width, Image.Rect.Top + Image.Rect.Height ) );
 			m_verts[ 3 ] = new Vertex( Transform.Position + new Vector2f( 0.0f, size.Y ), Image.Color, new Vector2f( Image.Rect.Left, Image.Rect.Top + Image.Rect.Height ) );
 		}
+		/// <summary>
+		///   Draws the sprite to the render target.
+		/// </summary>
+		/// <param name="target">
+		///   The target to draw to.
+		/// </param>
+		/// <param name="states">
+		///   Render states.
+		/// </param>
 		public void Draw( RenderTarget target, RenderStates states )
 		{
 			if( Image == null )
@@ -133,6 +148,15 @@ namespace SharpGfx
 			m_verts.Draw( target, states );
 		}
 
+		/// <summary>
+		///   Loads the sprite from the stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader
+		/// </param>
+		/// <returns>
+		///   True if the sprite was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -143,18 +167,21 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the sprite to the stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		/// <returns>
+		///   True if the sprite was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( Image == null )
-			{
-				Logger.Log( "Trying to save a sprite to stream with a null image.", LogType.Warning );
-				return false;
-			}
+				return Logger.LogReturn( "Trying to save a sprite to stream with a null image.", false, LogType.Warning );
 			if( Transform == null )
-			{
-				Logger.Log( "Trying to save a sprite to stream with a null transform.", LogType.Warning );
-				return false;
-			}
+				return Logger.LogReturn( "Trying to save a sprite to stream with a null transform.", false, LogType.Warning );
 
 			if( bw == null )
 				return false;
@@ -165,6 +192,9 @@ namespace SharpGfx
 			return true;
 		}
 
+		/// <summary>
+		///   Disposes of managed resources.
+		/// </summary>
 		public void Dispose()
 		{
 			( (IDisposable)m_verts ).Dispose();
@@ -206,6 +236,12 @@ namespace SharpGfx
 			get; set;
 		}
 
+		/// <summary>
+		///   Updates the animated sprite. Call before drawing.
+		/// </summary>
+		/// <param name="dt">
+		///   Delta time.
+		/// </param>
 		public override void Update( float dt )
 		{
 			if( Animator != null )

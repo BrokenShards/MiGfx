@@ -26,15 +26,25 @@ using SFML.Graphics;
 using SFML.System;
 
 using SharpID;
+using SharpLogger;
 using SharpSerial;
 
 namespace SharpGfx
 {
+	/// <summary>
+	///   Contains tileset information.
+	/// </summary>
 	[Serializable]
 	public class Tileset : BinarySerializable, IIdentifiable<string>
 	{
+		/// <summary>
+		///   The default tileset cell size.
+		/// </summary>
 		public const uint DefaultCellSize = 64;
 
+		/// <summary>
+		///   Constructor.
+		/// </summary>
 		public Tileset()
 		{
 			ID       = Identifiable.NewStringID( "Tileset" );
@@ -43,6 +53,15 @@ namespace SharpGfx
 			Offset   = new Vector2u();
 			Padding  = new Vector2u();
 		}
+		/// <summary>
+		///   Copy constructor.
+		/// </summary>
+		/// <param name="t">
+		///   The object to copy.
+		/// </param>
+		/// <exception cref="ArgumentNullException">
+		///   If `t` is null.
+		/// </exception>
 		public Tileset( Tileset t )
 		{
 			if( t == null )
@@ -54,6 +73,27 @@ namespace SharpGfx
 			Offset   = t.Offset;
 			Padding  = t.Padding;
 		}
+		/// <summary>
+		///   Constructs the object with the given parameters.
+		/// </summary>
+		/// <param name="id">
+		///   Tileset ID.
+		/// </param>
+		/// <param name="path">
+		///   Texture path.
+		/// </param>
+		/// <param name="size">
+		///   Cell size.
+		/// </param>
+		/// <param name="off">
+		///   Cell offset.
+		/// </param>
+		/// <param name="pad">
+		///   Cell padding.
+		/// </param>
+		/// <exception cref="ArgumentException">
+		///   If a texture path is provided but loading the texture fails.
+		/// </exception>
 		public Tileset( string id, string path = null, Vector2u? size = null, Vector2u? off = null, Vector2u? pad = null )
 		{
 			ID = id;
@@ -61,7 +101,7 @@ namespace SharpGfx
 			if( path != null )
 			{
 				if( !LoadTexture( path, size, off, pad ) )
-					throw new ArgumentException();
+					throw Logger.LogReturn( "Tileset construction failed: Unable to load texture from \"" + path + "\".", new ArgumentException(), LogType.Error );
 			}
 			else
 			{
@@ -72,6 +112,9 @@ namespace SharpGfx
 			}
 		}
 
+		/// <summary>
+		///   If <see cref="Texture"/> is valid and leads to a valid texture.
+		/// </summary>
 		public bool TextureValid
 		{
 			get
@@ -94,24 +137,49 @@ namespace SharpGfx
 			}
 		}
 
+		/// <summary>
+		///   The path to the tileset texture.
+		/// </summary>
 		public string Texture { get; set; }
+
+		/// <summary>
+		///   The size of each individual cell.
+		/// </summary>
 		public Vector2u CellSize
 		{
 			get { return m_cellsize; }
 			set
 			{
-				if( value.X == 0 || value.Y == 0 )
-					throw new ArgumentException( "Tilesets' cell size must be greater than zero." );
+				if( value.X == 0 )
+				{
+					Logger.Log( "Tileset cell width must be greater than zero and has been adjusted", LogType.Warning );
+					m_cellsize.X = 1;
+				}
+				else
+				{
+					m_cellsize.X = value.X;
+				}
 
-				m_cellsize = value;
+				if( value.Y == 0 )
+				{
+					Logger.Log( "Tileset cell height must be greater than zero and has been adjusted", LogType.Warning );
+					m_cellsize.Y = 1;
+				}
+				else
+				{
+					m_cellsize.Y = value.Y;
+				}
 			}
 		}
-		public Vector2u? Size
+		/// <summary>
+		///   The amount of cells that fit in the texture.
+		/// </summary>
+		public Vector2u Size
 		{
 			get
 			{
 				if( !TextureValid )
-					return null;
+					return default( Vector2u );
 
 				Vector2u count = new Vector2u();
 				Vector2u texsize = new Vector2u();
@@ -133,6 +201,9 @@ namespace SharpGfx
 				return count;
 			}
 		}
+		/// <summary>
+		///   The total amount of cells that fit in the texture.
+		/// </summary>
 		public uint CellCount
 		{
 			get
@@ -145,9 +216,19 @@ namespace SharpGfx
 				return size.Value.X * size.Value.Y;
 			}
 		}
+
+		/// <summary>
+		///   Offset before each cell.
+		/// </summary>
 		public Vector2u Offset { get; set; }
+		/// <summary>
+		///   Padding after each cell.
+		/// </summary>
 		public Vector2u Padding { get; set; }
 
+		/// <summary>
+		///   Tileset ID.
+		/// </summary>
 		public string ID
 		{
 			get { return m_id; }
@@ -157,6 +238,23 @@ namespace SharpGfx
 			}
 		}
 
+		/// <summary>
+		///   Loads the tileset texture from the given path.
+		/// </summary>
+		/// <param name="path">
+		///   The path to the tileset texture.
+		/// </param>
+		/// <param name="size">
+		///   Optional cell size (null for default).
+		/// </param>
+		/// <param name="off"></param>
+		///   Optional cell offset (null for default).
+		/// <param name="pad">
+		///   Optional cell padding (null for default).
+		/// </param>
+		/// <returns>
+		///   True if the texture was loaded successfully, otherwise false.
+		/// </returns>
 		public bool LoadTexture( string path, Vector2u? size = null, Vector2u? off = null, Vector2u? pad = null )
 		{
 			if( string.IsNullOrWhiteSpace( path ) )
@@ -196,7 +294,17 @@ namespace SharpGfx
 
 			return true;
 		}
-		public FloatRect GetTileRect( uint index )
+
+		/// <summary>
+		///   Gets the texture rect of the cell at the given index.
+		/// </summary>
+		/// <param name="index">
+		///   The cell index.
+		/// </param>
+		/// <returns>
+		///   Returns the texture rect of the cell at the given index.
+		/// </returns>
+		public FloatRect GetCellRect( uint index )
 		{
 			uint ccount = CellCount;
 
@@ -205,7 +313,7 @@ namespace SharpGfx
 
 			Vector2u size = Offset + CellSize + Padding;
 
-			uint rows = Size.Value.Y;
+			uint rows = Size.Y;
 
 			uint col = index % rows;
 			uint row = index / rows;
@@ -215,6 +323,15 @@ namespace SharpGfx
 								  CellSize.X, CellSize.Y );
 		}
 
+		/// <summary>
+		///   Loads the tileset from a stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader.
+		/// </param>
+		/// <returns>
+		///   True if the tilset was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -222,7 +339,7 @@ namespace SharpGfx
 
 			try
 			{
-				ID     = br.ReadString();
+				ID       = br.ReadString();
 				Texture  = br.ReadString();
 				CellSize = new Vector2u( br.ReadUInt32(), br.ReadUInt32() );
 				Offset   = new Vector2u( br.ReadUInt32(), br.ReadUInt32() );
@@ -235,6 +352,15 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the tileset to a stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		/// <returns>
+		///   True if the tilset was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )

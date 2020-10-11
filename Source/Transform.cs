@@ -128,8 +128,7 @@ namespace SharpGfx
 			{
 				if( value.X <= 0.0f || value.Y <= 0.0f )
 				{
-					Console.WriteLine( "Transforms' scale must be greater than zero, it has been reset." );
-					Console.ReadLine();
+					Logger.Log( "Transforms' scale must be greater than zero, it has been reset.", LogType.Warning );
 					m_scale = new Vector2f( 1.0f, 1.0f );
 				}
 				else

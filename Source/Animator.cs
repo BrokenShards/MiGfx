@@ -210,6 +210,12 @@ namespace SharpGfx
 			m_playing = false;
 		}
 
+		/// <summary>
+		///   Updates the animator.
+		/// </summary>
+		/// <param name="dt">
+		///   Delta time.
+		/// </param>
 		public void Update( float dt )
 		{
 			if( AnimationSet.Empty )
@@ -240,6 +246,14 @@ namespace SharpGfx
 			}
 		}
 
+		/// <summary>
+		///   Loads the animator from the stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader.
+		/// </param>
+		///   True if the animator was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -262,6 +276,14 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the animator to the stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		///   True if the animator was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null || !AnimationSet.SaveToStream( bw ) )

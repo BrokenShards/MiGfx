@@ -180,11 +180,11 @@ namespace SharpGfx
 				t.Font = null;
 			}
 
-			t.CharacterSize = Size;
-			t.Style = (Text.Styles)Style;
+			t.CharacterSize    = Size;
+			t.Style            = (Text.Styles)Style;
 			t.OutlineThickness = Outline;
-			t.FillColor = FillColor;
-			t.OutlineColor = OutlineColor;
+			t.FillColor        = FillColor;
+			t.OutlineColor     = OutlineColor;
 		}
 
 		public override bool LoadFromStream( BinaryReader br )

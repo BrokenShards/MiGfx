@@ -198,15 +198,35 @@ namespace SharpGfx
 			m_animap.Clear();
 		}
 
+		/// <summary>
+		///   Gets an enumerator that can enumerate over the collection.
+		/// </summary>
+		/// <returns>
+		///   An enumerator that can enumerate over the collection.
+		/// </returns>
 		public IEnumerator<KeyValuePair<string, Animation>> GetEnumerator()
 		{
 			return ( (IEnumerable<KeyValuePair<string, Animation>>)m_animap ).GetEnumerator();
 		}
+		/// <summary>
+		///   Gets an enumerator that can enumerate over the collection.
+		/// </summary>
+		/// <returns>
+		///   An enumerator that can enumerate over the collection.
+		/// </returns>
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return ( (IEnumerable<KeyValuePair<string, Animation>>)m_animap ).GetEnumerator();
 		}
 
+		/// <summary>
+		///   Loads the animation set from the stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader.
+		/// </param>
+		///   True if the animation set was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -231,6 +251,14 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the animation set to the stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		///   True if the animation set was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
