@@ -47,15 +47,15 @@
     </Reference>
     <Reference Include="SharpID, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\SharpID\bin\Release\SharpID.dll</HintPath>
+      <HintPath>Dependencies\SharpID.dll</HintPath>
     </Reference>
     <Reference Include="SharpLogger, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\SharpLogger\bin\Release\SharpLogger.dll</HintPath>
+      <HintPath>Dependencies\SharpLogger.dll</HintPath>
     </Reference>
     <Reference Include="SharpSerial, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\SharpSerial\bin\Release\SharpSerial.dll</HintPath>
+      <HintPath>Dependencies\SharpSerial.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
