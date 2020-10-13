@@ -9,5 +9,8 @@ A basic C# graphics library for use with SFML.Net.
 - SharpSerial `https://github.com/ShardTheBroken/SharpSerial.git`
 
 ## Changelog
+### Version 0.2.0
+- Now SharpAsset is used for asset caching.
+
 ### Version 0.1.0
 - Initial release.
