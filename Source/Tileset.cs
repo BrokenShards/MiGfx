@@ -25,6 +25,7 @@ using System.IO;
 using SFML.Graphics;
 using SFML.System;
 
+using SharpAsset;
 using SharpID;
 using SharpLogger;
 using SharpSerial;
@@ -119,21 +120,7 @@ namespace SharpGfx
 		{
 			get
 			{
-				Texture tex = null;
-
-				try
-				{
-					tex = new Texture( Texture );
-				}
-				catch
-				{
-					tex = null;
-				}
-
-				bool result = tex != null;
-				tex?.Dispose();
-
-				return result;
+				return Assets.Manager.Texture.Get( Texture ) != null;
 			}
 		}
 
@@ -182,11 +169,8 @@ namespace SharpGfx
 					return default( Vector2u );
 
 				Vector2u count = new Vector2u();
-				Vector2u texsize = new Vector2u();
+				Vector2u texsize = Assets.Manager.Texture.Get( Texture ).Size;
 				Vector2u size = Offset + CellSize + Padding;
-
-				using( Texture tex = new Texture( Texture ) )
-					texsize = tex.Size;
 
 				if( size.X > texsize.X )
 					count = new Vector2u( 1, 0 );
@@ -260,21 +244,11 @@ namespace SharpGfx
 			if( string.IsNullOrWhiteSpace( path ) )
 				return false;
 
-			Texture tex = null;
-
-			try
-			{
-				tex = new Texture( path );
-			}
-			catch
-			{
-				tex = null;
-			}
+			Texture tex = Assets.Manager.Texture.Get( path );
 
 			if( tex == null )
 				return false;
 
-			tex.Dispose();
 			Texture = path;
 
 			if( off != null )

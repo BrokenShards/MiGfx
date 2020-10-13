@@ -25,6 +25,7 @@ using System.IO;
 using SFML.Graphics;
 using SFML.System;
 
+using SharpAsset;
 using SharpLogger;
 using SharpSerial;
 
@@ -94,6 +95,9 @@ namespace SharpGfx
 		/// <param name="dt">
 		///   Delta time.
 		/// </param>
+		/// <exception cref="ArgumentNullException">
+		///   If <see cref="Image"/> is null.
+		/// </exception>
 		public virtual void Update( float dt )
 		{
 			if( Image == null )
@@ -120,16 +124,7 @@ namespace SharpGfx
 			if( Image == null )
 				throw new ArgumentNullException( nameof( Image ), "Trying to draw a sprite with a null image." );
 
-			Texture tex = null;
-
-			try
-			{
-				tex = new Texture( Image.Path );
-			}
-			catch
-			{
-				tex = null;
-			}
+			Texture tex = Assets.Manager.Texture.Get( Image.Path );
 
 			if( tex != null )
 			{
@@ -179,15 +174,17 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( Image == null )
-				return Logger.LogReturn( "Trying to save a sprite to stream with a null image.", false, LogType.Warning );
+				return Logger.LogReturn( "Trying to save a sprite to stream with a null image.", false, LogType.Error );
 			if( Transform == null )
-				return Logger.LogReturn( "Trying to save a sprite to stream with a null transform.", false, LogType.Warning );
+				return Logger.LogReturn( "Trying to save a sprite to stream with a null transform.", false, LogType.Error );
 
 			if( bw == null )
 				return false;
 
-			if( !Image.SaveToStream( bw ) || !Transform.SaveToStream( bw ) )
-				return false;
+			if( !Image.SaveToStream( bw ) )
+				return Logger.LogReturn( "Unable to save sprite image to stream.", false, LogType.Error );
+			if( !Transform.SaveToStream( bw ) )
+				return Logger.LogReturn( "Unable to save sprite transform to stream.", false, LogType.Error );
 
 			return true;
 		}

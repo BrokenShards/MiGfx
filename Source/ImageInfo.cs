@@ -24,6 +24,8 @@ using System;
 using System.IO;
 using SFML.Graphics;
 
+using SharpAsset;
+using SharpLogger;
 using SharpSerial;
 
 namespace SharpGfx
@@ -49,6 +51,9 @@ namespace SharpGfx
 		/// <param name="i">
 		///   The image info to copy from.
 		/// </param>
+		/// <exception cref="ArgumentNullException">
+		///   If <paramref name="i"/> is null.
+		/// </exception>
 		public ImageInfo( ImageInfo i )
 		{
 			if( i == null )
@@ -85,22 +90,7 @@ namespace SharpGfx
 		{
 			get
 			{
-				Texture tex = null;
-
-				try
-				{
-					tex = new Texture( Path );
-				}
-				catch
-				{
-					tex = null;
-				}
-
-				if( tex == null )
-					return false;
-
-				tex.Dispose();
-				return true;
+				return Assets.Manager.Texture.Get( Path ) != null;
 			}
 		}
 
@@ -122,23 +112,12 @@ namespace SharpGfx
 		/// </summary>
 		public void SetFullRect()
 		{
-			Texture tex = null;
-
-			try
-			{
-				tex = new Texture( Path );
-			}
-			catch
-			{
-				tex = null;
-			}
+			Texture tex = Assets.Manager.Texture.Get( Path );
 
 			if( tex == null )
-				Rect = new FloatRect();
+				Rect = Logger.LogReturn( "SetFullRect failed because of invalid texture path; Rect has been reset.", new FloatRect(), LogType.Warning );
 			else
 				Rect = new FloatRect( 0.0f, 0.0f, tex.Size.X, tex.Size.Y );
-
-			tex?.Dispose();
 		}
 
 		/// <summary>

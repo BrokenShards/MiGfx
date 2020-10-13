@@ -24,6 +24,8 @@ using System;
 using System.IO;
 using SFML.Graphics;
 
+using SharpAsset;
+using SharpLogger;
 using SharpSerial;
 
 namespace SharpGfx
@@ -53,6 +55,9 @@ namespace SharpGfx
 		/// <param name="i">
 		///   The style to copy from.
 		/// </param>
+		/// <exception cref="ArgumentNullException">
+		///   If <paramref name="i"/> is null.
+		/// </exception>
 		public TextStyle( TextStyle i )
 		:	this()
 		{
@@ -97,6 +102,17 @@ namespace SharpGfx
 			Outline      = line < 0.0f ? 0.0f : line;
 			FillColor    = fill ?? new Color( 255, 255, 255, 255 );
 			OutlineColor = outline ?? new Color( 255, 255, 255, 255 );
+		}
+
+		/// <summary>
+		///   If a valid font exists at <see cref="FontPath"/>.
+		/// </summary>
+		public bool IsFontValid
+		{
+			get
+			{
+				return Assets.Manager.Font.Get( FontPath ) != null;
+			}
 		}
 
 		/// <summary>
@@ -171,15 +187,7 @@ namespace SharpGfx
 			if( t == null )
 				return;
 
-			try
-			{
-				t.Font = new Font( FontPath );
-			}
-			catch
-			{
-				t.Font = null;
-			}
-
+			t.Font             = Assets.Manager.Font.Get( FontPath );
 			t.CharacterSize    = Size;
 			t.Style            = (Text.Styles)Style;
 			t.OutlineThickness = Outline;
