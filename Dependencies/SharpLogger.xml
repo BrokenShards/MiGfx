@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpLogger</name>
+    </assembly>
+    <members>
+        <member name="T:SharpLogger.LogType">
+            <summary>
+              Enumeration of log message types.
+            </summary>
+        </member>
+        <member name="F:SharpLogger.LogType.Error">
+            <summary>
+              For logging errors that break code flow.
+            </summary>
+        </member>
+        <member name="F:SharpLogger.LogType.Warning">
+            <summary>
+              For logging warnings that can be recovered from.
+            </summary>
+        </member>
+        <member name="F:SharpLogger.LogType.Debug">
+            <summary>
+              For logging debug information.
+            </summary>
+        </member>
+        <member name="F:SharpLogger.LogType.Info">
+            <summary>
+              For logging standard informational messages.
+            </summary>
+        </member>
+        <member name="T:SharpLogger.Logger">
+            <summary>
+              Handles logging.
+            </summary>
+        </member>
+        <member name="P:SharpLogger.Logger.HideLogs">
+            <summary>
+              If enabled, logs will not be output to the stream.
+            </summary>
+        </member>
+        <member name="M:SharpLogger.Logger.Log(System.String,SharpLogger.LogType)">
+            <summary>
+              Logs a message to the log stream with the given log type.
+            </summary>
+            <param name="msg">
+              The log message.
+            </param>
+            <param name="l">
+              The log type.
+            </param>
+        </member>
+        <member name="M:SharpLogger.Logger.LogReturn``1(System.String,``0,SharpLogger.LogType)">
+            <summary>
+              Logs a message to the log stream before returning a value.
+            </summary>
+            <typeparam name="T">
+              The type of value to return.
+            </typeparam>
+            <param name="msg">
+              The log message.
+            </param>
+            <param name="val">
+              The value to return.
+            </param>
+            <param name="l">
+              The log type.
+            </param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

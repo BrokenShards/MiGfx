@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpID</name>
+    </assembly>
+    <members>
+        <member name="T:SharpID.IIdentifiable`1">
+            <summary>
+              Interface for objects that are identified by an ID.
+            </summary>
+        </member>
+        <member name="P:SharpID.IIdentifiable`1.ID">
+            <summary>
+              The name of the object.
+            </summary>
+        </member>
+        <member name="T:SharpID.Identifiable">
+            <summary>
+              Contains ID and name related functionality.
+            </summary>
+        </member>
+        <member name="M:SharpID.Identifiable.IsValid(System.String)">
+            <summary>
+              If the given ID is valid.
+            </summary>
+            <param name="id">
+              The ID to check.
+            </param>
+            <returns>
+              True if the ID is valid and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SharpID.Identifiable.IsValid(SharpID.IIdentifiable{System.String})">
+            <summary>
+              If the given objects' ID is valid.
+            </summary>
+            <param name="i">
+              The object to check.
+            </param>
+            <returns>
+              True if the objects' ID is valid and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SharpID.Identifiable.AsValid(System.String)">
+            <summary>
+              Returns the given string as a valid ID.
+            </summary>
+            <param name="id">
+              The invalid ID.
+            </param>
+            <returns>
+              The given string as a valid ID.
+            </returns>
+        </member>
+        <member name="M:SharpID.Identifiable.AsValid(SharpID.IIdentifiable{System.String})">
+            <summary>
+              Returns the given objects' ID as a valid ID.
+            </summary>
+            <param name="i">
+              The object.
+            </param>
+            <returns>
+              The given object' invalid ID as a valid ID.
+            </returns>
+        </member>
+        <member name="M:SharpID.Identifiable.NewStringID(System.String)">
+            <summary>
+              Creates a psuedo-new, valid ID from a given prefix.
+            </summary>
+            <param name="prefix">
+              Prefixes the ID numbers.
+            </param>
+            <returns>
+              A new ID.
+            </returns>
+        </member>
+        <member name="M:SharpID.Identifiable.NewUIntID(System.String)">
+            <summary>
+              Creates a psuedo-new ulong ID.
+            </summary>
+            <param name="prefix">
+              The prefix linked to the ID type.
+            </param>
+            <returns>
+              A new ID.
+            </returns>
+        </member>
+        <member name="M:SharpID.Identifiable.RandomStringID(System.UInt32)">
+            <summary>
+              Generates a random ID string with the given length.
+            </summary>
+            <param name="length">
+              The length of the ID.
+            </param>
+            <returns>
+              A random ID with the given length or `string.Empty` if length is zero.
+            </returns>
+        </member>
+        <member name="T:SharpID.INamable">
+            <summary>
+              Interface for objects that have a name.
+            </summary>
+        </member>
+        <member name="P:SharpID.INamable.Name">
+            <summary>
+              The name of the object.
+            </summary>
+        </member>
+        <member name="T:SharpID.Naming">
+            <summary>
+              Contains Name related functionality.
+            </summary>
+        </member>
+        <member name="M:SharpID.Naming.IsValid(System.String)">
+            <summary>
+              If the given string is a valid name.
+            </summary>
+            <param name="name">
+              The name string.
+            </param>
+            <returns>
+              True if the name is valid and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SharpID.Naming.IsValid(SharpID.IIdentifiable{System.String})">
+            <summary>
+              If the name of the given object is valid.
+            </summary>
+            <param name="i">
+              The object to check.
+            </param>
+            <returns>
+              True if the name of the object is valid and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SharpID.Naming.AsValid(System.String,System.Char)">
+            <summary>
+              Returns the given string as a valid name.
+            </summary>
+            <param name="name">
+              The possibly invalid name.
+            </param>
+            <param name="repl">
+              The character used to replace invalid characters.
+            </param>
+            <returns>
+              The given string as a valid name.
+            </returns>
+        </member>
+        <member name="M:SharpID.Naming.AsValid(SharpID.IIdentifiable{System.String})">
+            <summary>
+              Returns the given objects' name as a valid name.
+            </summary>
+            <param name="i">
+              The identifiable object.
+            </param>
+            <returns>
+              The given object' invalid name as a valid ID.
+            </returns>
+        </member>
+        <member name="M:SharpID.Naming.NewName(System.String)">
+            <summary>
+              Creates a psuedo-new, valid name with a given prefix.
+            </summary>
+            <param name="prefix">
+              Prefixes the name numbers.
+            </param>
+            <returns>
+              A new name.
+            </returns>
+        </member>
+        <member name="M:SharpID.Naming.RandomName(System.UInt32)">
+            <summary>
+              Generates a random name string with the given length.
+            </summary>
+            <param name="length">
+              The length of the name.
+            </param>
+            <returns>
+              A random name with the given length or `string.Empty` if length is zero.
+            </returns>
+        </member>
+    </members>
+</doc>
