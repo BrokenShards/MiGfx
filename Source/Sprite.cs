@@ -144,7 +144,7 @@ namespace SharpGfx
 		}
 
 		/// <summary>
-		///   Loads the sprite from the stream.
+		///   Loads the object from the stream.
 		/// </summary>
 		/// <param name="br">
 		///   The stream reader
@@ -163,7 +163,7 @@ namespace SharpGfx
 			return true;
 		}
 		/// <summary>
-		///   Writes the sprite to the stream.
+		///   Writes the object to the stream.
 		/// </summary>
 		/// <param name="bw">
 		///   The stream writer.

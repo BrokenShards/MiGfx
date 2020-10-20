@@ -84,6 +84,15 @@ namespace SharpGfx
 		/// </summary>
 		public Time Length { get; set; }
 
+		/// <summary>
+		///   Loads the object from the stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -101,6 +110,15 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the object to the stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
@@ -347,6 +365,15 @@ namespace SharpGfx
 			m_frames.Clear();
 		}
 
+		/// <summary>
+		///   Loads the object from the stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded from the stream and false otherwise.
+		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
@@ -366,6 +393,15 @@ namespace SharpGfx
 
 			return true;
 		}
+		/// <summary>
+		///   Writes the object to the stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully written to the stream and false otherwise.
+		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )

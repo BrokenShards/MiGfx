@@ -121,13 +121,13 @@ namespace SharpGfx
 		}
 
 		/// <summary>
-		///   Loads the image info from a stream.
+		///   Loads the object from a stream.
 		/// </summary>
 		/// <param name="br">
 		///   The stream reader.
 		/// </param>
 		/// <returns>
-		///   True if the image info was successfully loaded from the stream and false otherwise.
+		///   True if the object was successfully loaded from the stream and false otherwise.
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
@@ -148,13 +148,13 @@ namespace SharpGfx
 			return true;
 		}
 		/// <summary>
-		///   Writes the image info to a stream.
+		///   Writes the object to a stream.
 		/// </summary>
 		/// <param name="bw">
 		///   The stream writer.
 		/// </param>
 		/// <returns>
-		///   True if the image info was successfully written to the stream and false otherwise.
+		///   True if the object was successfully written to the stream and false otherwise.
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{

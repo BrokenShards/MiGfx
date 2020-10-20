@@ -220,12 +220,13 @@ namespace SharpGfx
 		}
 
 		/// <summary>
-		///   Loads the animation set from the stream.
+		///   Loads the object from the stream.
 		/// </summary>
 		/// <param name="br">
 		///   The stream reader.
 		/// </param>
-		///   True if the animation set was successfully loaded from the stream and false otherwise.
+		/// <returns>
+		///   True if the object was successfully loaded from the stream and false otherwise.
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
@@ -252,12 +253,13 @@ namespace SharpGfx
 			return true;
 		}
 		/// <summary>
-		///   Writes the animation set to the stream.
+		///   Writes the object to the stream.
 		/// </summary>
 		/// <param name="bw">
 		///   The stream writer.
 		/// </param>
-		///   True if the animation set was successfully written to the stream and false otherwise.
+		/// <returns>
+		///   True if the object was successfully written to the stream and false otherwise.
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
