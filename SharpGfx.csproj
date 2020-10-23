@@ -47,9 +47,6 @@
     <Reference Include="sfmlnet-window-2, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Graphnode.SFML.Net.2.4\lib\sfmlnet-window-2.dll</HintPath>
     </Reference>
-    <Reference Include="SharpAsset">
-      <HintPath>Dependencies\SharpAsset.dll</HintPath>
-    </Reference>
     <Reference Include="SharpID, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Dependencies\SharpID.dll</HintPath>
@@ -76,6 +73,12 @@
     <Compile Include="Source\Animation.cs" />
     <Compile Include="Source\AnimationSet.cs" />
     <Compile Include="Source\Animator.cs" />
+    <Compile Include="Source\Assets\AssetManager.cs" />
+    <Compile Include="Source\Assets\Assets.cs" />
+    <Compile Include="Source\Assets\FontManager.cs" />
+    <Compile Include="Source\Assets\Path.cs" />
+    <Compile Include="Source\Assets\SoundManager.cs" />
+    <Compile Include="Source\Assets\TextureManager.cs" />
     <Compile Include="Source\ImageInfo.cs" />
     <Compile Include="Source\Sprite.cs" />
     <Compile Include="Source\TextInfo.cs" />

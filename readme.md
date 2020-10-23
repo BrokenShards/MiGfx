@@ -3,12 +3,14 @@ A basic C# graphics library for use with SFML.Net.
 
 ## Dependencies
 - SFML.Net `https://github.com/graphnode/SFML.Net.git`
-- SharpAsset `https://github.com/BrokenShards/SharpAsset.git`
 - SharpID `https://github.com/BrokenShards/SharpID.git`
 - SharpLogger `https://github.com/BrokenShards/SharpLogger.git`
 - SharpSerial `https://github.com/BrokenShards/SharpSerial.git`
 
 ## Changelog
+
+### Version 0.3.0
+- SharpAsset has now been merged with SharpGfx.
 
 ### Version 0.2.1
 - Now the xml documentation is built with the binary and is included in releases.

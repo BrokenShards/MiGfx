@@ -25,7 +25,6 @@ using System.IO;
 using SFML.Graphics;
 using SFML.System;
 
-using SharpAsset;
 using SharpLogger;
 using SharpSerial;
 
