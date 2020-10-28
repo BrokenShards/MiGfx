@@ -9,6 +9,10 @@ A basic C# graphics library for use with SFML.Net.
 
 ## Changelog
 
+### Version 0.4.1
+- Added previously missed `AnimatedSprite` test.
+- Fixed an issue where `AnimatedSprite.Equals` was returning incorrect values.
+
 ### Version 0.4.0
 - Added a sanity test project.
 - Fixed issue where Animations were not serializing and deserializing correctly.

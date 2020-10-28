@@ -218,7 +218,7 @@ namespace SharpGfx
 	/// <summary>
 	///   An animated sprite.
 	/// </summary>
-	public class AnimatedSprite : Sprite
+	public class AnimatedSprite : Sprite, IEquatable<AnimatedSprite>
 	{
 		/// <summary>
 		///   Constructor.
@@ -238,6 +238,20 @@ namespace SharpGfx
 		:	base( a )
 		{
 			Animator = a.Animator == null ? null : new Animator( a.Animator );
+		}
+		/// <summary>
+		///   Constructs the sprite with the given image info and optional animator.
+		/// </summary>
+		/// <param name="i">
+		///   Image info.
+		/// </param>
+		/// /// <param name="a">
+		///   Animator for sprite animation.
+		/// </param>
+		public AnimatedSprite( ImageInfo i, Animator a = null )
+		:	base( i )
+		{
+			Animator = a ?? new Animator();
 		}
 
 		/// <summary>
@@ -265,6 +279,66 @@ namespace SharpGfx
 			}
 
 			base.Update( dt );
+		}
+
+		/// <summary>
+		///   Loads the object from the stream.
+		/// </summary>
+		/// <param name="br">
+		///   The stream reader
+		/// </param>
+		/// <returns>
+		///   True if the sprite was successfully loaded from the stream and false otherwise.
+		/// </returns>
+		public override bool LoadFromStream( BinaryReader br )
+		{
+			if( Animator == null )
+				Animator = new Animator();
+
+			if( !base.LoadFromStream( br ) )
+				return false;
+			if( !Animator.LoadFromStream( br ) )
+				return Logger.LogReturn( "Unable to load AnimatedSprite's Animator from stream.", false, LogType.Error );
+
+			return true;
+		}
+		/// <summary>
+		///   Writes the object to the stream.
+		/// </summary>
+		/// <param name="bw">
+		///   The stream writer.
+		/// </param>
+		/// <returns>
+		///   True if the sprite was successfully written to the stream and false otherwise.
+		/// </returns>
+		public override bool SaveToStream( BinaryWriter bw )
+		{
+			if( Animator == null )
+				Animator = new Animator();
+
+			if( !base.SaveToStream( bw ) )
+				return false;
+			if( !Animator.SaveToStream( bw ) )
+				return Logger.LogReturn( "Unable to save AnimatedSprite's Animator to stream.", false, LogType.Error );
+
+			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( AnimatedSprite other )
+		{
+			return other != null &&
+				   base.Equals( other ) &&
+				   ( ( Animator == null && other.Animator == null ) ||
+				   Animator.Equals( other.Animator ) );
 		}
 	}
 }

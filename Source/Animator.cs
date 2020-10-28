@@ -259,21 +259,23 @@ namespace SharpGfx
 		{
 			if( br == null )
 				return false;
-
-			if( !AnimationSet.LoadFromStream( br ) )
-				return false;
-
+			
 			try
 			{
 				Loop       = br.ReadBoolean();
+				Multiplier = br.ReadSingle();
 				m_selected = br.ReadString();
-				FrameIndex = 0;
-				m_timer.Restart();
 			}
 			catch
 			{
 				return false;
 			}
+
+			if( !AnimationSet.LoadFromStream( br ) )
+				return false;
+
+			FrameIndex = 0;
+			m_timer.Restart();
 
 			return true;
 		}
@@ -288,18 +290,22 @@ namespace SharpGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null || !AnimationSet.SaveToStream( bw ) )
+			if( bw == null )
 				return false;
 
 			try
 			{
 				bw.Write( Loop );
+				bw.Write( Multiplier );
 				bw.Write( m_selected );
 			}
 			catch
 			{
 				return false;
 			}
+
+			if( !AnimationSet.SaveToStream( bw ) )
+				return false;
 
 			return true;
 		}
@@ -316,11 +322,9 @@ namespace SharpGfx
 		public bool Equals( Animator other )
 		{
 			return other      != null && AnimationSet.Equals( other.AnimationSet ) &&
-			       Playing    == other.Playing &&
 			       Loop       == other.Loop &&
 			       Multiplier == other.Multiplier &&
-			       Selected   == other.Selected &&
-			       FrameIndex == other.FrameIndex;
+				   m_selected == other.m_selected;
 		}
 
 		private Clock  m_timer;

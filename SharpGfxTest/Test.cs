@@ -40,15 +40,16 @@ namespace SharpGfxTest
 		static readonly string SoundPath   = FolderPaths.Sounds   + "test.wav";
 		static readonly string TexturePath = FolderPaths.Textures + "test.png";
 
-		const string FramePath        = "frame.bin";
-		const string AnimationPath    = "animation.bin";
-		const string AnimationSetPath = "animation_set.bin";
-		const string AnimatorPath     = "animator.bin";
-		const string ImageInfoPath    = "image_info.bin";
-		const string SpritePath       = "sprite.bin";
-		const string TextStylePath    = "text_style.bin";
-		const string TilesetPath      = "tileset.bin";
-		const string TransformPath    = "transform.bin";
+		const string FramePath          = "frame.bin";
+		const string AnimationPath      = "animation.bin";
+		const string AnimationSetPath   = "animation_set.bin";
+		const string AnimatorPath       = "animator.bin";
+		const string ImageInfoPath      = "image_info.bin";
+		const string SpritePath         = "sprite.bin";
+		const string AnimatedSpritePath = "animated_sprite.bin";
+		const string TextStylePath      = "text_style.bin";
+		const string TilesetPath        = "tileset.bin";
+		const string TransformPath      = "transform.bin";
 
 		static void Main( string[] args )
 		{
@@ -139,6 +140,8 @@ namespace SharpGfxTest
 			if( !ImageInfoTest() )
 				result = false;
 			if( !SpriteTest() )
+				result = false;
+			if( !AnimatedSpriteTest() )
 				result = false;
 			if( !TextStyleTest() )
 				result = false;
@@ -330,6 +333,37 @@ namespace SharpGfxTest
 			try
 			{
 				File.Delete( SpritePath );
+			}
+			catch
+			{ }
+
+			return Logger.LogReturn( "Success!", true );
+		}
+		static bool AnimatedSpriteTest()
+		{
+			Logger.Log( "Running AnimatedSprite Tests..." );
+
+			AnimatedSprite spr = new AnimatedSprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), Color.Red ) );
+
+			spr.Transform.Position  = new Vector2f( 100, 100 );
+			spr.Transform.LocalSize = new Vector2f( 100, 100 );
+
+			if( !spr.Animator.AnimationSet.Add( new Animation( "test", new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) ) ) )
+				return Logger.LogReturn( "Failed: Unable to add Animation to AnimatedSprites' Animator.", false );
+
+			if( !BinarySerializable.ToFile( spr, AnimatedSpritePath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize AnimatedSprite to file.", false );
+
+			AnimatedSprite spr2 = BinarySerializable.FromFile<AnimatedSprite>( AnimatedSpritePath );
+
+			if( spr2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize AnimatedSprite from file.", false );
+			if( !spr2.Equals( spr ) )
+				return Logger.LogReturn( "Failed: Deserialized AnimatedSprite has incorrect values.", false );
+
+			try
+			{
+				File.Delete( AnimatedSpritePath );
 			}
 			catch
 			{ }
