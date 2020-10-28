@@ -9,6 +9,14 @@ A basic C# graphics library for use with SFML.Net.
 
 ## Changelog
 
+### Version 0.4.0
+- Added a sanity test project.
+- Fixed issue where Animations were not serializing and deserializing correctly.
+- Now all classes inherit from `System.IEquatable<T>` for easy equality comparison for the test project.
+- Updated SharpID to version 0.3.0.
+- Updated SharpLogger to version 0.3.1.
+- Updated SharpSerial to version 0.3.0.
+
 ### Version 0.3.0
 - SharpAsset has now been merged with SharpGfx.
 

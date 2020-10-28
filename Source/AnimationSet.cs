@@ -33,7 +33,7 @@ namespace SharpGfx
 	///   A set of string indexed animations.
 	/// </summary>
 	[Serializable]
-	public class AnimationSet : BinarySerializable, IEnumerable<KeyValuePair<string, Animation>>
+	public class AnimationSet : BinarySerializable, IEnumerable<KeyValuePair<string, Animation>>, IEquatable<AnimationSet>
 	{
 		/// <summary>
 		///   Constructor.
@@ -280,6 +280,27 @@ namespace SharpGfx
 			{
 				return false;
 			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( AnimationSet other )
+		{
+			if( other == null || Count != other.Count )
+				return false;
+
+			foreach( var v in m_animap )
+				if( !other.Contains( v.Key ) || !m_animap[ v.Key ].Equals( other.m_animap[ v.Key ] ) )
+					return false;
 
 			return true;
 		}

@@ -33,7 +33,7 @@ namespace SharpGfx
 	///   Image display information.
 	/// </summary>
 	[Serializable]
-	public class ImageInfo : BinarySerializable
+	public class ImageInfo : BinarySerializable, IEquatable<ImageInfo>
 	{
 		/// <summary>
 		///   Constructor.
@@ -172,6 +172,22 @@ namespace SharpGfx
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( ImageInfo other )
+		{
+			return Path  == other.Path &&
+				   Rect  == other.Rect &&
+				   Color == other.Color;
 		}
 	}
 }

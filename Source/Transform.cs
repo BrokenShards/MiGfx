@@ -45,7 +45,7 @@ namespace SharpGfx
 	///   A 2D transformation.
 	/// </summary>
 	[Serializable]
-	public class Transform : BinarySerializable
+	public class Transform : BinarySerializable, IEquatable<Transform>
 	{
 		/// <summary>
 		///   Constructor.
@@ -229,6 +229,22 @@ namespace SharpGfx
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( Transform other )
+		{
+			return Position  == other.Position  &&
+				   LocalSize == other.LocalSize &&
+				   Scale     == other.Scale;
 		}
 
 		private Vector2f m_size, m_scale;

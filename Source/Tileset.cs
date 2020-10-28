@@ -35,7 +35,7 @@ namespace SharpGfx
 	///   Contains tileset information.
 	/// </summary>
 	[Serializable]
-	public class Tileset : BinarySerializable, IIdentifiable<string>
+	public class Tileset : BinarySerializable, IIdentifiable<string>, IEquatable<Tileset>
 	{
 		/// <summary>
 		///   The default tileset cell size.
@@ -353,6 +353,24 @@ namespace SharpGfx
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( Tileset other )
+		{
+			return ID       == other.ID       &&
+				   Texture  == other.Texture  &&
+				   CellSize == other.CellSize &&
+				   Offset   == other.Offset   &&
+				   Padding  == other.Padding;
 		}
 
 		private string   m_id;

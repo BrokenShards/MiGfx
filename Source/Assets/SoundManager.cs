@@ -38,6 +38,14 @@ namespace SharpGfx
 		{ }
 
 		/// <summary>
+		///   Current music track;
+		/// </summary>
+		public Music MusicTrack
+		{
+			get; set;
+		}
+
+		/// <summary>
 		///   Loads an asset from the given path.
 		/// </summary>
 		/// <param name="path">

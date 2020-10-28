@@ -36,7 +36,7 @@ namespace SharpGfx
 	///   A sprite-based animation frame.
 	/// </summary>
 	[Serializable]
-	public class Frame : BinarySerializable
+	public class Frame : BinarySerializable, IEquatable<Frame>
 	{
 		/// <summary>
 		///   Constructor.
@@ -136,13 +136,29 @@ namespace SharpGfx
 
 			return true;
 		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( Frame other )
+		{
+			return other  != null &&
+			       Rect   == other.Rect &&
+			       Length == other.Length;
+		}
 	}
 
 	/// <summary>
 	///   A sprite-based animation.
 	/// </summary>
 	[Serializable]
-	public class Animation : BinarySerializable, IIdentifiable<string>
+	public class Animation : BinarySerializable, IIdentifiable<string>, IEquatable<Animation>
 	{
 		/// <summary>
 		///   Constructor.
@@ -201,7 +217,6 @@ namespace SharpGfx
 				throw;
 			}
 		}
-
 		/// <summary>
 		///   Constructs the animation with the given ID and frames.
 		/// </summary>
@@ -265,6 +280,21 @@ namespace SharpGfx
 		public int Count
 		{
 			get { return m_frames.Count; }
+		}
+		/// <summary>
+		///   The total length of the animation.
+		/// </summary>
+		public Time Length
+		{
+			get
+			{
+				Time time = Time.Zero;
+
+				foreach( Frame f in m_frames )
+					time += f.Length;
+
+				return time;
+			}
 		}
 
 		/// <summary>
@@ -382,9 +412,19 @@ namespace SharpGfx
 			try
 			{
 				ID = br.ReadString();
-				for( int i = 0; i < Count; i++ )
-					if( !m_frames[ i ].LoadFromStream( br ) )
-						return Logger.LogReturn( "Unable to load animation from stream.", false, LogType.Error );
+				uint count = br.ReadUInt32();
+
+				m_frames = count == 0 ? new List<Frame>() : new List<Frame>( (int)count );
+
+				for( int i = 0; i < count; i++ )
+				{
+					Frame f = new Frame();
+
+					if( !f.LoadFromStream( br ) )
+						return Logger.LogReturn( "Unable to load animation frame from stream.", false, LogType.Error );
+
+					m_frames.Add( f );
+				}
 			}
 			catch( Exception e )
 			{
@@ -410,6 +450,8 @@ namespace SharpGfx
 			try
 			{
 				bw.Write( ID );
+				bw.Write( Count );
+
 				for( int i = 0; i < Count; i++ )
 					if( !m_frames[ i ].SaveToStream( bw ) )
 						return Logger.LogReturn( "Unable to save animation to stream.", false, LogType.Error );
@@ -418,6 +460,27 @@ namespace SharpGfx
 			{
 				return Logger.LogReturn( "Unable to save animation to stream: " + e.Message, false, LogType.Error );
 			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( Animation other )
+		{
+			if( other == null || ID != other.ID || Count != other.Count )
+				return false;
+
+			for( int i = 0; i < Count; i++ )
+				if( !m_frames[ i ].Equals( other.m_frames[ i ] ) )
+					return false;
 
 			return true;
 		}

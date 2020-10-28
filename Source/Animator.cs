@@ -32,7 +32,7 @@ namespace SharpGfx
 	///   Runs and manages animations and animation sets.
 	/// </summary>
 	[Serializable]
-	public class Animator : BinarySerializable
+	public class Animator : BinarySerializable, IEquatable<Animator>
 	{
 		/// <summary>
 		///   Constructor.
@@ -302,6 +302,25 @@ namespace SharpGfx
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( Animator other )
+		{
+			return other      != null && AnimationSet.Equals( other.AnimationSet ) &&
+			       Playing    == other.Playing &&
+			       Loop       == other.Loop &&
+			       Multiplier == other.Multiplier &&
+			       Selected   == other.Selected &&
+			       FrameIndex == other.FrameIndex;
 		}
 
 		private Clock  m_timer;

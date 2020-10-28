@@ -81,26 +81,21 @@ namespace SharpGfx
 			{
 				string path = Path.GetDirectoryName( Assembly.GetExecutingAssembly().CodeBase );
 
-				try
-				{
-					string s5  = path.Substring( 0, 5 ).ToLower();
-					string s6  = path.Substring( 0, 6 ).ToLower();
-					string s8  = path.Substring( 0, 8 ).ToLower();
-					string s10 = path.Substring( 0, 10 ).ToLower();
+				int len = path.Length;
 
-					if( s5 == "dir:/" || s5 == "dir:\\" )
-						path = path.Substring( 5 );
-					else if( s6 == "file:/" || s6 == "file:\\" || s6 == "path:/" || s6 == "path:\\" )
-						path = path.Substring( 6 );
-					else if( s8 == "folder:/" || s8 == "folder:\\" )
-						path = path.Substring( 8 );
-					else if( s10 == "directory:/" || s10 == "directory:\\" )
-						path = path.Substring( 10 );
-				}
-				catch( Exception e )
-				{
-					Console.WriteLine( e.Message );
-				}
+				string s5  = len > 5  ? path.Substring( 0, 5 ).ToLower()  : null;
+				string s6  = len > 6  ? path.Substring( 0, 6 ).ToLower()  : null;
+				string s8  = len > 8  ? path.Substring( 0, 8 ).ToLower()  : null;
+				string s10 = len > 10 ? path.Substring( 0, 10 ).ToLower() : null;
+
+				if( s5 != null && ( s5 == "dir:/" || s5 == "dir:\\" ) )
+					path = path.Substring( 5 );
+				else if( s6 != null && ( s6 == "file:/" || s6 == "file:\\" || s6 == "path:/" || s6 == "path:\\" ) )
+					path = path.Substring( 6 );
+				else if( s8 != null && ( s8 == "folder:/" || s8 == "folder:\\" ) )
+					path = path.Substring( 8 );
+				else if( s10 != null && ( s10 == "directory:/" || s10 == "directory:\\" ) )
+					path = path.Substring( 10 );
 
 				return Paths.ToWindows( path );
 			}
@@ -109,32 +104,38 @@ namespace SharpGfx
 		/// <summary>
 		///   Base assets folder.
 		/// </summary>
-		public static readonly string Assets    = Executable + "\\Assets\\";
+		public static readonly string Assets = Executable + "\\Assets\\";
 
 		/// <summary>
-		///   Sprites folder.
+		///   Textures folder.
 		/// </summary>
-		public static readonly string Sprites   = Assets + "Sprites\\";
-		/// <summary>
-		///   Filesets folder.
-		/// </summary>
-		public static readonly string Tilesets  = Assets + "Tilesets\\";
-		/// <summary>
-		///   Sounds folder.
-		/// </summary>
-		public static readonly string Sounds    = Assets + "Sounds\\";
-		/// <summary>
-		///   Music folder.
-		/// </summary>
-		public static readonly string Music     = Assets + "Music\\";
+		public static readonly string Textures = Assets + "Textures\\";
 		/// <summary>
 		///   Fonts folder.
 		/// </summary>
-		public static readonly string Fonts     = Assets + "Fonts\\";
+		public static readonly string Fonts = Assets + "Fonts\\";
+		/// <summary>
+		///   Sprites folder.
+		/// </summary>
+		public static readonly string Sprites = Assets + "Sprites\\";
+		/// <summary>
+		///   Tilesets folder.
+		/// </summary>
+		public static readonly string Tilesets = Assets + "Tilesets\\";
+		
+		/// <summary>
+		///   Sounds folder.
+		/// </summary>
+		public static readonly string Sounds = Assets + "Sounds\\";
+		/// <summary>
+		///   Music folder.
+		/// </summary>
+		public static readonly string Music = Assets + "Music\\";
+		
 		/// <summary>
 		///   GUI assets folder.
 		/// </summary>
-		public static readonly string UI        = Assets + "UI\\";
+		public static readonly string UI = Assets + "UI\\";
 
 		/// <summary>
 		///   Settings folder.
@@ -144,7 +145,7 @@ namespace SharpGfx
 		/// <summary>
 		///   Game data folder.
 		/// </summary>
-		public static readonly string Data      = Executable + "\\Data\\";
+		public static readonly string Data = Executable + "\\Data\\";
 		/// <summary>
 		///   Database folder.
 		/// </summary>
@@ -152,7 +153,7 @@ namespace SharpGfx
 		/// <summary>
 		///   Tilemaps folder.
 		/// </summary>
-		public static readonly string Tilemaps  = Data + "Tilemaps\\";
+		public static readonly string Tilemaps = Data + "Tilemaps\\";
 
 		/// <summary>
 		///   Creates the entire folder structure.
@@ -163,11 +164,12 @@ namespace SharpGfx
 			try
 			{
 				Directory.CreateDirectory( Assets );
+				Directory.CreateDirectory( Textures );
+				Directory.CreateDirectory( Fonts );
 				Directory.CreateDirectory( Sprites );
 				Directory.CreateDirectory( Tilesets );
 				Directory.CreateDirectory( Sounds );
-				Directory.CreateDirectory( Music );
-				Directory.CreateDirectory( Fonts );
+				Directory.CreateDirectory( Music );				
 				Directory.CreateDirectory( UI );
 
 				Directory.CreateDirectory( Settings );

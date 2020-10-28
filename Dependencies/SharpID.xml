@@ -43,7 +43,7 @@
         </member>
         <member name="M:SharpID.Identifiable.AsValid(System.String)">
             <summary>
-              Returns the given string as a valid ID.
+              Returns either the given string as a valid ID or a generated random ID if it is empty or null.
             </summary>
             <param name="id">
               The invalid ID.

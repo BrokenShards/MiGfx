@@ -33,7 +33,7 @@ namespace SharpGfx
 	///   Text style information.
 	/// </summary>
 	[Serializable]
-	public class TextStyle : BinarySerializable
+	public class TextStyle : BinarySerializable, IEquatable<TextStyle>
 	{
 		/// <summary>
 		///   Constructor.
@@ -256,7 +256,26 @@ namespace SharpGfx
 
 			return true;
 		}
-		
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( TextStyle other )
+		{
+			return FontPath     == other.FontPath  &&
+				   Size         == other.Size      &&
+				   Style        == other.Style     &&
+				   Outline      == other.Outline   &&
+				   FillColor    == other.FillColor &&
+				   OutlineColor == other.OutlineColor;
+		}
+
 		private uint  m_size;
 		private float m_outline;
 	}

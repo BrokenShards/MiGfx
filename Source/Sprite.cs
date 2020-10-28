@@ -33,7 +33,7 @@ namespace SharpGfx
 	/// <summary>
 	///   A graphical sprite.
 	/// </summary>
-	public class Sprite : BinarySerializable, Drawable, ITransformable, IDisposable
+	public class Sprite : BinarySerializable, Drawable, ITransformable, IDisposable, IEquatable<Sprite>
 	{
 		/// <summary>
 		///   Constructor.
@@ -194,6 +194,22 @@ namespace SharpGfx
 		public void Dispose()
 		{
 			( (IDisposable)m_verts ).Dispose();
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( Sprite other )
+		{
+			return other != null && 
+			       Image.Equals( other.Image ) &&
+				   Transform.Equals( other.Transform );
 		}
 
 		private VertexArray m_verts;
