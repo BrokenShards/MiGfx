@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// Test.cs 
+// GfxTest.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // SharpGfx - A basic graphics library for use with SFML.Net.
@@ -22,7 +22,6 @@
 
 using System;
 using System.IO;
-using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
 
@@ -34,12 +33,8 @@ using Transform = SharpGfx.Transform;
 
 namespace SharpGfxTest
 {
-	class Test
+	partial class Test
 	{
-		static readonly string FontPath    = FolderPaths.Fonts    + "test.otf";
-		static readonly string SoundPath   = FolderPaths.Sounds   + "test.wav";
-		static readonly string TexturePath = FolderPaths.Textures + "test.png";
-
 		const string FramePath          = "frame.bin";
 		const string AnimationPath      = "animation.bin";
 		const string AnimationSetPath   = "animation_set.bin";
@@ -50,80 +45,6 @@ namespace SharpGfxTest
 		const string TextStylePath      = "text_style.bin";
 		const string TilesetPath        = "tileset.bin";
 		const string TransformPath      = "transform.bin";
-
-		static void Main( string[] args )
-		{
-			Logger.LogToConsole = true;
-			Logger.LogToFile    = false;
-
-			Logger.Log( "Running SharpGfx Tests..." );
-
-			bool result = true;
-
-			if( !AssetTests() )
-				result = false;
-			if( !GraphicsTests() )
-				result = false;
-
-			Logger.Log( result ? "All tests ran successfully." : "One or more tests failed." );
-
-			Logger.Log( "Press enter to exit." );
-			Console.ReadLine();
-		}
-
-		static bool AssetTests()
-		{
-			bool result = true;
-
-			if( !FontTest() )
-				result = false;
-			if( !SoundTest() )
-				result = false;
-			if( !TextureTest() )
-				result = false;
-
-			return result;
-		}
-
-		static bool FontTest()
-		{
-			Logger.Log( "Running FontManager Tests..." );
-
-			Font font = Assets.Manager.Get<Font>( FontPath );
-
-			if( font == null )
-				return Logger.LogReturn( "Failed: Unable to load font from path.", false );
-
-			Assets.Manager.Font.Unload( FontPath );
-
-			return Logger.LogReturn( "Success!", true );
-		}
-		static bool SoundTest()
-		{
-			Logger.Log( "Running SoundManager Tests..." );
-
-			SoundBuffer snd = Assets.Manager.Get<SoundBuffer>( SoundPath );
-
-			if( snd == null )
-				return Logger.LogReturn( "Failed: Unable to load sound from path.", false );
-
-			Assets.Manager.Sound.Unload( SoundPath );
-
-			return Logger.LogReturn( "Success!", true );
-		}
-		static bool TextureTest()
-		{
-			Logger.Log( "Running TextureManager Tests..." );
-
-			Texture tex = Assets.Manager.Get<Texture>( TexturePath );
-
-			if( tex == null )
-				return Logger.LogReturn( "Failed: Unable to load texture from path.", false );
-
-			Assets.Manager.Sound.Unload( TexturePath );
-
-			return Logger.LogReturn( "Success!", true );
-		}
 
 		static bool GraphicsTests()
 		{

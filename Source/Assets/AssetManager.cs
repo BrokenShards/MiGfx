@@ -2,7 +2,7 @@
 // AssetManager.cs
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpAsset - A basic asset manager library for use with SFML.Net.
+// SharpGfx - A basic graphics library for use with SFML.Net.
 // Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it

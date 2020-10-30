@@ -1,0 +1,2427 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SFInput</name>
+    </assembly>
+    <members>
+        <member name="T:SFInput.Action">
+            <summary>
+              A collection of inputs mapped to a name.
+            </summary>
+        </member>
+        <member name="M:SFInput.Action.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.Action.#ctor(SFInput.Action)">
+            <summary>
+              Copy constructor.
+            </summary>
+            <param name="a">
+              The object to copy.
+            </param>
+        </member>
+        <member name="M:SFInput.Action.#ctor(System.String)">
+            <summary>
+              Constructs the object with the given positive name.
+            </summary>
+            <param name="name">
+              The positive name.
+            </param>
+        </member>
+        <member name="M:SFInput.Action.#ctor(System.String,SFInput.InputMap)">
+            <summary>
+              Constructs the object with the given positive name and input map.
+            </summary>
+            <param name="name">
+              The positive name.
+            </param>
+            <param name="map">
+              The input map.
+            </param>
+        </member>
+        <member name="P:SFInput.Action.Name">
+            <summary>
+              Action name.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.Empty">
+            <summary>
+              If no inputs are mapped.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.Count">
+            <summary>
+              The amount of mapped inputs.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.Item(System.UInt32)">
+            <summary>
+              Accesses the input map at the given index.
+            </summary>
+            <param name="index">
+              The input map index.
+            </param>
+            <returns>
+              The input map at the given index.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Contains(SFInput.InputMap)">
+            <summary>
+              If the action already contains the input map.
+            </summary>
+            <param name="map">
+              The input map.
+            </param>
+            <returns>
+              True if the action already contains the input map.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Get(System.UInt32)">
+            <summary>
+              Gets the input map at the given index.
+            </summary>
+            <param name="index">
+              The input map index.
+            </param>
+            <returns>
+              The input map at the given index or null if the index is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Set(System.UInt32,SFInput.InputMap)">
+            <summary>
+              Replaces an existing input map.
+            </summary>
+            <param name="index">
+              The input map index.
+            </param>
+            <param name="map">
+              The input map.
+            </param>
+            <returns>
+              True if index is within range, map is valid and does not collide with any existing input maps, and the
+              existing input map was replaces with map, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Add(SFInput.InputMap)">
+            <summary>
+              Adds an input map.
+            </summary>
+            <param name="map">
+              The input map.
+            </param>
+            <returns>
+              True if the input map is valid, does not collide with any existing input maps, and was added successfully.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Add(SFInput.InputMap[])">
+            <summary>
+              Adds several input maps and returns how many were successful.
+            </summary>
+            <param name="maps">
+              List if input maps.
+            </param>
+            <returns>
+              The amount of successfully added input maps.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Remove(System.UInt32)">
+            <summary>
+              Removes the input map at the given index.
+            </summary>
+            <param name="index">
+              The input map index.
+            </param>
+            <returns>
+              If the index is valid and the input map was removed successfully.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Remove(SFInput.InputMap)">
+            <summary>
+              Removes the given input map.
+            </summary>
+            <param name="map">
+              The input map.
+            </param>
+            <returns>
+              If the input map existed and was removed successfully.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.Clear">
+            <summary>
+              Removes as input maps.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.Value">
+            <summary>
+              Returns the current value of the mapped input.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.IsPositive">
+            <summary>
+              If the mapped inputs are classed as positive/pressed.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.IsNegative">
+            <summary>
+              If the mapped inputs are classed as negative/pressed.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.IsPressed">
+            <summary>
+              If any of the mapped inputs are pressed.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.JustPressed">
+            <summary>
+              If any of the mapped inputs were just pressed.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.JustReleased">
+            <summary>
+              If any of the mapped inputs were just released.
+            </summary>
+        </member>
+        <member name="P:SFInput.Action.IsValid">
+            <summary>
+              If the action is valid.
+            </summary>
+        </member>
+        <member name="M:SFInput.Action.LoadFromXml(System.Xml.XmlNode)">
+            <summary>
+              Loads data from an xml element.
+            </summary>
+            <param name="node">
+              The node to load data from.
+            </param>
+            <returns>
+              True if loaded successfully and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.ToString">
+            <summary>
+              Returns the action as an xml string, ready to be written to file.
+            </summary>
+            <returns>
+              The action as an xml string.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.ToString(System.UInt32)">
+            <summary>
+              Returns the action as an xml string with a given amount of indentation.
+            </summary>
+            <param name="tab">
+              The amount of tabs to use for indentation.
+            </param>
+            <returns>
+              The action as an xml string.
+            </returns>
+        </member>
+        <member name="M:SFInput.Action.GetEnumerator">
+            <summary>
+              Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+              An enumerator that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="T:SFInput.ActionSet">
+            <summary>
+              A collection of actions.
+            </summary>
+        </member>
+        <member name="M:SFInput.ActionSet.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.ActionSet.#ctor(SFInput.ActionSet)">
+            <summary>
+              Copy constructor.
+            </summary>
+            <param name="a">
+              The object to copy.
+            </param>
+        </member>
+        <member name="P:SFInput.ActionSet.Item(System.String)">
+            <summary>
+              Accesses the action with the given name if it exists within the set.
+            </summary>
+            <param name="a">
+              The name of the action.
+            </param>
+            <returns>
+              The action with the given name in the set if it exists, otherwise null.
+            </returns>
+        </member>
+        <member name="P:SFInput.ActionSet.Empty">
+            <summary>
+              If the set contains no actions.
+            </summary>
+        </member>
+        <member name="P:SFInput.ActionSet.Count">
+            <summary>
+              The amount of actions in the set.
+            </summary>
+        </member>
+        <member name="M:SFInput.ActionSet.Contains(SFInput.Action)">
+            <summary>
+              If the set contains either the given action, or an action with the same name.
+            </summary>
+            <param name="a">
+              The action to check.
+            </param>
+            <returns>
+              True if the set contains the action and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.Contains(System.String)">
+            <summary>
+              If the set contains an action with the given name.
+            </summary>
+            <param name="action">
+              The action string to check.
+            </param>
+            <returns>
+              True if the set contains an action with the given name and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.Get(System.String)">
+            <summary>
+              Gets the action with the given name if it exists within the set.
+            </summary>
+            <param name="action">
+              The name of the action.
+            </param>
+            <returns>
+              The action with the given name in the set if it exists, otherwise null.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.Add(SFInput.Action,System.Boolean)">
+            <summary>
+             Adds an action to the set.
+            </summary>
+            <param name="a">
+              The action to add.
+            </param>
+            <param name="replace">
+              If an action with the same name exists in the set, should it be replaced?
+            </param>
+            <returns>
+              True if the action was successfully added to the set and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.Remove(SFInput.Action)">
+            <summary>
+              Removes either the given action, or an existing action with the same name from the set.
+            </summary>
+            <param name="a">
+              The action to remove.
+            </param>
+            <returns>
+              True if the action existed within the set and was removed successfully and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.Remove(System.String)">
+            <summary>
+              Removes either the given action, or an existing action with the same name from the set.
+            </summary>
+            <param name="action">
+              The action to remove.
+            </param>
+            <returns>
+              True if the action existed within the set and was removed successfully and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.Clear">
+            <summary>
+              Removes all actions from the set.
+            </summary>
+        </member>
+        <member name="M:SFInput.ActionSet.LoadFromFile(System.String)">
+            <summary>
+              Loads the set from an xml file.
+            </summary>
+            <param name="path">
+              The path of the file to load.
+            </param>
+            <returns>
+              True on success and false on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.ToString">
+            <summary>
+              Returns a string containg the xml data of the set as it would be written in file.
+            </summary>
+            <returns>
+              A string containg the xml data of the set as it would be written in file.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.GetEnumerator">
+            <summary>
+              Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+              An enumerator that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="T:SFInput.Input">
+            <summary>
+              Singleton input manager class.
+            </summary>
+        </member>
+        <member name="F:SFInput.Input.MaxJoysticks">
+            <summary>
+              Maximum number of joysticks that can be connected at once.
+            </summary>
+        </member>
+        <member name="F:SFInput.Input.AxisPressThreshold">
+            <summary>
+              Minimum axis value that registers a button press.
+            </summary>
+        </member>
+        <member name="F:SFInput.Input.DefaultPath">
+            <summary>
+              Default input settings path.
+            </summary>
+        </member>
+        <member name="M:SFInput.Input.IsButton(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given string represents a valid buttton/key for the given input device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="but">
+              The button/key string.
+            </param>
+            <returns>
+              True if the given string represents a valid button/key for the given input device, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.IsAxis(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given string represents a valid axis for the given input device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis string.
+            </param>
+            <returns>
+              True if the given string represents a valid axis for the given input device, otherwise false.
+            </returns>
+        </member>
+        <member name="P:SFInput.Input.Manager">
+            <summary>
+              The singleton input manager instance.
+            </summary>
+        </member>
+        <member name="P:SFInput.Input.Keyboard">
+            <summary>
+              Keyboard manager.
+            </summary>
+        </member>
+        <member name="P:SFInput.Input.Mouse">
+            <summary>
+              Mouse manager.
+            </summary>
+        </member>
+        <member name="P:SFInput.Input.Joystick">
+            <summary>
+              Array of joystick managers for each player.
+            </summary>
+        </member>
+        <member name="P:SFInput.Input.FirstJoystick">
+            <summary>
+              The index of the first connected joystick.
+            </summary>
+        </member>
+        <member name="P:SFInput.Input.Actions">
+            <summary>
+              Currently mapped actions.
+            </summary>
+        </member>
+        <member name="M:SFInput.Input.JoystickConnected(System.UInt32)">
+            <summary>
+              If the joystick at the given index is connected.
+            </summary>
+            <param name="player">
+              The player index of the joystick.
+            </param>
+            <returns>
+              True if the joystick is connected and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.IsPressed(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given button/key is pressed on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="but">
+              The button/key to check.
+            </param>
+            <returns>
+              True if the button/key is valid for the given device and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.JustPressed(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given button/key has just been pressed on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="but">
+              The button/key to check.
+            </param>
+            <returns>
+              True if the button/key is valid for the given device and has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.JustReleased(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given button/key has just been released on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="but">
+              The button/key to check.
+            </param>
+            <returns>
+              True if the button/key is valid for the given device and has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.GetAxis(SFInput.InputDevice,System.String)">
+            <summary>
+              Gets the current value of the given axis on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The current value of the given axis on the given device if it is valid, otherwise 0.0f.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.GetLastAxis(SFInput.InputDevice,System.String)">
+            <summary>
+              Gets the previous value of the given axis on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The previous value of the given axis on the given device if it is valid, otherwise 0.0f.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.GetAxisDelta(SFInput.InputDevice,System.String)">
+            <summary>
+              Gets the delta value of the given axis on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The delta value of the given axis on the given device if it is valid, otherwise 0.0f.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.AxisIsPressed(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given axis is pressed on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              True if the axis is valid for the given device and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.AxisJustPressed(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given axis has just been pressed on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              True if the axis is valid for the given device and has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.AxisJustReleased(SFInput.InputDevice,System.String)">
+            <summary>
+              Checks if the given axis has just been released on the given device.
+            </summary>
+            <param name="dev">
+              The input device.
+            </param>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              True if the axis is valid for the given device and has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.IsPressed(System.String)">
+            <summary>
+              Checks if the input mapped to action is pressed.
+            </summary>
+            <param name="action">
+              The name of the mapped action.
+            </param>
+            <returns>
+              True if action is valid, mapped and pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.JustPressed(System.String)">
+            <summary>
+              Checks if the input mapped to action was just pressed.
+            </summary>
+            <param name="action">
+              The name of the mapped action.
+            </param>
+            <returns>
+              True if action is valid, mapped and was just pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.JustReleased(System.String)">
+            <summary>
+              Checks if the input mapped to action was just released.
+            </summary>
+            <param name="action">
+              The name of the mapped action.
+            </param>
+            <returns>
+              True if action is valid, mapped and was just released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.Update">
+            <summary>
+              Updates input device states.
+            </summary>
+        </member>
+        <member name="M:SFInput.Input.LoadFromFile(System.String)">
+            <summary>
+              Loads the action set from an optional path.
+            </summary>
+            <param name="path">
+              The path to load the action set from, or null to use the default path.
+            </param>
+            <returns>
+              True on success and false on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.SaveToFile(System.String)">
+            <summary>
+              Saves the current action set to an optional path
+            </summary>
+            <param name="path">
+              The path to save the action set to, or null to use the default path.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="T:SFInput.InputDevice">
+            <summary>
+              Enumeration of possible input devices.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputDevice.Keyboard">
+            <summary>
+              Keyboard input.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputDevice.Mouse">
+            <summary>
+              Mouse input.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputDevice.Joystick">
+            <summary>
+              Joystick/Controller input.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputDevice.COUNT">
+            <summary>
+              Total values.
+            </summary>
+        </member>
+        <member name="T:SFInput.InputType">
+            <summary>
+              Enumeration of possible input types.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputType.Button">
+            <summary>
+              A key or button press.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputType.Axis">
+            <summary>
+              Axis value.
+            </summary>
+        </member>
+        <member name="F:SFInput.InputType.COUNT">
+            <summary>
+              Total values.
+            </summary>
+        </member>
+        <member name="T:SFInput.InputMap">
+            <summary>
+              Used to map inputs.
+            </summary>
+        </member>
+        <member name="M:SFInput.InputMap.Collides(SFInput.InputMap,SFInput.InputMap)">
+            <summary>
+              Checks if two input maps collide with eachother.
+            </summary>
+            <param name="m1">
+              The first input map.
+            </param>
+            <param name="m2">
+              The second input map.
+            </param>
+            <returns>
+              True if both input maps are valid and collide with eachother.
+            </returns>
+        </member>
+        <member name="M:SFInput.InputMap.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.InputMap.#ctor(SFInput.InputDevice,SFInput.InputType,System.String,System.String)">
+            <summary>
+              Constructs the map with the given values.
+            </summary>
+            <param name="dev">
+              Input device.
+            </param>
+            <param name="typ">
+              Input type.
+            </param>
+            <param name="val">
+              Positive input value.
+            </param>
+            <param name="neg">
+              Negative input value.
+            </param>
+        </member>
+        <member name="M:SFInput.InputMap.#ctor(SFInput.InputMap)">
+            <summary>
+              Copy constructor.
+            </summary>
+            <param name="i">
+              The map to copy from.
+            </param>
+        </member>
+        <member name="P:SFInput.InputMap.IsValid">
+            <summary>
+              If the input map is valid.
+            </summary>
+        </member>
+        <member name="P:SFInput.InputMap.Device">
+            <summary>
+              Input device.
+            </summary>
+        </member>
+        <member name="P:SFInput.InputMap.Type">
+            <summary>
+              Input type.
+            </summary>
+        </member>
+        <member name="P:SFInput.InputMap.Value">
+            <summary>
+              Positive input.
+            </summary>
+        </member>
+        <member name="P:SFInput.InputMap.Negative">
+            <summary>
+              Negative input.
+            </summary>
+        </member>
+        <member name="P:SFInput.InputMap.Invert">
+            <summary>
+              If the inputs should be inversed.
+            </summary>
+        </member>
+        <member name="M:SFInput.InputMap.LoadFromXml(System.Xml.XmlNode)">
+            <summary>
+              Loads data from an xml node.
+            </summary>
+            <param name="node">
+              The node to load data from.
+            </param>
+            <returns>
+              True if loaded successfully and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.InputMap.ToString">
+            <summary>
+              Gets the xml file representation of the object as a string with no added indentation.
+            </summary>
+            <returns>
+              The xml object data as a string.
+            </returns>
+        </member>
+        <member name="M:SFInput.InputMap.ToString(System.UInt32)">
+            <summary>
+              Gets the xml file representation of the object as a string.
+            </summary>
+            <param name="tab">
+              The amount of tabs that should be used for indentation.
+            </param>
+            <returns>
+              The xml object data as a string.
+            </returns>
+        </member>
+        <member name="T:SFInput.JoystickManager">
+            <summary>
+              Manages the state of the Joysticks.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickManager.IsButton(System.String)">
+            <summary>
+              Checks if the given string represents a valid button.
+            </summary>
+            <remarks>
+              A valid button string is a number between zero and the button count.
+            </remarks>
+            <param name="val">
+              The string to check.
+            </param>
+            <returns>
+              True if the given string represents a valid joystick button and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.ToButton(System.String)">
+            <summary>
+              Parses the given string to its joystick button representation.
+            </summary>
+            <param name="val">
+              The string to parse.
+            </param>
+            <returns>
+              The joystick button parsed from the string on success or -1 on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.IsAxis(System.String)">
+            <summary>
+              Checks if the given string represents a valid axis.
+            </summary>
+            <param name="val">
+              The string to check.
+            </param>
+            <returns>
+              True if the given string represents a valid joystick axis and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.ToAxis(System.String)">
+            <summary>
+              Parses the given string to its joystick axis value.
+            </summary>
+            <param name="val">
+              The string to parse.
+            </param>
+            <returns>
+              The joystick axis value parsed from the string on success or -1 on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickManager.#ctor(SFInput.JoystickManager)">
+            <summary>
+              Copy constructor.
+            </summary>
+            <param name="man">
+              The manager to copy.
+            </param>
+        </member>
+        <member name="M:SFInput.JoystickManager.#ctor(System.UInt32)">
+            <summary>
+              Constructor that sets player index.
+            </summary>
+            <param name="player">
+              The player index.
+            </param>
+        </member>
+        <member name="P:SFInput.JoystickManager.Player">
+            <summary>
+              The targeted index of the joystick to update from.
+            </summary>
+        </member>
+        <member name="P:SFInput.JoystickManager.IsConnected">
+            <summary>
+              If the joystick is connected.
+            </summary>
+        </member>
+        <member name="P:SFInput.JoystickManager.FirstConnected">
+            <summary>
+              The first connected joystick.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickManager.Update">
+            <summary>
+              Updates the managed device states.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickManager.Reset">
+            <summary>
+              Reset the device state.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickManager.IsPressed(System.UInt32)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.IsPressed(System.String)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.IsPressed(SFInput.XButton)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.JustPressed(System.UInt32)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.JustPressed(System.String)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.JustPressed(SFInput.XButton)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.JustReleased(System.UInt32)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.JustReleased(System.String)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.JustReleased(SFInput.XButton)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.GetAxis(System.UInt32)">
+            <summary>
+              Gets the current state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The current state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.GetAxis(System.String)">
+            <summary>
+              Gets the current state of the axis.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              The current state of the axis if the name is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.GetAxis(SFInput.XAxis)">
+            <summary>
+              Gets the current state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The current state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.GetLastAxis(System.UInt32)">
+            <summary>
+              Gets the previous state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The previous state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.GetLastAxis(System.String)">
+            <summary>
+              Gets the previous state of the axis.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              The previous state of the axis if the name is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.GetLastAxis(SFInput.XAxis)">
+            <summary>
+              Gets the previous state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The previous state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisDelta(System.UInt32)">
+            <summary>
+              Gets the difference in value between the last two update calls of the given axis from the given joystick
+              player index.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              The difference in value between the last to update calls of the given axis from the given joystick player
+              index. Will also return zero if <paramref name="ax"/> is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisDelta(System.String)">
+            <summary>
+              Gets the difference in value between the last two update calls of the given axis from the given joystick
+              player index.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              The difference in value between the last to update calls of the given axis from the given joystick player
+              index. Will also return zero if <paramref name="ax"/> is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisDelta(SFInput.XAxis)">
+            <summary>
+              Gets the difference in value between the last two update calls of the given axis from the given joystick
+              player index.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              The difference in value between the last to update calls of the given axis from the given joystick player
+              index. Will also return zero if <paramref name="ax"/> is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisIsPressed(System.UInt32)">
+            <summary>
+              Check if the given axis is pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis is pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisIsPressed(System.String)">
+            <summary>
+              Check if the given axis is pressed.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              True if the given axis is pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisIsPressed(SFInput.XAxis)">
+            <summary>
+              Check if the given axis is pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis is pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisJustPressed(System.UInt32)">
+            <summary>
+              Check if the given axis was just pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis was just pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisJustPressed(System.String)">
+            <summary>
+              Check if the given axis was just pressed.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              True if the given axis was just pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisJustPressed(SFInput.XAxis)">
+            <summary>
+              Check if the given axis was just pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis was just pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisJustReleased(System.UInt32)">
+            <summary>
+              Check if the given axis was just released.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              True if the given axis was just released and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisJustReleased(System.String)">
+            <summary>
+              Check if the given axis was just released.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              True if the given axis was just released and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AxisJustReleased(SFInput.XAxis)">
+            <summary>
+              Check if the given axis was just released.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              True if the given axis was just released and false otherwise.
+            </returns>
+        </member>
+        <member name="T:SFInput.XButton">
+            <summary>
+              Possible XInput device buttons.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.A">
+            <summary>
+              A button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.B">
+            <summary>
+              B button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.X">
+            <summary>
+              X button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.Y">
+            <summary>
+              Y button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.Start">
+            <summary>
+              Start button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.Back">
+            <summary>
+              Back button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.Guide">
+            <summary>
+              Guide button.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.LB">
+            <summary>
+              Left bumper.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.RB">
+            <summary>
+              Right bumper.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.LT">
+            <summary>
+              Left trigger.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.RT">
+            <summary>
+              Right trigger.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.LS">
+            <summary>
+              Left stick click.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.RS">
+            <summary>
+              Right stick click.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.DPadUp">
+            <summary>
+              DPad up.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.DPadDown">
+            <summary>
+              DPad down.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.DPadLeft">
+            <summary>
+              DPad left.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.DPadRight">
+            <summary>
+              DPad right.
+            </summary>
+        </member>
+        <member name="F:SFInput.XButton.COUNT">
+            <summary>
+              Button count.
+            </summary>
+        </member>
+        <member name="T:SFInput.XAxis">
+            <summary>
+              Possible XInput device axies.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.LeftStickX">
+            <summary>
+              Left stick horizontal axis.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.LeftStickY">
+            <summary>
+              Left stick vertical axis.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.RightStickX">
+            <summary>
+              Right stick horizontal axis.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.RightStickY">
+            <summary>
+              Right stick vertical axis.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.LeftTrigger">
+            <summary>
+              Left trigger.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.RightTrigger">
+            <summary>
+              Right trigger.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.Triggers">
+            <summary>
+              Both triggers.
+            </summary>
+        </member>
+        <member name="F:SFInput.XAxis.COUNT">
+            <summary>
+              Axis count.
+            </summary>
+        </member>
+        <member name="T:SFInput.JoystickState">
+            <summary>
+              Represents the state of a single joystick at a given moment.
+            </summary>
+        </member>
+        <member name="F:SFInput.JoystickState.ButtonCount">
+            <summary>
+              Button count.
+            </summary>
+        </member>
+        <member name="F:SFInput.JoystickState.AxisCount">
+            <summary>
+              Axis count.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickState.#ctor">
+            <summary>
+              Constructs a new state.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickState.#ctor(SFInput.JoystickState)">
+            <summary>
+              Constructs a new state by copying from another instance.
+            </summary>
+            <param name="js">
+              The state to copy from.
+            </param>
+        </member>
+        <member name="M:SFInput.JoystickState.#ctor(System.UInt32)">
+            <summary>
+              Constructs a new state with a given player number.
+            </summary>
+            <param name="player">
+              The player number.
+            </param>
+        </member>
+        <member name="P:SFInput.JoystickState.Player">
+            <summary>
+              The targeted index of the joystick to update from.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickState.Update">
+            <summary>
+              Updates the object to the current state of the device.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickState.Reset">
+            <summary>
+              Reset state values.
+            </summary>
+        </member>
+        <member name="M:SFInput.JoystickState.IsPressed(System.UInt32)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="button">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is within range and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.IsPressed(SFInput.XButton)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The button to check.
+            </param>
+            <returns>
+              True if the button is within range and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.IsPressed(System.String)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The button to check.
+            </param>
+            <returns>
+              True if the button is valid and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.GetAxis(System.UInt32)">
+            <summary>
+              The current axis value.
+            </summary>
+            <param name="axis">
+              The index of the axis.
+            </param>
+            <returns>
+              The value of the axis if the index is within range, otherwise 0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.GetAxis(SFInput.XAxis)">
+            <summary>
+              The value of the axis.
+            </summary>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The value of the axis if it is within range, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.GetAxis(System.String)">
+            <summary>
+              The value of the axis.
+            </summary>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The value of the axis if it is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.AxisIsPressed(System.UInt32,System.Boolean)">
+            <summary>
+              If the axis is engaged enough to be pressed.
+            </summary>
+            <param name="axis">
+              The index of the axis.
+            </param>
+            <param name="bidir">
+              If a negative axis value should trigger a press.
+            </param>
+            <returns>
+              If the axis is engaged enough to be pressed. 
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.AxisIsPressed(SFInput.XAxis,System.Boolean)">
+            <summary>
+              If the axis is engaged enough to be pressed.
+            </summary>
+            <param name="axis">
+              The index of the axis.
+            </param>
+            <param name="bidir">
+              If a negative axis value should trigger a press.
+            </param>
+            <returns>
+              If the axis is engaged enough to be pressed. 
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.AxisIsPressed(System.String,System.Boolean)">
+            <summary>
+              If the axis is engaged enough to be pressed.
+            </summary>
+            <param name="axis">
+              The name of the axis.
+            </param>
+            <param name="bidir">
+              If a negative axis value should trigger a press.
+            </param>
+            <returns>
+              If the axis is engaged enough to be pressed. 
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickState.Clone">
+            <summary>
+              Deep coppies the object.
+            </summary>
+            <returns>
+              A deep copy of the object.
+            </returns>
+        </member>
+        <member name="F:SFInput.JoystickState.m_axis">
+            <summary>
+              Array containing axis values.
+            </summary>
+        </member>
+        <member name="F:SFInput.JoystickState.m_button">
+            <summary>
+              Array containing buttin values.
+            </summary>
+        </member>
+        <member name="T:SFInput.KeyboardManager">
+            <summary>
+              Manages the state of the Keyboard.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardManager.IsKey(System.String)">
+            <summary>
+              Checks if the given string represents a valid key.
+            </summary>
+            <remarks>
+              A valid key string is either a case-insensitive <see cref="T:SFML.Window.Keyboard.Key"/> name or value.
+            </remarks>
+            <param name="val">
+              The string to check.
+            </param>
+            <returns>
+              True if the given string represents a valid keyboard key and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.ToKey(System.String)">
+            <summary>
+              Parses the given string to its keyboard key representation.
+            </summary>
+            <param name="val">
+              The string to parse.
+            </param>
+            <returns>
+              The keyboard key parsed from the string on success or null on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardManager.#ctor(SFInput.KeyboardManager)">
+            <summary>
+              Copy constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardManager.Update">
+            <summary>
+              Updates the managed device states.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardManager.Reset">
+            <summary>
+              Reset the device state.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardManager.IsPressed(System.UInt32)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.IsPressed(System.String)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.IsPressed(SFML.Window.Keyboard.Key)">
+            <summary>
+              If the key is pressed.
+            </summary>
+            <param name="key">
+              The index of the key.
+            </param>
+            <returns>
+              True if the key index is valid and the key is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.JustPressed(System.UInt32)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.JustPressed(System.String)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.JustPressed(SFML.Window.Keyboard.Key)">
+            <summary>
+              If the key has just been pressed.
+            </summary>
+            <param name="key">
+              The index of the key.
+            </param>
+            <returns>
+              True if the key index is valid and the key has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.JustReleased(System.UInt32)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.JustReleased(System.String)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.JustReleased(SFML.Window.Keyboard.Key)">
+            <summary>
+              If the key has just been released.
+            </summary>
+            <param name="key">
+              The index of the key.
+            </param>
+            <returns>
+              True if the key index is valid and the key has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="T:SFInput.KeyboardState">
+            <summary>
+              Represents the state of the keyboard at a given moment.
+            </summary>
+        </member>
+        <member name="F:SFInput.KeyboardState.KeyCount">
+            <summary>
+              Key count.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardState.#ctor">
+            <summary>
+              Construct a new state.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardState.#ctor(SFInput.KeyboardState)">
+            <summary>
+              Construct a new state by copying from another instance.
+            </summary>
+            <param name="state">
+              The state to copy from.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+              If <paramref name="state"/> is null.
+            </exception>
+        </member>
+        <member name="M:SFInput.KeyboardState.Update">
+            <summary>
+              Updates the object to the current state of the device.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardState.Reset">
+            <summary>
+              Reset state values.
+            </summary>
+        </member>
+        <member name="M:SFInput.KeyboardState.IsPressed(System.UInt32)">
+            <summary>
+              If the key is pressed.
+            </summary>
+            <param name="key">
+              The index of the key.
+            </param>
+            <returns>
+              True if the key index is within range and the key is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardState.IsPressed(SFML.Window.Keyboard.Key)">
+            <summary>
+              If the key is pressed.
+            </summary>
+            <param name="key">
+              The key to check.
+            </param>
+            <returns>
+              True if the key is within range and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardState.IsPressed(System.String)">
+            <summary>
+              If the key with the given name is pressed.
+            </summary>
+            <param name="key">
+              The name of the key.
+            </param>
+            <returns>
+              True if the key name is valid and the key is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardState.Clone">
+            <summary>
+              Deep coppies the object.
+            </summary>
+            <returns>
+              A deep copy of the object.
+            </returns>
+        </member>
+        <member name="T:SFInput.MouseManager">
+            <summary>
+              Manages the state of the Mouse.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseManager.IsButton(System.String)">
+            <summary>
+              Checks if the given string represents a valid button.
+            </summary>
+            <remarks>
+              A valid button string is either a case-insensitive <see cref="T:SFML.Window.Mouse.Button"/> name or value.
+            </remarks>
+            <param name="val">
+              The string to check.
+            </param>
+            <returns>
+              True if the given string represents a valid mouse button and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.ToButton(System.String)">
+            <summary>
+              Parses the given string to its mouse button representation.
+            </summary>
+            <param name="val">
+              The string to parse.
+            </param>
+            <returns>
+              The mouse button parsed from the string on success or ButtonCount on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.IsAxis(System.String)">
+            <summary>
+              Checks if the given string represents a valid axis.
+            </summary>
+            <remarks>
+              A valid axis string is either a case-insensitive <see cref="T:SFInput.MouseAxis"/> name or value.
+            </remarks>
+            <param name="val">
+              The string to check.
+            </param>
+            <returns>
+              True if the given string represents a valid mouse axis and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.ToAxis(System.String)">
+            <summary>
+              Parses the given string to its mouse axis representation.
+            </summary>
+            <param name="val">
+              The string to parse.
+            </param>
+            <returns>
+              The mouse axis parsed from the string on success or MouseAxis.COUNT on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseManager.#ctor(SFInput.MouseManager)">
+            <summary>
+              Copy constructor.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseManager.Update">
+            <summary>
+              Updates the managed device states.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseManager.Reset">
+            <summary>
+              Reset the device state.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseManager.GetPosition">
+            <summary>
+              Get the current mouse position in desktop coordinates.
+            </summary>
+            <returns>
+              The current mouse position relative to the desktop.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetNormalizedPosition">
+            <summary>
+              Get the current mouse position in desktop coordinates.
+            </summary>
+            <returns>
+              The current mouse position relative to the desktop.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetNormalizedPosition(SFML.System.Vector2f)">
+            <summary>
+              The mouse position normalized in relation to a window size.
+            </summary>
+            <param name="size">
+              The window size.
+            </param>
+            <returns>
+              The mouse position normalized in relation to the window size.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetNormalizePosition(SFML.System.Vector2f,SFML.System.Vector2f)">
+            <summary>
+              The mouse position normalized in relation to a window position and size.
+            </summary>
+            <param name="pos">
+              The window position.
+            </param>
+            <param name="size">
+              The window size.
+            </param>
+            <returns>
+              The mouse position normalized in relation to the window position and size.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetLastPosition">
+            <summary>
+              Get the previous mouse position in desktop coordinates.
+            </summary>
+            <returns>
+              The previous mouse position relative to the desktop.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetLastNormalizedPosition">
+            <summary>
+              Get the last mouse position in desktop coordinates.
+            </summary>
+            <returns>
+              The last mouse position relative to the desktop.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetLastNormalizedPosition(SFML.System.Vector2f)">
+            <summary>
+              The last mouse position normalized in relation to a window size.
+            </summary>
+            <param name="size">
+              The window size.
+            </param>
+            <returns>
+              The last mouse position normalized in relation to the window size.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetaLastNormalizePosition(SFML.System.Vector2f,SFML.System.Vector2f)">
+            <summary>
+              The lastmouse position normalized in relation to a window position and size.
+            </summary>
+            <param name="pos">
+              The window position.
+            </param>
+            <param name="size">
+              The window size.
+            </param>
+            <returns>
+              The last mouse position normalized in relation to the window position and size.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetPosition(SFML.Window.Window)">
+            <summary>
+              Get the current mouse position relative to the given window.
+            </summary>
+            <param name="window">
+              The window.
+            </param>
+            <returns>
+              The mouse position relative to the given window.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.IsPressed(System.UInt32)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.IsPressed(System.String)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.IsPressed(SFML.Window.Mouse.Button)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.JustPressed(System.UInt32)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.JustPressed(System.String)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.JustPressed(SFML.Window.Mouse.Button)">
+            <summary>
+              If the button has just been pressed.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.JustReleased(System.UInt32)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.JustReleased(System.String)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The name of the button.
+            </param>
+            <returns>
+              True if the button name is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.JustReleased(SFML.Window.Mouse.Button)">
+            <summary>
+              If the button has just been released.
+            </summary>
+            <param name="but">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetAxis(System.UInt32)">
+            <summary>
+              Gets the current state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The current state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetAxis(System.String)">
+            <summary>
+              Gets the current state of the axis.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              The current state of the axis if the name is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetAxis(SFInput.MouseAxis)">
+            <summary>
+              Gets the current state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The current state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetLastAxis(System.UInt32)">
+            <summary>
+              Gets the previous state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The previous state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetLastAxis(System.String)">
+            <summary>
+              Gets the previous state of the axis.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              The previous state of the axis if the name is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.GetLastAxis(SFInput.MouseAxis)">
+            <summary>
+              Gets the previous state of the axis.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              The previous state of the axis if the index is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisDelta(System.UInt32)">
+            <summary>
+              Gets the difference in value between the last two update calls of the given axis from the given joystick
+              player index.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              The difference in value between the last to update calls of the given axis from the given joystick player
+              index. Will also return zero if <paramref name="ax"/> is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisDelta(System.String)">
+            <summary>
+              Gets the difference in value between the last two update calls of the given axis from the given joystick
+              player index.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              The difference in value between the last to update calls of the given axis from the given joystick player
+              index. Will also return zero if <paramref name="ax"/> is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisDelta(SFInput.MouseAxis)">
+            <summary>
+              Gets the difference in value between the last two update calls of the given axis from the given joystick
+              player index.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              The difference in value between the last to update calls of the given axis from the given joystick player
+              index. Will also return zero if <paramref name="ax"/> is out of range.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisIsPressed(System.UInt32)">
+            <summary>
+              Check if the given axis is pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis is pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisIsPressed(System.String)">
+            <summary>
+              Check if the given axis is pressed.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              True if the given axis is pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisIsPressed(SFInput.MouseAxis)">
+            <summary>
+              Check if the given axis is pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis is pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisJustPressed(System.UInt32)">
+            <summary>
+              Check if the given axis was just pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis was just pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisJustPressed(System.String)">
+            <summary>
+              Check if the given axis was just pressed.
+            </summary>
+            <param name="ax">
+              The name of the axis.
+            </param>
+            <returns>
+              True if the given axis was just pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisJustPressed(SFInput.MouseAxis)">
+            <summary>
+              Check if the given axis was just pressed.
+            </summary>
+            <param name="ax">
+              The index of the axis.
+            </param>
+            <returns>
+              True if the given axis was just pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisJustReleased(System.UInt32)">
+            <summary>
+              Check if the given axis was just released.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              True if the given axis was just released and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisJustReleased(System.String)">
+            <summary>
+              Check if the given axis was just released.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              True if the given axis was just released and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AxisJustReleased(SFInput.MouseAxis)">
+            <summary>
+              Check if the given axis was just released.
+            </summary>
+            <param name="ax">
+              The axis to check.
+            </param>
+            <returns>
+              True if the given axis was just released and false otherwise.
+            </returns>
+        </member>
+        <member name="T:SFInput.MouseAxis">
+            <summary>
+              Mouse input axies.
+            </summary>
+        </member>
+        <member name="F:SFInput.MouseAxis.XPosition">
+            <summary>
+              Horizontal position.
+            </summary>
+        </member>
+        <member name="F:SFInput.MouseAxis.YPosition">
+            <summary>
+              Vertical position.
+            </summary>
+        </member>
+        <member name="F:SFInput.MouseAxis.COUNT">
+            <summary>
+              Axis count.
+            </summary>
+        </member>
+        <member name="T:SFInput.MouseState">
+            <summary>
+              Represents the state of the mouse at a given moment.
+            </summary>
+        </member>
+        <member name="F:SFInput.MouseState.ButtonCount">
+            <summary>
+              Button count.
+            </summary>
+        </member>
+        <member name="F:SFInput.MouseState.AxisCount">
+            <summary>
+              Axis count.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseState.#ctor">
+            <summary>
+              Construct a new state.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseState.#ctor(SFInput.MouseState)">
+            <summary>
+              Construct a new state by copying from another instance.
+            </summary>
+            <param name="state">
+              The state to copy from.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+              If <paramref name="state"/> is null.
+            </exception>
+        </member>
+        <member name="P:SFInput.MouseState.Position">
+            <summary>
+              Mouse's desktop position.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseState.NormalizePosition">
+            <summary>
+              The mouse position normalized in relation to the desktop.
+            </summary>
+            <returns>
+              The mouse position normalized in relation to the desktop.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.NormalizePosition(SFML.System.Vector2f)">
+            <summary>
+              The mouse position normalized in relation to a window size.
+            </summary>
+            <param name="size">
+              The window size.
+            </param>
+            <returns>
+              The mouse position normalized in relation to the window size.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.NormalizePosition(SFML.System.Vector2f,SFML.System.Vector2f)">
+            <summary>
+              The mouse position normalized in relation to a window position and size.
+            </summary>
+            <param name="pos">
+              The window position.
+            </param>
+            <param name="size">
+              The window size.
+            </param>
+            <returns>
+              The mouse position normalized in relation to the window position and size.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.Update">
+            <summary>
+              Updates values to the current state of the mouse.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseState.Reset">
+            <summary>
+              Resets all values.
+            </summary>
+        </member>
+        <member name="M:SFInput.MouseState.IsPressed(System.UInt32)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="button">
+              The index of the button.
+            </param>
+            <returns>
+              True if the button index is within range and the button is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.IsPressed(SFML.Window.Mouse.Button)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The button to check.
+            </param>
+            <returns>
+              True if the button is within range and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.IsPressed(System.String)">
+            <summary>
+              If the button is pressed.
+            </summary>
+            <param name="but">
+              The button to check.
+            </param>
+            <returns>
+              True if the button is valid and is pressed, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.GetAxis(System.UInt32)">
+            <summary>
+              The current axis value.
+            </summary>
+            <param name="axis">
+              The index of the axis.
+            </param>
+            <returns>
+              The value of the axis if the index is within range, otherwise 0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.GetAxis(SFInput.MouseAxis)">
+            <summary>
+              The value of the axis.
+            </summary>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The value of the axis if it is within range, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.GetAxis(System.String)">
+            <summary>
+              The value of the axis.
+            </summary>
+            <param name="axis">
+              The axis to check.
+            </param>
+            <returns>
+              The value of the axis if it is valid, otherwise 0.0.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.AxisIsPressed(System.UInt32,System.Boolean)">
+            <summary>
+              If the axis is engaged enough to be pressed.
+            </summary>
+            <param name="axis">
+              The index of the axis.
+            </param>
+            <param name="bidir">
+              If a negative axis value should trigger a press.
+            </param>
+            <returns>
+              If the axis is engaged enough to be pressed. 
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.AxisIsPressed(SFInput.MouseAxis,System.Boolean)">
+            <summary>
+              If the axis is engaged enough to be pressed.
+            </summary>
+            <param name="axis">
+              The index of the axis.
+            </param>
+            <param name="bidir">
+              If a negative axis value should trigger a press.
+            </param>
+            <returns>
+              If the axis is engaged enough to be pressed. 
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.AxisIsPressed(System.String,System.Boolean)">
+            <summary>
+              If the axis is engaged enough to be pressed.
+            </summary>
+            <param name="axis">
+              The name of the axis.
+            </param>
+            <param name="bidir">
+              If a negative axis value should trigger a press.
+            </param>
+            <returns>
+              If the axis is engaged enough to be pressed. 
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.Clone">
+            <summary>
+              Deep coppies the object.
+            </summary>
+            <returns>
+              A deep copy of the object.
+            </returns>
+        </member>
+    </members>
+</doc>

@@ -185,7 +185,8 @@ namespace SharpGfx
 		/// </returns>
 		public bool Equals( ImageInfo other )
 		{
-			return Path  == other.Path &&
+			return other != null &&
+			       Path?.Trim()?.ToLower() == other.Path?.Trim()?.ToLower() &&
 				   Rect  == other.Rect &&
 				   Color == other.Color;
 		}

@@ -3,11 +3,26 @@ A basic C# graphics library for use with SFML.Net.
 
 ## Dependencies
 - SFML.Net `https://github.com/graphnode/SFML.Net.git`
+- SFInput `https://github.com/BrokenShards/SFInput.git`
 - SharpID `https://github.com/BrokenShards/SharpID.git`
 - SharpLogger `https://github.com/BrokenShards/SharpLogger.git`
 - SharpSerial `https://github.com/BrokenShards/SharpSerial.git`
+- XInputDotNetPure `https://github.com/speps/XInputDotNet.git`
+
+## NOTE
+Please note `UI.Slider` is incomplete and not in a usable state, it is only included in the current release
+as an artifact from merging SharpUI into SharpGfx.
+
+## TODO
+- Finish `UI.Slider`.
+- Implement UI containers/layouting.
+- Implement visual tests with user input for graphical classes.
 
 ## Changelog
+
+### Version 0.5.0
+- SharpUI has now been merged into SharpGfx and thus now depends on SFInput and XInputDotNetPure.
+- The UI code is now all documented, implements `IEquatable<T>`, and has tests.
 
 ### Version 0.4.1
 - Added previously missed `AnimatedSprite` test.
