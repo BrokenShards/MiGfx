@@ -20,7 +20,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-using System;
+
 using System.IO;
 using SFML.Graphics;
 using SFML.System;
@@ -33,48 +33,11 @@ using Transform = SharpGfx.Transform;
 
 namespace SharpGfxTest
 {
-	partial class Test
+	public class FrameTest : TestModule
 	{
-		const string FramePath          = "frame.bin";
-		const string AnimationPath      = "animation.bin";
-		const string AnimationSetPath   = "animation_set.bin";
-		const string AnimatorPath       = "animator.bin";
-		const string ImageInfoPath      = "image_info.bin";
-		const string SpritePath         = "sprite.bin";
-		const string AnimatedSpritePath = "animated_sprite.bin";
-		const string TextStylePath      = "text_style.bin";
-		const string TilesetPath        = "tileset.bin";
-		const string TransformPath      = "transform.bin";
+		const string FramePath = "frame.bin";
 
-		static bool GraphicsTests()
-		{
-			bool result = true;
-
-			if( !FrameTest() )
-				result = false;
-			if( !AnimationTest() )
-				result = false;
-			if( !AnimationSetTest() )
-				result = false;
-			if( !AnimatorTest() )
-				result = false;
-			if( !ImageInfoTest() )
-				result = false;
-			if( !SpriteTest() )
-				result = false;
-			if( !AnimatedSpriteTest() )
-				result = false;
-			if( !TextStyleTest() )
-				result = false;
-			if( !TilesetTest() )
-				result = false;
-			if( !TransformTest() )
-				result = false;
-
-			return result;
-		}
-
-		static bool FrameTest()
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running Frame Tests..." );
 
@@ -90,11 +53,6 @@ namespace SharpGfxTest
 
 			Frame f2 = BinarySerializable.FromFile<Frame>( FramePath );
 
-			if( f2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Frame from file.", false );
-			if( !f2.Equals( f1 ) )
-				return Logger.LogReturn( "Failed: Deserialized Frame has incorrect values.", false );
-
 			try
 			{
 				File.Delete( FramePath );
@@ -102,9 +60,19 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( f2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Frame from file.", false );
+			if( !f2.Equals( f1 ) )
+				return Logger.LogReturn( "Failed: Deserialized Frame has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool AnimationTest()
+	}
+	public class AnimationTest : TestModule
+	{
+		const string AnimationPath = "animation.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running Animation Tests..." );
 
@@ -126,11 +94,6 @@ namespace SharpGfxTest
 
 			Animation a2 = BinarySerializable.FromFile<Animation>( AnimationPath );
 
-			if( a2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Animation from file.", false );
-			if( !a2.Equals( anim ) )
-				return Logger.LogReturn( "Failed: Deserialized Animation has incorrect values.", false );
-
 			try
 			{
 				File.Delete( AnimationPath );
@@ -138,9 +101,19 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( a2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Animation from file.", false );
+			if( !a2.Equals( anim ) )
+				return Logger.LogReturn( "Failed: Deserialized Animation has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool AnimationSetTest()
+	}
+	public class AnimationSetTest : TestModule
+	{
+		const string AnimationSetPath = "animation_set.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running AnimationSet Tests..." );
 
@@ -165,11 +138,6 @@ namespace SharpGfxTest
 
 			AnimationSet a2 = BinarySerializable.FromFile<AnimationSet>( AnimationSetPath );
 
-			if( a2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize AnimationSet from file.", false );
-			if( !a2.Equals( set ) )
-				return Logger.LogReturn( "Failed: Deserialized AnimationSet has incorrect values.", false );
-
 			try
 			{
 				File.Delete( AnimationSetPath );
@@ -177,9 +145,19 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( a2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize AnimationSet from file.", false );
+			if( !a2.Equals( set ) )
+				return Logger.LogReturn( "Failed: Deserialized AnimationSet has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool AnimatorTest()
+	}
+	public class AnimatorTest : TestModule
+	{
+		const string AnimatorPath = "animator.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running Animator Tests..." );
 
@@ -193,11 +171,6 @@ namespace SharpGfxTest
 
 			Animator a2 = BinarySerializable.FromFile<Animator>( AnimatorPath );
 
-			if( a2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Animator from file.", false );
-			if( !a2.Equals( anim ) )
-				return Logger.LogReturn( "Failed: Deserialized Animator has incorrect values.", false );
-
 			try
 			{
 				File.Delete( AnimatorPath );
@@ -205,9 +178,19 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( a2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Animator from file.", false );
+			if( !a2.Equals( anim ) )
+				return Logger.LogReturn( "Failed: Deserialized Animator has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool ImageInfoTest()
+	}
+	public class ImageInfoTest : TestModule
+	{
+		const string ImageInfoPath = "image_info.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running ImageInfo Tests..." );
 
@@ -218,11 +201,6 @@ namespace SharpGfxTest
 
 			ImageInfo img2 = BinarySerializable.FromFile<ImageInfo>( ImageInfoPath );
 
-			if( img2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize ImageInfo from file.", false );
-			if( !img2.Equals( img ) )
-				return Logger.LogReturn( "Failed: Deserialized ImageInfo has incorrect values.", false );
-
 			try
 			{
 				File.Delete( ImageInfoPath );
@@ -230,26 +208,32 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( img2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize ImageInfo from file.", false );
+			if( !img2.Equals( img ) )
+				return Logger.LogReturn( "Failed: Deserialized ImageInfo has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool SpriteTest()
+	}
+
+	public class SpriteTest : TestModule
+	{
+		const string SpritePath = "sprite.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running Sprite Tests..." );
 
 			Sprite spr = new Sprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), Color.Red ) );
 
-			spr.Transform.Position  = new Vector2f( 100, 100 );
+			spr.Transform.Position = new Vector2f( 100, 100 );
 			spr.Transform.LocalSize = new Vector2f( 100, 100 );
 
 			if( !BinarySerializable.ToFile( spr, SpritePath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Sprite to file.", false );
 
 			Sprite spr2 = BinarySerializable.FromFile<Sprite>( SpritePath );
-
-			if( spr2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Sprite from file.", false );
-			if( !spr2.Equals( spr ) )
-				return Logger.LogReturn( "Failed: Deserialized Sprite has incorrect values.", false );
 
 			try
 			{
@@ -258,15 +242,25 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( spr2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Sprite from file.", false );
+			if( !spr2.Equals( spr ) )
+				return Logger.LogReturn( "Failed: Deserialized Sprite has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool AnimatedSpriteTest()
+	}
+	public class AnimatedSpriteTest : TestModule
+	{
+		const string AnimatedSpritePath = "animated_sprite.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running AnimatedSprite Tests..." );
 
 			AnimatedSprite spr = new AnimatedSprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), Color.Red ) );
 
-			spr.Transform.Position  = new Vector2f( 100, 100 );
+			spr.Transform.Position = new Vector2f( 100, 100 );
 			spr.Transform.LocalSize = new Vector2f( 100, 100 );
 
 			if( !spr.Animator.AnimationSet.Add( new Animation( "test", new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) ) ) )
@@ -277,11 +271,6 @@ namespace SharpGfxTest
 
 			AnimatedSprite spr2 = BinarySerializable.FromFile<AnimatedSprite>( AnimatedSpritePath );
 
-			if( spr2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize AnimatedSprite from file.", false );
-			if( !spr2.Equals( spr ) )
-				return Logger.LogReturn( "Failed: Deserialized AnimatedSprite has incorrect values.", false );
-
 			try
 			{
 				File.Delete( AnimatedSpritePath );
@@ -289,9 +278,20 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( spr2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize AnimatedSprite from file.", false );
+			if( !spr2.Equals( spr ) )
+				return Logger.LogReturn( "Failed: Deserialized AnimatedSprite has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool TextStyleTest()
+	}
+
+	public class TextStyleTest : TestModule
+	{
+		const string TextStylePath = "text_style.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running TextStyle Tests..." );
 
@@ -302,11 +302,6 @@ namespace SharpGfxTest
 
 			TextStyle txt2 = BinarySerializable.FromFile<TextStyle>( TextStylePath );
 
-			if( txt2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize TextStyle from file.", false );
-			if( !txt2.Equals( txt ) )
-				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
-
 			try
 			{
 				File.Delete( TextStylePath );
@@ -314,9 +309,19 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( txt2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize TextStyle from file.", false );
+			if( !txt2.Equals( txt ) )
+				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool TilesetTest()
+	}
+	public class TilesetTest : TestModule
+	{
+		const string TilesetPath = "tileset.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running Tileset Tests..." );
 
@@ -327,11 +332,6 @@ namespace SharpGfxTest
 
 			Tileset tile2 = BinarySerializable.FromFile<Tileset>( TilesetPath );
 
-			if( tile2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Tileset from file.", false );
-			if( !tile2.Equals( tile ) )
-				return Logger.LogReturn( "Failed: Deserialized Tileset has incorrect values.", false );
-
 			try
 			{
 				File.Delete( TilesetPath );
@@ -339,9 +339,19 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( tile2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Tileset from file.", false );
+			if( !tile2.Equals( tile ) )
+				return Logger.LogReturn( "Failed: Deserialized Tileset has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool TransformTest()
+	}
+	public class TransformTest : TestModule
+	{
+		const string TransformPath = "transform.bin";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running Transform Tests..." );
 
@@ -364,11 +374,6 @@ namespace SharpGfxTest
 
 			Transform t2 = BinarySerializable.FromFile<Transform>( TransformPath );
 
-			if( t2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Transform from file.", false );
-			if( !t2.Equals( tran ) )
-				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
-
 			try
 			{
 				File.Delete( TransformPath );
@@ -376,7 +381,43 @@ namespace SharpGfxTest
 			catch
 			{ }
 
+			if( t2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Transform from file.", false );
+			if( !t2.Equals( tran ) )
+				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
+		}
+	}
+
+	partial class Test
+	{
+		static bool GraphicsTests( RenderWindow window )
+		{
+			bool result = true;
+
+			if( !new FrameTest().RunTest( window ) )
+				result = false;
+			if( !new AnimationTest().RunTest( window ) )
+				result = false;
+			if( !new AnimationSetTest().RunTest( window ) )
+				result = false;
+			if( !new AnimatorTest().RunTest( window ) )
+				result = false;
+			if( !new ImageInfoTest().RunTest( window ) )
+				result = false;
+			if( !new SpriteTest().RunTest( window ) )
+				result = false;
+			if( !new AnimatedSpriteTest().RunTest( window ) )
+				result = false;
+			if( !new TextStyleTest().RunTest( window ) )
+				result = false;
+			if( !new TilesetTest().RunTest( window ) )
+				result = false;
+			if( !new TransformTest().RunTest( window ) )
+				result = false;
+
+			return result;
 		}
 	}
 }

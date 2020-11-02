@@ -21,12 +21,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using SFML.Graphics;
+using SFML.Window;
 using SharpLogger;
 
 namespace SharpGfxTest
 {
 	partial class Test
 	{
+		public static readonly string TexturePath = SharpGfx.FolderPaths.Textures + "test.png";
+
 		static void Main( string[] args )
 		{
 			Logger.LogToConsole = true;
@@ -38,13 +42,18 @@ namespace SharpGfxTest
 
 			if( !AssetTests() )
 				result = false;
-			if( !GraphicsTests() )
-				result = false;
-			if( !UITests() )
-				result = false;
+
+			using( RenderWindow window = new RenderWindow( new VideoMode( 800, 600, 32 ), "SharpGfx Test", Styles.Close ) )
+			{
+				if( !GraphicsTests( window ) )
+					result = false;
+				if( !UITests( window ) )
+					result = false;
+
+				window.Close();
+			}
 
 			Logger.Log( result ? "All tests ran successfully." : "One or more tests failed." );
-
 			Logger.Log( "Press enter to exit." );
 			Console.ReadLine();
 		}

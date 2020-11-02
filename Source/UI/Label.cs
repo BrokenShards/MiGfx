@@ -70,11 +70,16 @@ namespace SharpGfx.UI
 		/// <param name="id">
 		///   The label ID.
 		/// </param>
-		public Label( string id )
+		/// <param name="str">
+		///   Display string. If null or whitespace it will be replaced with an
+		///   empty string.
+		/// </param>
+		public Label( string id, string str = null )
 		:	base( id )
 		{
 			Text   = new TextStyle();
 			m_text = new Text();
+			String = !string.IsNullOrWhiteSpace( str ) ? str : string.Empty;
 		}
 		/// <summary>
 		///   Constructs the label with a text style and an optional string.
@@ -91,9 +96,7 @@ namespace SharpGfx.UI
 		{
 			Text   = text ?? new TextStyle();
 			m_text = new Text();
-
-			if( !string.IsNullOrWhiteSpace( str ) )
-				String = str;
+			String = !string.IsNullOrWhiteSpace( str ) ? str : string.Empty;
 		}
 		/// <summary>
 		///   Constructs the label with an ID, text style and optional string.

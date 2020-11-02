@@ -28,30 +28,11 @@ using SharpLogger;
 
 namespace SharpGfxTest
 {
-	/// <summary>
-	///  Asset tests.
-	/// </summary>
-	partial class Test
+	public class FontManagerTest : TestModule
 	{
-		static readonly string FontPath    = FilePaths.DefaultFont;
-		static readonly string SoundPath   = FolderPaths.Sounds   + "test.wav";
-		static readonly string TexturePath = FolderPaths.Textures + "test.png";
+		public static readonly string FontPath = FilePaths.DefaultFont;
 
-		static bool AssetTests()
-		{
-			bool result = true;
-
-			if( !FontTest() )
-				result = false;
-			if( !SoundTest() )
-				result = false;
-			if( !TextureTest() )
-				result = false;
-
-			return result;
-		}
-
-		static bool FontTest()
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running FontManager Tests..." );
 
@@ -64,7 +45,12 @@ namespace SharpGfxTest
 
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool SoundTest()
+	}
+	public class SoundManagerTest : TestModule
+	{
+		static readonly string SoundPath = FolderPaths.Sounds + "test.wav";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running SoundManager Tests..." );
 
@@ -77,7 +63,12 @@ namespace SharpGfxTest
 
 			return Logger.LogReturn( "Success!", true );
 		}
-		static bool TextureTest()
+	}
+	public class TextureManagerTest : TestModule
+	{
+		static readonly string TexturePath = FolderPaths.Textures + "test.png";
+
+		protected override bool OnTest()
 		{
 			Logger.Log( "Running TextureManager Tests..." );
 
@@ -89,6 +80,26 @@ namespace SharpGfxTest
 			Assets.Manager.Sound.Unload( TexturePath );
 
 			return Logger.LogReturn( "Success!", true );
+		}
+	}
+
+	/// <summary>
+	///  Asset tests.
+	/// </summary>
+	partial class Test
+	{
+		static bool AssetTests()
+		{
+			bool result = true;
+
+			if( !new FontManagerTest().RunTest() )
+				result = false;
+			if( !new SoundManagerTest().RunTest() )
+				result = false;
+			if( !new TextureManagerTest().RunTest() )
+				result = false;
+
+			return result;
 		}
 	}
 }

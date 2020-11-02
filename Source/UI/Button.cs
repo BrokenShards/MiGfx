@@ -456,8 +456,8 @@ namespace SharpGfx.UI
 		/// <summary>
 		///   Constructs a button with default values and the given name and display text.
 		/// </summary>
-		/// <param name="name">
-		///   Object name.
+		/// <param name="id">
+		///   Object ID.
 		/// </param>
 		/// <param name="text">
 		///   Display text.
@@ -465,9 +465,9 @@ namespace SharpGfx.UI
 		/// <returns>
 		///   A button with default values and the given name and display text.
 		/// </returns>
-		public static Button Default( string name, string text )
+		public static Button Default( string id, string text )
 		{
-			Button but = new Button( name, text );
+			Button but = new Button( id, text );
 
 			Texture tex = Assets.Manager.Texture.Get( FilePaths.ButtonTexture );
 
