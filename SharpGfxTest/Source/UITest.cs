@@ -24,6 +24,7 @@ using System.IO;
 using SFInput;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 
 using SharpGfx;
 using SharpGfx.UI;
@@ -73,40 +74,39 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			Image img = new Image( "img_test" );
+			img.DisplayImage = new ImageInfo( Test.TexturePath );
+			img.Transform.Center = window.GetView().Center;
+			img.Transform.LocalSize = new Vector2f( 200, 200 );
+
+			if( !Test.Manager.Add( img ) )
+				return Logger.LogReturn( "Failed: Unable to add Image to UIManager.", false );
+
+			Logger.Log( "Is yellow square displayed on window? (y/n)" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
 			{
-				Image img = new Image( "img_test" );
-				img.DisplayImage = new ImageInfo( Test.TexturePath );
-				img.Transform.Center = window.GetView().Center;
-				img.Transform.LocalSize = new Vector2f( 200, 200 );
+				window.DispatchEvents();
 
-				if( !man.Add( img ) )
-					return Logger.LogReturn( "Failed: Unable to add Image to UIManager.", false );
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
 
-				Logger.Log( "Is yellow square displayed on window? (y/n)" );
-				bool? inp = null;
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
 
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
-
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Image did not display correctly (user input).", false );
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
 			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: Image did not display correctly (user input).", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -160,54 +160,53 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			AnimatedImage animg = new AnimatedImage( "animated_test" );
+			animg.Sprite.Image = new ImageInfo( AnimationTexturePath );
+
 			{
-				AnimatedImage animg = new AnimatedImage( "animated_test" );
-				animg.Sprite.Image = new ImageInfo( AnimationTexturePath );
+				Animation anim = new Animation( "test_anim" );
 
-				{
-					Animation anim = new Animation( "test_anim" );
+				for( int i = 0; i < 3; i++ )
+					anim.Add( new Frame( new FloatRect( i * 512, 0, 512, 512 ) ) );
 
-					for( int i = 0; i < 3; i++ )
-						anim.Add( new Frame( new FloatRect( i * 512, 0, 512, 512 ) ) );
-
-					animg.Sprite.Animator.AnimationSet.Add( anim );
-				}
-
-				animg.Transform.Center = window.GetView().Center;
-				animg.Transform.LocalSize = new Vector2f( 200, 200 );
-
-				animg.Sprite.Animator.Loop = true;
-				animg.Sprite.Animator.Play( "test_anim" );
-
-				if( !man.Add( animg ) )
-					return Logger.LogReturn( "Failed: Unable to add AnimatedImage to UIManager.", false );
-
-				Logger.Log( "Is colour changing square displayed on window? (y/n)" );
-				bool? inp = null;
-
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
-
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: AnimatedImage did not display correctly (user input).", false );
+				animg.Sprite.Animator.AnimationSet.Add( anim );
 			}
 
+			animg.Transform.Center = window.GetView().Center;
+			animg.Transform.LocalSize = new Vector2f( 200, 200 );
+
+			animg.Sprite.Animator.Loop = true;
+			animg.Sprite.Animator.Play( "test_anim" );
+
+			if( !Test.Manager.Add( animg ) )
+				return Logger.LogReturn( "Failed: Unable to add AnimatedImage to UIManager.", false );
+
+			Logger.Log( "Is colour changing square displayed on window? (y/n)" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
+			{
+				window.DispatchEvents();
+				
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
+
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
+
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
+			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: AnimatedImage did not display correctly (user input).", false );
+		
 			return Logger.LogReturn( "Success!", true );
 		}
 	}
@@ -248,38 +247,37 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			Label lab = Label.Default( "label_test", "Test" );
+			lab.Transform.Center = window.GetView().Center;
+
+			if( !Test.Manager.Add( lab ) )
+				return Logger.LogReturn( "Failed: Unable to add Label to UIManager.", false );
+
+			Logger.Log( "Is label text displayed on window? (y/n)" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
 			{
-				Label lab = Label.Default( "label_test", "Test" );
-				lab.Transform.Center = window.GetView().Center;
+				window.DispatchEvents();
 
-				if( !man.Add( lab ) )
-					return Logger.LogReturn( "Failed: Unable to add Label to UIManager.", false );
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
 
-				Logger.Log( "Is label text displayed on window? (y/n)" );
-				bool? inp = null;
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
 
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
-
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Label did not display correctly (user input).", false );
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
 			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: Label did not display correctly (user input).", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -321,38 +319,37 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			Button lab = Button.Default( "label_test", "Test" );
+			lab.Transform.Center = window.GetView().Center;
+
+			if( !Test.Manager.Add( lab ) )
+				return Logger.LogReturn( "Failed: Unable to add Button to UIManager.", false );
+
+			Logger.Log( "Is button displayed on window? (y/n)" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
 			{
-				Button lab = Button.Default( "label_test", "Test" );
-				lab.Transform.Center = window.GetView().Center;
+				window.DispatchEvents();
 
-				if( !man.Add( lab ) )
-					return Logger.LogReturn( "Failed: Unable to add Button to UIManager.", false );
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
 
-				Logger.Log( "Is button displayed on window? (y/n)" );
-				bool? inp = null;
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
 
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
-
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Button did not display correctly (user input).", false );
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
 			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: Button did not display correctly (user input).", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -396,38 +393,37 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			CheckBox check = CheckBox.Default( "check_test", false );
+			check.Transform.Center = window.GetView().Center;
+
+			if( !Test.Manager.Add( check ) )
+				return Logger.LogReturn( "Failed: Unable to add CheckBox to UIManager.", false );
+
+			Logger.Log( "Is checkbox displayed on window? (y/n)" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
 			{
-				CheckBox check = CheckBox.Default( "check_test", false );
-				check.Transform.Center = window.GetView().Center;
+				window.DispatchEvents();
 
-				if( !man.Add( check ) )
-					return Logger.LogReturn( "Failed: Unable to add CheckBox to UIManager.", false );
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
 
-				Logger.Log( "Is checkbox displayed on window? (y/n)" );
-				bool? inp = null;
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
 
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
-
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: CheckBox did not display correctly (user input).", false );
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
 			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: CheckBox did not display correctly (user input).", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -441,7 +437,7 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running TextBox Tests..." );
 
-			TextBox t1 = TextBox.Default( "textbox_test" );
+			TextBox t1 = TextBox.Default( "textbox_test", true, true );
 
 			if( !BinarySerializable.ToFile( t1, TextBoxPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize TextBox to file.", false );
@@ -470,36 +466,38 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			TextBox box = TextBox.Default( "textbox_test", true, true );
+			box.String = "Testing text box.";
+			box.Transform.Position = new Vector2f( 0, 0 );
+
+			if( !Test.Manager.Add( box ) )
+				return Logger.LogReturn( "Failed: Unable to add TextBox to UIManager.", false );
+
+			Logger.Log( "Is textbox displayed on window? (y/n)" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
 			{
-				TextBox box = TextBox.Default( "textbox_test" );
-				box.String = "Testing text box.";
-				box.Transform.Center = window.GetView().Center;
+				window.DispatchEvents();
 
-				Logger.Log( "Is textbox displayed on window? (y/n)" );
-				bool? inp = null;
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
 
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
 
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: TextBox did not display correctly (user input).", false );
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
 			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: TextBox did not display correctly (user input).", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -542,39 +540,38 @@ namespace SharpGfxTest
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
+			if( Test.Manager == null )
+				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			using( UIManager man = new UIManager( window ) )
+			// TODO: Change to Slider.Default when implemented.
+			Slider img = new Slider( "slider_test" );
+			img.Transform.Center = window.GetView().Center;
+
+			if( !Test.Manager.Add( img ) )
+				return Logger.LogReturn( "Failed: Unable to add Slider to UIManager.", false );
+
+			Logger.Log( "Is slider displayed on window? (y/n) [Not implemented, will display nothing!]" );
+			bool? inp = null;
+
+			while( window.IsOpen && inp == null )
 			{
-				// TODO: Change to Slider.Default when implemented.
-				Slider img = new Slider( "slider_test" );
-				img.Transform.Center = window.GetView().Center;
+				window.DispatchEvents();
 
-				if( !man.Add( img ) )
-					return Logger.LogReturn( "Failed: Unable to add Slider to UIManager.", false );
+				Input.Manager.Update();
+				Test.Manager.Update( 1.0f );
 
-				Logger.Log( "Is slider displayed on window? (y/n) [Not implemented, will display nothing!]" );
-				bool? inp = null;
+				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
+					inp = true;
+				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
+					inp = false;
 
-				while( window.IsOpen && inp == null )
-				{
-					window.DispatchEvents();
-
-					Input.Manager.Update();
-					man.Update( 1.0f );
-
-					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-						inp = true;
-					else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-						inp = false;
-
-					window.Clear();
-					window.Draw( man );
-					window.Display();
-				}
-
-				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Slider did not display correctly (user input).", false );
+				window.Clear();
+				window.Draw( Test.Manager );
+				window.Display();
 			}
+
+			if( inp == null || !inp.Value )
+				return Logger.LogReturn( "Failed: Slider did not display correctly (user input).", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -582,26 +579,55 @@ namespace SharpGfxTest
 
 	partial class Test
 	{
+		public static UIManager Manager
+		{
+			get; private set;
+		}
+
 		static bool UITests( RenderWindow window )
 		{
 			bool result = true;
+			window.TextEntered += OnTextEntered;
+			
+			using( Manager = new UIManager( window ) )
+			{
+				if( !new ImageTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
 
-			if( !new ImageTest().RunTest( window ) )
-				result = false;
-			if( !new AnimatedImageTest().RunTest( window ) )
-				result = false;
-			if( !new LabelTest().RunTest( window ) )
-				result = false;
-			if( !new ButtonTest().RunTest( window ) )
-				result = false;
-			if( !new CheckBoxTest().RunTest( window ) )
-				result = false;
-			if( !new SliderTest().RunTest( window ) )
-				result = false;
-			if( !new TextBoxTest().RunTest( window ) )
-				result = false;
+				if( !new AnimatedImageTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
 
+				if( !new LabelTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
+
+				if( !new ButtonTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
+
+				if( !new CheckBoxTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
+
+				if( !new SliderTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
+
+				if( !new TextBoxTest().RunTest( window ) )
+					result = false;
+				Manager.RemoveAll();
+			}
+
+			window.TextEntered -= OnTextEntered;
 			return result;
+		}
+
+		private static void OnTextEntered( object sender, TextEventArgs e )
+		{
+			if( Manager != null )
+				Manager.TextEntered( e );
 		}
 	}
 }
