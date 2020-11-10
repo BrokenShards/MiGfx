@@ -138,4 +138,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\Graphnode.SFML.Net.2.4\build\Graphnode.SFML.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Graphnode.SFML.Net.2.4\build\Graphnode.SFML.Net.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>echo Copying XInputInterface to the build directory if needed.
+xcopy "$(ProjectDir)Dependencies\XInputInterface.dll" /K /D /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>
