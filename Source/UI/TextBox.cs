@@ -29,6 +29,8 @@ using SFInput;
 using SharpSerial;
 using System.IO;
 using SharpLogger;
+using System.Xml;
+using System.Text;
 
 namespace SharpGfx
 {
@@ -45,7 +47,7 @@ namespace SharpGfx.UI
 	/// <summary>
 	///   Textbox state info.
 	/// </summary>
-	public class TextBoxData : BinarySerializable, IEquatable<TextBoxData>
+	public class TextBoxData : BinarySerializable, IXmlLoadable, IEquatable<TextBoxData>
 	{
 		/// <summary>
 		///   Constructor.
@@ -172,6 +174,77 @@ namespace SharpGfx.UI
 		}
 
 		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public virtual bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load TextBoxData from a null XmlElement.", false, LogType.Error );
+
+			XmlElement img = element[ "image_info" ],
+					   txt = element[ "text_style" ],
+					   off = element[ "offset" ];
+
+			if( img == null )
+				return Logger.LogReturn( "Failed loading TextBoxData: No image_info element.", false, LogType.Error );
+			if( txt == null )
+				return Logger.LogReturn( "Failed loading TextBoxData: No text_style element.", false, LogType.Error );
+			if( off == null )
+				return Logger.LogReturn( "Failed loading TextBoxData: No offset element.", false, LogType.Error );
+
+			Image = new ImageInfo();
+			Text  = new TextStyle();
+
+			if( !Image.LoadFromXml( img ) )
+				return Logger.LogReturn( "Failed loading TextBoxData: Loading ImageInfo failed.", false, LogType.Error );
+			if( !Text.LoadFromXml( txt ) )
+				return Logger.LogReturn( "Failed loading TextBoxData: Loading TextStyle failed.", false, LogType.Error );
+
+			try
+			{
+				TextOffset = new Vector2f( float.Parse( off.GetAttribute( "x" ) ),
+										   float.Parse( off.GetAttribute( "y" ) ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading TextBoxData: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<textbox_data>" );
+			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
+
+			sb.Append( "\t<offset x=\"" );
+			sb.Append( TextOffset.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( TextOffset.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</textbox_data>" );
+
+			return sb.ToString();
+		}
+
+		/// <summary>
 		///   If this object has the same values of the other object.
 		/// </summary>
 		/// <param name="other">
@@ -191,7 +264,7 @@ namespace SharpGfx.UI
 	/// <summary>
 	///   A UI text box.
 	/// </summary>
-	public class TextBox : UIElement
+	public class TextBox : UIElement, IEquatable<TextBox>
 	{
 		/// <summary>
 		///   Constructor.
@@ -391,6 +464,166 @@ namespace SharpGfx.UI
 			{
 				String += e.Unicode;
 			}
+		}
+
+		/// <summary>
+		///   Attempts to deserialize the object from the stream.
+		/// </summary>
+		/// <param name="sr">
+		///   Stream reader.
+		/// </param>
+		/// <returns>
+		///   True if deserialization succeeded and false otherwise.
+		/// </returns>
+		public override bool LoadFromStream( BinaryReader sr )
+		{
+			if( !base.LoadFromStream( sr ) )
+				return false;
+
+			if( !SelectedData.LoadFromStream( sr ) )
+				return Logger.LogReturn( "Failed loading TextBox SelectedData from stream.", false, LogType.Error );
+			if( !DeselectedData.LoadFromStream( sr ) )
+				return Logger.LogReturn( "Failed loading TextBox DeselectedData from stream.", false, LogType.Error );
+
+			m_box   = new Image();
+			m_label = new Label();
+
+			try
+			{
+				String = sr.ReadString();
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading TextBox: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+		/// <summary>
+		///   Attempts to serialize the object to the stream.
+		/// </summary>
+		/// <param name="sw">
+		///   Stream writer.
+		/// </param>
+		/// <returns>
+		///   True if serialization succeeded and false otherwise.
+		/// </returns>
+		public override bool SaveToStream( BinaryWriter sw )
+		{
+			if( !base.SaveToStream( sw ) )
+				return false;
+
+			if( !SelectedData.SaveToStream( sw ) )
+				return Logger.LogReturn( "Failed saving TextBox SelectedData to stream.", false, LogType.Error );
+			if( !DeselectedData.SaveToStream( sw ) )
+				return Logger.LogReturn( "Failed saving TextBox DeselectedData to stream.", false, LogType.Error );
+
+			try
+			{
+				sw.Write( String );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed saving TextBox to stream: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public override bool LoadFromXml( XmlElement element )
+		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
+			XmlElement  str  = element[ "string" ];
+			XmlNodeList data = element.SelectNodes( "textbox_data" );
+
+			if( str == null )
+				return Logger.LogReturn( "Failed loading TextBox: No string element.", false, LogType.Error );
+			if( data.Count != 2 )
+				return Logger.LogReturn( "Failed loading TextBox: Incorrect amount of textbox_data elements.", false, LogType.Error );
+
+			SelectedData   = new TextBoxData();
+			DeselectedData = new TextBoxData();
+
+			if( !SelectedData.LoadFromXml( (XmlElement)data[ 0 ] ) )
+				return Logger.LogReturn( "Failed loading TextBox: Loading SelectedData failed.", false, LogType.Error );
+			if( !DeselectedData.LoadFromXml( (XmlElement)data[ 1 ] ) )
+				return Logger.LogReturn( "Failed loading TextBox: Loading DeselectedData failed.", false, LogType.Error );
+
+			m_box   = new Image();
+			m_label = new Label();
+
+			try
+			{
+				String = str.Value;
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading TextBox: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<textbox id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "         enabled=\"" );
+			sb.Append( Enabled );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "         visible=\"" );
+			sb.Append( Visible );
+			sb.AppendLine( "\">" );
+
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( SelectedData, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( DeselectedData, 1 ) );
+
+			sb.Append( "\t<string>" );
+			sb.Append( String );
+			sb.AppendLine( "</string>" );
+
+			sb.Append( "</button>" );
+
+			return sb.ToString();
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( TextBox other )
+		{
+			return base.Equals( other ) && SelectedData.Equals( other.SelectedData ) &&
+			       DeselectedData.Equals( other.DeselectedData ) &&
+				   String.Equals( other.String );
 		}
 
 		private void CorrectData()

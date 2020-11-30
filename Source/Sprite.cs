@@ -22,6 +22,8 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 using SFML.System;
 
@@ -33,7 +35,7 @@ namespace SharpGfx
 	/// <summary>
 	///   A graphical sprite.
 	/// </summary>
-	public class Sprite : BinarySerializable, Drawable, ITransformable, IDisposable, IEquatable<Sprite>
+	public class Sprite : BinarySerializable, IXmlLoadable, Drawable, ITransformable, IDisposable, IEquatable<Sprite>
 	{
 		/// <summary>
 		///   Constructor.
@@ -102,12 +104,8 @@ namespace SharpGfx
 			if( Image == null )
 				throw new ArgumentNullException( nameof( Image ), "Trying to update a sprite with a null image." );
 
-			Vector2f size = Transform.GlobalSize;
-
-			m_verts[ 0 ] = new Vertex( Transform.Position, Image.Color, new Vector2f( Image.Rect.Left, Image.Rect.Top ) );
-			m_verts[ 1 ] = new Vertex( Transform.Position + new Vector2f( size.X, 0.0f ), Image.Color, new Vector2f( Image.Rect.Left + Image.Rect.Width, Image.Rect.Top ) );
-			m_verts[ 2 ] = new Vertex( Transform.Position + size, Image.Color, new Vector2f( Image.Rect.Left + Image.Rect.Width, Image.Rect.Top + Image.Rect.Height ) );
-			m_verts[ 3 ] = new Vertex( Transform.Position + new Vector2f( 0.0f, size.Y ), Image.Color, new Vector2f( Image.Rect.Left, Image.Rect.Top + Image.Rect.Height ) );
+			for( uint i = 0; i < m_verts.VertexCount; i++ )
+				m_verts[ i ] = Image.GetVertex( i, Transform );
 		}
 		/// <summary>
 		///   Draws the sprite to the render target.
@@ -154,10 +152,12 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load Sprite from null stream.", false, LogType.Error );
 
-			if( !Image.LoadFromStream( br ) || !Transform.LoadFromStream( br ) )
-				return false;
+			if( !Image.LoadFromStream( br ) )
+				return Logger.LogReturn( "Unable to load Sprite from stream: Failed loading Image.", false, LogType.Error );
+			if( !Transform.LoadFromStream( br ) )
+				return Logger.LogReturn( "Unable to load Sprite from stream: Failed loading Transform.", false, LogType.Error );
 
 			return true;
 		}
@@ -172,13 +172,13 @@ namespace SharpGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( Image == null )
-				return Logger.LogReturn( "Trying to save a sprite to stream with a null image.", false, LogType.Error );
-			if( Transform == null )
-				return Logger.LogReturn( "Trying to save a sprite to stream with a null transform.", false, LogType.Error );
-
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save Sprite to null stream.", false, LogType.Error );
+
+			if( Image == null )
+				Image = new ImageInfo();
+			if( Transform == null )
+				Transform = new Transform();
 
 			if( !Image.SaveToStream( bw ) )
 				return Logger.LogReturn( "Unable to save sprite image to stream.", false, LogType.Error );
@@ -186,6 +186,57 @@ namespace SharpGfx
 				return Logger.LogReturn( "Unable to save sprite transform to stream.", false, LogType.Error );
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public virtual bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load Sprite from a null XmlElement.", false, LogType.Error );
+
+			XmlElement img = element[ "image_info" ],
+					   trn = element[ "color" ];
+
+			if( img == null )
+				return Logger.LogReturn( "Failed loading Sprite: No image_info element.", false, LogType.Error );
+			if( trn == null )
+				return Logger.LogReturn( "Failed loading Sprite: No transform element.", false, LogType.Error );
+
+			Image     = new ImageInfo();
+			Transform = new Transform();
+
+			if( !Image.LoadFromXml( img ) )
+				return Logger.LogReturn( "Failed loading Sprite: Loading ImageInfo failed.", false, LogType.Error );
+			if( !Transform.LoadFromXml( trn ) )
+				return Logger.LogReturn( "Failed loading Sprite: Loading Transform failed.", false, LogType.Error );
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<sprite>" );
+			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+			sb.Append( "</sprite>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>
@@ -322,6 +373,53 @@ namespace SharpGfx
 				return Logger.LogReturn( "Unable to save AnimatedSprite's Animator to stream.", false, LogType.Error );
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public override bool LoadFromXml( XmlElement element )
+		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
+			XmlElement ani = element[ "animator" ];
+
+			if( ani == null )
+				return Logger.LogReturn( "Failed loading AnimatedSprite: No animator element.", false, LogType.Error );
+
+			if( Animator == null )
+				Animator = new Animator();
+
+			if( !Animator.LoadFromXml( ani ) )
+				return Logger.LogReturn( "Failed loading AnimatedSprite: Loading Animator failed.", false, LogType.Error );
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<animated_sprite>" );
+			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Animator, 1 ) );
+			sb.Append( "</animated_sprite>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

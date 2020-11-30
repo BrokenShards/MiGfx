@@ -22,6 +22,8 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 using SFML.System;
 
@@ -35,7 +37,7 @@ namespace SharpGfx
 	///   Contains tileset information.
 	/// </summary>
 	[Serializable]
-	public class Tileset : BinarySerializable, IIdentifiable<string>, IEquatable<Tileset>
+	public class Tileset : BinarySerializable, IXmlLoadable, IIdentifiable<string>, IEquatable<Tileset>
 	{
 		/// <summary>
 		///   The default tileset cell size.
@@ -308,7 +310,7 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load Tileset from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -318,9 +320,9 @@ namespace SharpGfx
 				Offset   = new Vector2u( br.ReadUInt32(), br.ReadUInt32() );
 				Padding  = new Vector2u( br.ReadUInt32(), br.ReadUInt32() );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load Tileset from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -337,7 +339,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save Tileset to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -347,12 +349,94 @@ namespace SharpGfx
 				bw.Write( Offset.X );   bw.Write( Offset.Y );
 				bw.Write( Padding.X );  bw.Write( Padding.Y );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to save Tileset to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load Tileset from a null XmlElement.", false, LogType.Error );
+
+			XmlElement size = element[ "cell_size" ],
+					   off  = element[ "offset" ],
+					   pad  = element[ "padding" ];
+
+			if( size == null )
+				return Logger.LogReturn( "Failed loading Tileset: No cell_size element.", false, LogType.Error );
+			if( off == null )
+				return Logger.LogReturn( "Failed loading Tileset: No offset element.", false, LogType.Error );
+			if( pad == null )
+				return Logger.LogReturn( "Failed loading Tileset: No padding element.", false, LogType.Error );
+
+			try
+			{
+				ID      = element.GetAttribute( "id" );
+				Texture = element.GetAttribute( "texture" );
+
+				CellSize = new Vector2u( uint.Parse( size.GetAttribute( "x" ) ), uint.Parse( size.GetAttribute( "y" ) ) );
+				Offset   = new Vector2u( uint.Parse( off.GetAttribute( "x" ) ),  uint.Parse( off.GetAttribute( "y" ) ) );
+				Padding  = new Vector2u( uint.Parse( pad.GetAttribute( "x" ) ),  uint.Parse( pad.GetAttribute( "y" ) ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading Tileset: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<tileset id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "         texture=\"" );
+			sb.Append( Texture );
+			sb.AppendLine( "\">" );
+
+			sb.Append( "\t<cell_size x=\"" );
+			sb.Append( CellSize.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( CellSize.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "\t<offset x=\"" );
+			sb.Append( CellSize.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( CellSize.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "\t<padding x=\"" );
+			sb.Append( CellSize.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( CellSize.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</text_info>" );
+			return sb.ToString();
 		}
 
 		/// <summary>

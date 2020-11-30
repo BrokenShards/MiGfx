@@ -22,8 +22,10 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.System;
-
+using SharpLogger;
 using SharpSerial;
 
 namespace SharpGfx
@@ -32,7 +34,7 @@ namespace SharpGfx
 	///   Runs and manages animations and animation sets.
 	/// </summary>
 	[Serializable]
-	public class Animator : BinarySerializable, IEquatable<Animator>
+	public class Animator : BinarySerializable, IXmlLoadable, IEquatable<Animator>
 	{
 		/// <summary>
 		///   Constructor.
@@ -258,21 +260,21 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
-			
+				return Logger.LogReturn( "Unable to load Animator from null stream.", false, LogType.Error );
+
 			try
 			{
 				Loop       = br.ReadBoolean();
 				Multiplier = br.ReadSingle();
 				m_selected = br.ReadString();
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load Animator from stream: " + e.Message, false, LogType.Error );
 			}
 
 			if( !AnimationSet.LoadFromStream( br ) )
-				return false;
+				return Logger.LogReturn( "Unable to load Animator from stream: Failed loading AnimationSet.", false, LogType.Error );
 
 			FrameIndex = 0;
 			m_timer.Restart();
@@ -291,7 +293,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save Animator to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -299,15 +301,81 @@ namespace SharpGfx
 				bw.Write( Multiplier );
 				bw.Write( m_selected );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to save Animator to stream: " + e.Message, false, LogType.Error );
 			}
 
 			if( !AnimationSet.SaveToStream( bw ) )
-				return false;
+				return Logger.LogReturn( "Unable to save Animator to stream: Failed saving AnimationSet.", false, LogType.Error );
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load Animator from a null XmlElement.", false, LogType.Error );
+
+			XmlElement aset = element[ "animation_set" ];
+
+			if( aset == null )
+				return Logger.LogReturn( "Failed loading Animator: No animation_set element.", false, LogType.Error );
+
+			AnimationSet = new AnimationSet();
+
+			if( !AnimationSet.LoadFromXml( aset ) )
+				return Logger.LogReturn( "Failed loading Animator: Loading AnimationSet failed.", false, LogType.Error );
+
+			try
+			{
+				Loop       = bool.Parse( element.GetAttribute( "loop" ) );
+				Multiplier = float.Parse( element.GetAttribute( "multiplier" ) );
+				Selected   = element.GetAttribute( "selected" );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading AnimationSet: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<animator loop=\"" );
+			sb.Append( Loop );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "          multiplier=\"" );
+			sb.Append( Multiplier );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "          selected=\"" );
+			sb.Append( Selected ?? string.Empty );
+			sb.AppendLine( "\">" );
+
+			sb.AppendLine( XmlLoadable.ToString( AnimationSet, 1 ) );
+
+			sb.Append( "</animator>" );
+			return sb.ToString();
 		}
 
 		/// <summary>

@@ -26,8 +26,25 @@ using System.Collections.Generic;
 using SFML.Graphics;
 using SFML.Window;
 
+using SFInput;
+
 namespace SharpGfx.UI
 {
+	/// <summary>
+	///   Possible UI user interactions.
+	/// </summary>
+	public enum Interaction
+	{
+		/// <summary>
+		///   Interaction using the mouse.
+		/// </summary>
+		Mouse,
+		/// <summary>
+		///   Interaction using the keyboard or joystick.
+		/// </summary>
+		Control
+	}
+
 	/// <summary>
 	///   Used for managing UI elements.
 	/// </summary>
@@ -41,9 +58,10 @@ namespace SharpGfx.UI
 		/// </param>
 		public UIManager( RenderWindow window )
 		{
-			m_elements = new Dictionary<string, UIElement>();
-			Selected   = null;
-			Window     = window ?? throw new ArgumentNullException();
+			m_elements      = new Dictionary<string, UIElement>();
+			Selected        = null;
+			Window          = window ?? throw new ArgumentNullException();
+			LastInteraction = Interaction.Mouse;
 		}
 
 		/// <summary>
@@ -83,6 +101,10 @@ namespace SharpGfx.UI
 		///   Currently selected element ID.
 		/// </summary>
 		public string Selected { get; private set; }
+		/// <summary>
+		///   The most recent input interaction type.
+		/// </summary>
+		public Interaction LastInteraction { get; private set; }
 
 		/// <summary>
 		///   Checks if the manager contains an element with the given ID.
@@ -265,7 +287,8 @@ namespace SharpGfx.UI
 			Selected = null;
 		}
 		/// <summary>
-		///   Selects the element with the given ID in the manager and deselects all other elements.
+		///   Selects the element with the given ID and deselects all others. If the ID is null or 
+		///   empty, all elements will just be deselected.
 		/// </summary>
 		/// <param name="id">
 		///   The element ID.
@@ -407,6 +430,17 @@ namespace SharpGfx.UI
 		/// <param name="dt"></param>
 		public void Update( float dt )
 		{
+			if( Input.Manager.Mouse.AnyJustMoved() || Input.Manager.Mouse.AnyJustPressed() || Input.Manager.Mouse.AnyJustReleased() )
+				LastInteraction = Interaction.Mouse;
+			else
+			{
+				JoystickManager joy = Input.Manager.Joystick[ Input.Manager.FirstJoystick ];
+
+				if( Input.Manager.Keyboard.AnyJustPressed() || Input.Manager.Keyboard.AnyJustReleased() ||
+					( joy != null && ( joy.AnyJustPressed() || joy.AnyJustReleased() || joy.AnyJustMoved() ) ) )
+					LastInteraction = Interaction.Control;
+			}
+
 			foreach( var v in m_elements )
 				v.Value.Update( dt );
 		}

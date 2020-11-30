@@ -29,6 +29,8 @@ using SFInput;
 using System.IO;
 using SharpLogger;
 using SharpSerial;
+using System.Text;
+using System.Xml;
 
 namespace SharpGfx
 {
@@ -65,7 +67,7 @@ namespace SharpGfx.UI
 	/// <summary>
 	///   Contains visual button info.
 	/// </summary>
-	public class ButtonData : BinarySerializable, IEquatable<ButtonData>
+	public class ButtonData : BinarySerializable, IXmlLoadable, IEquatable<ButtonData>
 	{
 		/// <summary>
 		///   Constructor.
@@ -102,21 +104,6 @@ namespace SharpGfx.UI
 		///   The text offset.
 		/// </summary>
 		public Vector2f TextOffset { get; set; }
-
-		/// <summary>
-		///   If this object has the same values of the other object.
-		/// </summary>
-		/// <param name="other">
-		///   The other object to check against.
-		/// </param>
-		/// <returns>
-		///   True if both objects are concidered equal and false if they are not.
-		/// </returns>
-		public bool Equals( ButtonData other )
-		{
-			return other != null && Image.Equals( other.Image ) &&
-				   Text.Equals( other.Text ) && TextOffset == other.TextOffset;
-		}
 
 		/// <summary>
 		///   Attempts to deserialize the object from the stream.
@@ -187,6 +174,92 @@ namespace SharpGfx.UI
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public virtual bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load ButtonData from a null XmlElement.", false, LogType.Error );
+
+			XmlElement img = element[ "image_info" ],
+					   txt = element[ "text_style" ],
+					   off = element[ "offset" ];
+
+			if( img == null )
+				return Logger.LogReturn( "Failed loading ButtonData: No image_info element.", false, LogType.Error );
+			if( txt == null )
+				return Logger.LogReturn( "Failed loading ButtonData: No text_style element.", false, LogType.Error );
+			if( off == null )
+				return Logger.LogReturn( "Failed loading ButtonData: No offset element.", false, LogType.Error );
+
+			Image = new ImageInfo();
+			Text  = new TextStyle();
+			
+			if( !Image.LoadFromXml( img ) )
+				return Logger.LogReturn( "Failed loading ButtonData: Loading ImageInfo failed.", false, LogType.Error );
+			if( !Text.LoadFromXml( txt ) )
+				return Logger.LogReturn( "Failed loading ButtonData: Loading TextStyle failed.", false, LogType.Error );
+
+			try
+			{
+				TextOffset = new Vector2f( float.Parse( off.GetAttribute( "x" ) ), 
+				                           float.Parse( off.GetAttribute( "y" ) ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading ButtonData: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<button_data>" );
+			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
+
+			sb.Append( "\t<offset x=\"" );
+			sb.Append( TextOffset.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( TextOffset.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</button_data>" );
+
+			return sb.ToString();
+		}
+
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="other">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public bool Equals( ButtonData other )
+		{
+			return other != null && Image.Equals( other.Image ) &&
+				   Text.Equals( other.Text ) && TextOffset == other.TextOffset;
 		}
 	}
 
@@ -292,7 +365,7 @@ namespace SharpGfx.UI
 		{
 			get
 			{
-				if( !Enabled )
+				if( !Enabled || Manager == null )
 					return false;
 
 				Vector2f pos = Manager.Window.MapPixelToCoords( Input.Manager.Mouse.GetPosition( Manager.Window ) );
@@ -325,14 +398,23 @@ namespace SharpGfx.UI
 			m_label.Transform.Position = Transform.Position;
 			m_label.Transform.Scale    = Transform.Scale;
 
-			bool click = Clicked;
+			bool hover = Hovering,
+			     click = Clicked;
 
-			if( click && Manager != null )
-				Manager.Select( ID );				
+			if( Manager.LastInteraction == Interaction.Mouse )
+			{
+				if( hover )
+					Manager.Select( ID );
+				else if( Selected )
+					Manager.Select( null );
+			}
 
-			State = Clicked ? ButtonState.Click : ( Hovering || Selected ? ButtonState.Hover : ButtonState.Idle );
+			if( !Selected && click )
+				Manager.Select( ID );
+
+			State = click ? ButtonState.Click : ( hover || Selected ? ButtonState.Hover : ButtonState.Idle );
 			int s = (int)State;
-
+			
 			m_image.DisplayImage = Data[ s ].Image;
 			m_label.Text         = Data[ s ].Text;
 
@@ -378,8 +460,6 @@ namespace SharpGfx.UI
 			if( !base.LoadFromStream( sr ) )
 				return false;
 
-			if( !m_image.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Unable to load UIButton image from stream.", false, LogType.Error );
 			if( !m_label.LoadFromStream( sr ) )
 				return Logger.LogReturn( "Unable to load UIButton label from stream.", false, LogType.Error );
 
@@ -387,6 +467,7 @@ namespace SharpGfx.UI
 				if( !bd.LoadFromStream( sr ) )
 					return Logger.LogReturn( "Unable to load UIButton data from stream.", false, LogType.Error );
 
+			m_image = new Image();
 			return true;
 		}
 		/// <summary>
@@ -402,8 +483,7 @@ namespace SharpGfx.UI
 		{
 			if( !base.SaveToStream( sw ) )
 				return false;
-			if( !m_image.SaveToStream( sw ) )
-				return Logger.LogReturn( "Unable to save UIButton image to stream.", false, LogType.Error );
+
 			if( !m_label.SaveToStream( sw ) )
 				return Logger.LogReturn( "Unable to save UIButton label to stream.", false, LogType.Error );
 
@@ -412,6 +492,75 @@ namespace SharpGfx.UI
 					return Logger.LogReturn( "Unable to save UIButton data to stream.", false, LogType.Error );
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public override bool LoadFromXml( XmlElement element )
+		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
+			XmlElement  lab  = element[ "label" ];
+			XmlNodeList data = element.SelectNodes( "button_data" );
+
+			if( lab == null )
+				return Logger.LogReturn( "Failed loading Button: No label element.", false, LogType.Error );
+			if( data.Count != Data.Length )
+				return Logger.LogReturn( "Failed loading Button: Incorrect amount of button_data elements.", false, LogType.Error );
+
+			if( !m_label.LoadFromXml( lab ) )
+				return Logger.LogReturn( "Failed loading Button: Loading Label failed.", false, LogType.Error );
+
+			for( int i = 0; i < Data.Length; i++ )
+			{
+				Data[ i ] = new ButtonData();
+				
+				if( !Data[ i ].LoadFromXml( (XmlElement)data[ i ] ) )
+					return Logger.LogReturn( "Failed loading Button: Loading ButtonData failed.", false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<button id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "        enabled=\"" );
+			sb.Append( Enabled );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "        visible=\"" );
+			sb.Append( Visible );
+			sb.AppendLine( "\">" );
+
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( m_label,   1 ) );
+
+			for( int i = 0; i < Data.Length; i++ )
+				sb.AppendLine( XmlLoadable.ToString( Data[ i ], 1 ) );
+
+			sb.Append( "</button>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

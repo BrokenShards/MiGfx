@@ -21,7 +21,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Security.Policy;
 using SFML.Graphics;
+using SFML.System;
 
 namespace SharpGfx.UI
 {
@@ -51,7 +53,9 @@ namespace SharpGfx.UI
 		public Slider()
 		:	base()
 		{
-			m_slider = new Image();
+			m_slider  = new Image();
+			m_pointer = new Image();
+			Direction = DirectionAxis.Horizontal;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -62,7 +66,9 @@ namespace SharpGfx.UI
 		public Slider( Slider e )
 		:	base( e )
 		{
-			m_slider = new Image( e.m_slider );
+			m_slider  = new Image( e.m_slider );
+			m_pointer = new Image( e.m_pointer );
+			Direction = e.Direction;
 		}
 		/// <summary>
 		///   Constructor setting the object ID.
@@ -73,7 +79,9 @@ namespace SharpGfx.UI
 		public Slider( string id )
 		:	base( id )
 		{
-			m_slider = new Image();
+			m_slider  = new Image();
+			m_pointer = new Image();
+			Direction = DirectionAxis.Horizontal;
 		}
 
 		/// <summary>
@@ -81,7 +89,7 @@ namespace SharpGfx.UI
 		/// </summary>
 		public override string TypeName
 		{
-			get { return nameof( UI.Slider ); }
+			get { return nameof( Slider ); }
 		}
 
 		/// <summary>
@@ -93,21 +101,47 @@ namespace SharpGfx.UI
 		}
 
 		/// <summary>
-		///   Slider image.
-		/// </summary>
-		public ImageInfo SliderImage { get; set; }
-		/// <summary>
 		///   Slider direction.
 		/// </summary>
-		public DirectionAxis Direction { get; set; }
+		public DirectionAxis Direction 
+		{
+			get
+			{
+				if( Transform.LocalSize.X >= Transform.LocalSize.Y )
+					return DirectionAxis.Horizontal;
+				else
+					return DirectionAxis.Vertical;
+			}
+			set
+			{
+				DirectionAxis dir = Direction;
+
+				if( value == dir || (int)value >= Enum.GetNames( typeof( DirectionAxis ) ).Length )
+					return;
+
+				float x = Transform.LocalSize.X,
+				      y = Transform.LocalSize.Y;
+
+				Transform.LocalSize = new Vector2f( y, x );
+			}
+		}
+
 		/// <summary>
-		///   Slider line thickness.
+		///   Image for the slider background.
 		/// </summary>
-		public float LineThickness { get; set; }
+		public ImageInfo SliderImage
+		{
+			get { return m_slider.DisplayImage; }
+			set { m_slider.DisplayImage = value; }
+		}
 		/// <summary>
-		///   Slider line color.
+		///   Image for the slider background.
 		/// </summary>
-		public Color LineColor { get; set; }
+		public ImageInfo PointerImage
+		{
+			get { return m_pointer.DisplayImage; }
+			set { m_pointer.DisplayImage = value; }
+		}
 
 		/// <summary>
 		///   Override to update the elements' logic.
@@ -117,10 +151,14 @@ namespace SharpGfx.UI
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			m_slider.Transform = Transform;
+			float minsize = Math.Min( Transform.LocalSize.X, Transform.LocalSize.Y );
+
+			m_slider.Transform  = new Transform( Transform );
+			m_pointer.Transform = new Transform( Transform.Position, new Vector2f( minsize, minsize ), Transform.Scale );
 
 
 			m_slider.Update( dt );
+			m_pointer.Update( dt );
 		}
 		/// <summary>
 		///   Override to draw the element.
@@ -147,11 +185,10 @@ namespace SharpGfx.UI
 		/// </returns>
 		public bool Equals( Slider other )
 		{
-			return base.Equals( other )                 &&
-			       m_slider.Equals( other.m_slider )    &&
-				   Direction     == other.Direction     &&
-				   LineThickness == other.LineThickness &&
-				   LineColor     == other.LineColor;
+			return base.Equals( other )                &&
+			       m_slider.Equals( other.m_slider )   &&
+				   m_pointer.Equals( other.m_pointer ) &&
+				   Direction == other.Direction;
 		}
 
 		/// <summary>
@@ -170,6 +207,7 @@ namespace SharpGfx.UI
 			return name;
 		}
 
-		private Image m_slider;
+		private Image m_slider, 
+		              m_pointer;
 	}
 }

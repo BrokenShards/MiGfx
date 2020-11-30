@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1259
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpGfx", "SharpGfx.csproj", "{12DDFD76-8249-43E8-A4D0-AF314D0C6647}"
 EndProject
@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencie
 		Dependencies\SharpID.dll = Dependencies\SharpID.dll
 		Dependencies\SharpLogger.dll = Dependencies\SharpLogger.dll
 		Dependencies\SharpSerial.dll = Dependencies\SharpSerial.dll
+		Dependencies\SharpTest.dll = Dependencies\SharpTest.dll
 		Dependencies\XInputDotNetPure.dll = Dependencies\XInputDotNetPure.dll
 		Dependencies\XInputInterface.dll = Dependencies\XInputInterface.dll
 	EndProjectSection

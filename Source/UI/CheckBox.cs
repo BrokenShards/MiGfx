@@ -28,6 +28,9 @@ using SFML.Window;
 using SFInput;
 using System.IO;
 using SharpLogger;
+using System.Xml;
+using SharpSerial;
+using System.Text;
 
 namespace SharpGfx
 {
@@ -232,8 +235,6 @@ namespace SharpGfx.UI
 		{
 			if( !base.LoadFromStream( sr ) )
 				return false;
-			if( !m_image.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Unable to load UICheckbox image from stream.", false, LogType.Error );
 
 			for( CheckBoxState s = 0; (int)s < Enum.GetNames( typeof( CheckBoxState ) ).Length; s++ )
 				if( !Images[ (int)s ].LoadFromStream( sr ) )
@@ -248,6 +249,7 @@ namespace SharpGfx.UI
 				return Logger.LogReturn( "Unable to load UICheckbox: " + e.Message + ".", false, LogType.Error );
 			}
 
+			m_image = new Image();
 			return true;
 		}
 		/// <summary>
@@ -263,8 +265,6 @@ namespace SharpGfx.UI
 		{
 			if( !base.SaveToStream( sw ) )
 				return false;
-			if( !m_image.SaveToStream( sw ) )
-				return Logger.LogReturn( "Unable to save UICheckbox image to stream.", false, LogType.Error );
 
 			foreach( ImageInfo i in Images )
 				if( !i.SaveToStream( sw ) )
@@ -280,6 +280,81 @@ namespace SharpGfx.UI
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public override bool LoadFromXml( XmlElement element )
+		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
+			XmlNodeList data = element.SelectNodes( "image_info" );
+
+			if( data.Count != Images.Length )
+				return Logger.LogReturn( "Failed loading CheckBox: Incorrect amount of image_info elements.", false, LogType.Error );
+
+			for( int i = 0; i < Images.Length; i++ )
+			{
+				Images[ i ] = new ImageInfo();
+
+				if( !Images[ i ].LoadFromXml( (XmlElement)data[ i ] ) )
+					return Logger.LogReturn( "Failed loading CheckBox: Loading ImageInfo failed.", false, LogType.Error );
+			}
+
+			try
+			{
+				Checked = bool.Parse( element.GetAttribute( "checked" ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading CheckBox: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<checkbox id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "          enabled=\"" );
+			sb.Append( Enabled );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "          visible=\"" );
+			sb.Append( Visible );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "          checked=\"" );
+			sb.Append( Checked );
+			sb.AppendLine( "\">" );
+
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+
+			for( int i = 0; i < Images.Length; i++ )
+				sb.AppendLine( XmlLoadable.ToString( Images[ i ], 1 ) );
+
+			sb.Append( "</checkbox>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

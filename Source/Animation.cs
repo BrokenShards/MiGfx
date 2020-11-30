@@ -29,6 +29,8 @@ using SFML.System;
 using SharpID;
 using SharpLogger;
 using SharpSerial;
+using System.Xml;
+using System.Text;
 
 namespace SharpGfx
 {
@@ -36,7 +38,7 @@ namespace SharpGfx
 	///   A sprite-based animation frame.
 	/// </summary>
 	[Serializable]
-	public class Frame : BinarySerializable, IEquatable<Frame>
+	public class Frame : BinarySerializable, IXmlLoadable, IEquatable<Frame>
 	{
 		/// <summary>
 		///   Constructor.
@@ -96,7 +98,7 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load frame from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Unable to load Frame from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -105,7 +107,7 @@ namespace SharpGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load frame from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Unable to load Frame from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -122,7 +124,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save frame to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Unable to save Frame to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -131,10 +133,73 @@ namespace SharpGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save frame to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Unable to save Frame to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load Frame from a null XmlElement.", false, LogType.Error );
+
+			XmlElement rect = element[ "rect" ];
+
+			if( rect == null )
+				return Logger.LogReturn( "Failed loading Frame: No rect element.", false, LogType.Error );
+
+			try
+			{
+				Rect = new FloatRect( float.Parse( rect.GetAttribute( "x" ) ), float.Parse( rect.GetAttribute( "y" ) ),
+									  float.Parse( rect.GetAttribute( "w" ) ), float.Parse( rect.GetAttribute( "h" ) ) );
+				Length = Time.FromSeconds( float.Parse( element.GetAttribute( "length" ) ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading Frame: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<frame length=\"" );
+			sb.Append( Length.AsSeconds() );
+			sb.AppendLine( "\">" );
+
+			sb.Append( "\t<rect x=\"" );
+			sb.Append( Rect.Left );
+			sb.Append( "\" y=\"" );
+			sb.Append( Rect.Top );
+			sb.AppendLine( "\"" );
+			sb.Append( "\t      w=\"" );
+			sb.Append( Rect.Width );
+			sb.Append( "\" h=\"" );
+			sb.Append( Rect.Height );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</frame>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>
@@ -158,7 +223,7 @@ namespace SharpGfx
 	///   A sprite-based animation.
 	/// </summary>
 	[Serializable]
-	public class Animation : BinarySerializable, IIdentifiable<string>, IEquatable<Animation>
+	public class Animation : BinarySerializable, IXmlLoadable, IIdentifiable<string>, IEquatable<Animation>
 	{
 		/// <summary>
 		///   Constructor.
@@ -407,7 +472,7 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load animation from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Unable to load Animation from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -421,14 +486,14 @@ namespace SharpGfx
 					Frame f = new Frame();
 
 					if( !f.LoadFromStream( br ) )
-						return Logger.LogReturn( "Unable to load animation frame from stream.", false, LogType.Error );
+						return Logger.LogReturn( "Unable to load Animation frame from stream.", false, LogType.Error );
 
 					m_frames.Add( f );
 				}
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load animation from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Unable to load Animation from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -445,7 +510,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save animation to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Unable to save Animation to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -454,14 +519,75 @@ namespace SharpGfx
 
 				for( int i = 0; i < Count; i++ )
 					if( !m_frames[ i ].SaveToStream( bw ) )
-						return Logger.LogReturn( "Unable to save animation to stream.", false, LogType.Error );
+						return Logger.LogReturn( "Unable to save Animation to stream.", false, LogType.Error );
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save animation to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Unable to save Animation to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load Animation from a null XmlElement.", false, LogType.Error );
+
+			RemoveAll();
+
+			try
+			{
+				ID = element[ "id" ].Value;
+				XmlNodeList frames = element.SelectNodes( "frame" );
+
+				foreach( XmlNode f in frames )
+				{
+					Frame frame = new Frame();
+
+					if( !frame.LoadFromXml( (XmlElement)f ) )
+						return Logger.LogReturn( "Cannot load Animation: Loading Frame failed.", false, LogType.Error );
+
+					Add( frame );
+				}
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading Animation: \"" + e.Message + "\".", false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<animation id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\">" );
+
+			foreach( Frame f in m_frames )
+				sb.AppendLine( XmlLoadable.ToString( f, 1 ) );
+
+			sb.Append( "</animation>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

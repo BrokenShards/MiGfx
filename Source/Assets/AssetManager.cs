@@ -58,14 +58,13 @@ namespace SharpGfx
 		}
 
 		/// <summary>
-		///   If an asset with the given path has been loaded successfully.
+		///   If an asset been loaded from the path.
 		/// </summary>
 		/// <param name="path">
 		///   The path of the asset.
 		/// </param>
 		/// <returns>
-		///   True if an asset with the given path was already loaded and false
-		///   otherwise.
+		///   True if an asset has already been loaded from the path and false otherwise.
 		/// </returns>
 		public bool IsLoaded( string path )
 		{
@@ -83,12 +82,11 @@ namespace SharpGfx
 			return m_assets.ContainsKey( path );
 		}
 		/// <summary>
-		///   Returns the asset loaded from the given path, attempting to load
-		///   a new asset if needed.
+		///   Gets the asset loaded from the given path, attempting to load a new one if needed.
 		/// </summary>
 		/// <remarks>
-		///   Please note the given path should be relative to the executable
-		///   as it will be appended to the executable path.
+		///   Please note the given path should be relative to the executable as it will be 
+		///   appended to the executable path.
 		/// </remarks>
 		/// <param name="path">
 		///   The path of the asset.
@@ -129,21 +127,21 @@ namespace SharpGfx
 		///   If an already existing asset should be reloaded.
 		/// </param>
 		/// <returns>
-		///   True if the asset was/has been loaded successfully and false
-		///   otherwise.
+		///   True if the asset was/has been loaded successfully and false otherwise.
 		/// </returns>
 		protected abstract bool Load( string path, bool reload );
 		/// <summary>
 		///   Unloads the asset loaded from the given path.
-		///   Please note the given path should be relative to the executable
-		///   as it will be appended to the executable path.
 		/// </summary>
+		/// <remarks>
+		///   Please note the given path should be relative to the executable as it will be 
+		///   appended to the executable path.
+		/// </remarks>
 		/// <param name="path">
 		///   The path of the asset.
 		/// </param>
 		/// <returns>
-		///   True if an asset was loaded from the given path and it was removed
-		///   successfully, otherwise false.
+		///   True if the asset existed and was unloaded and removed successfully, otherwise false.
 		/// </returns>
 		public virtual bool Unload( string path )
 		{
@@ -180,7 +178,7 @@ namespace SharpGfx
 		/// <summary>
 		///   Disposes of all assets.
 		/// </summary>
-		public void Dispose()
+		public virtual void Dispose()
 		{
 			UnloadAll();
 		}

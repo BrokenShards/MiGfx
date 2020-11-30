@@ -28,7 +28,9 @@ using SFML.System;
 using SharpGfx;
 using SharpLogger;
 using SharpSerial;
-using Sprite = SharpGfx.Sprite;
+using SharpTest;
+
+using Sprite    = SharpGfx.Sprite;
 using Transform = SharpGfx.Transform;
 
 namespace SharpGfxTest
@@ -194,7 +196,7 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running ImageInfo Tests..." );
 
-			ImageInfo img = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), Color.Blue );
+			ImageInfo img = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), null, Color.Blue );
 
 			if( !BinarySerializable.ToFile( img, ImageInfoPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize ImageInfo to file.", false );
@@ -225,7 +227,7 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running Sprite Tests..." );
 
-			Sprite spr = new Sprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), Color.Red ) );
+			Sprite spr = new Sprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), null, Color.Red ) );
 
 			spr.Transform.Position = new Vector2f( 100, 100 );
 			spr.Transform.LocalSize = new Vector2f( 100, 100 );
@@ -258,7 +260,7 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running AnimatedSprite Tests..." );
 
-			AnimatedSprite spr = new AnimatedSprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), Color.Red ) );
+			AnimatedSprite spr = new AnimatedSprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), null, Color.Red ) );
 
 			spr.Transform.Position = new Vector2f( 100, 100 );
 			spr.Transform.LocalSize = new Vector2f( 100, 100 );

@@ -26,6 +26,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 using SharpSerial;
+using System.Xml;
+using System.Text;
+using SharpLogger;
 
 namespace SharpGfx
 {
@@ -33,7 +36,7 @@ namespace SharpGfx
 	///   A set of string indexed animations.
 	/// </summary>
 	[Serializable]
-	public class AnimationSet : BinarySerializable, IEnumerable<KeyValuePair<string, Animation>>, IEquatable<AnimationSet>
+	public class AnimationSet : BinarySerializable, IXmlLoadable, IEnumerable<KeyValuePair<string, Animation>>, IEquatable<AnimationSet>
 	{
 		/// <summary>
 		///   Constructor.
@@ -231,7 +234,7 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load AnimationSet from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -241,13 +244,15 @@ namespace SharpGfx
 				{
 					Animation anim = new Animation();
 
-					if( !anim.LoadFromStream( br ) || !Add( anim ) )
-						return false;
+					if( !anim.LoadFromStream( br ) )
+						return Logger.LogReturn( "Unable to load AnimationSet from stream: Animation loading failed.", false, LogType.Error );
+					if( !Add( anim ) )
+						return Logger.LogReturn( "Unable to load AnimationSet from stream: Failed adding Animation.", false, LogType.Error );
 				}
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load AnimationSet from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -264,7 +269,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save AnimationSet to null stream.", false, LogType.Error );
 
 			RemoveAll();
 
@@ -274,14 +279,72 @@ namespace SharpGfx
 
 				foreach( var v in m_animap )
 					if( !v.Value.SaveToStream( bw ) )
-						return false;
+						return Logger.LogReturn( "Unable to save AnimationSet to stream: Animation saving failed.", false, LogType.Error );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to save AnimationSet to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load AnimationSet from a null XmlElement.", false, LogType.Error );
+
+			RemoveAll();
+
+			try
+			{
+				XmlNodeList anims = element.SelectNodes( "animation" );
+
+				foreach( XmlNode f in anims )
+				{
+					Animation a = new Animation();
+
+					if( !a.LoadFromXml( (XmlElement)f ) )
+						return Logger.LogReturn( "Cannot load AnimationSet: Loading Animation failed.", false, LogType.Error );
+					if( !Add( a, true ) )
+						return Logger.LogReturn( "Cannot load AnimationSet: Adding Animation failed.", false, LogType.Error );
+				}
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading AnimationSet: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<animation_set>" );
+
+			foreach( var a in m_animap )
+				sb.AppendLine( XmlLoadable.ToString( a.Value, 1 ) );
+
+			sb.Append( "</animation_set>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

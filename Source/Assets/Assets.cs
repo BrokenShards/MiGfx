@@ -73,14 +73,13 @@ namespace SharpGfx
 		public TextureManager Texture { get; private set; }
 
 		/// <summary>
-		///   If an asset with the given path has been loaded successfully.
+		///   If an asset has been loaded from the path.
 		/// </summary>
 		/// <param name="path">
 		///   The path of the asset.
 		/// </param>
 		/// <returns>
-		///   True if an asset with the given path was already loaded and false
-		///   otherwise.
+		///   True if an asset has already been loaded from the path and false otherwise.
 		/// </returns>
 		public bool IsLoaded<T>( string path ) where T : class, IDisposable
 		{
@@ -95,8 +94,7 @@ namespace SharpGfx
 		}
 
 		/// <summary>
-		///   Gets the asset loaded from the given path, attempting to load a
-		///   new one and returning that if needed.
+		///   Gets the asset loaded from the given path, attempting to load a new one if needed.
 		/// </summary>
 		/// <remarks>
 		///   Please note the given path should be relative to the executable

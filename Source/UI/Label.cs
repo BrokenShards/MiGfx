@@ -22,9 +22,12 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 using SFML.System;
 using SharpLogger;
+using SharpSerial;
 
 namespace SharpGfx
 {
@@ -256,6 +259,69 @@ namespace SharpGfx.UI
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public override bool LoadFromXml( XmlElement element )
+		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
+			String = element.GetAttribute( "string" );
+			XmlElement txt = element[ "text_info" ];
+
+			if( txt == null )
+				return Logger.LogReturn( "Failed loading Label: No text_style element.", false, LogType.Error );
+
+			if( Text == null )
+				Text = new TextStyle();
+
+			if( !Text.LoadFromXml( txt ) )
+				return Logger.LogReturn( "Failed loading Label: Loading TextStyle failed.", false, LogType.Error );
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<label id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       enabled=\"" );
+			sb.Append( Enabled );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       visible=\"" );
+			sb.Append( Visible );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       string=\"" );
+			sb.Append( String );
+			sb.AppendLine( "\">" );
+
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
+
+			sb.Append( "</image>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

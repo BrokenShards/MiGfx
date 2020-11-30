@@ -22,7 +22,10 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
+using SFML.System;
 
 using SharpLogger;
 using SharpSerial;
@@ -30,10 +33,33 @@ using SharpSerial;
 namespace SharpGfx
 {
 	/// <summary>
+	///   Possible directions.
+	/// </summary>
+	public enum Direction
+	{
+		/// <summary>
+		///   Up direction.
+		/// </summary>
+		Up,
+		/// <summary>
+		///   Down direction.
+		/// </summary>
+		Down,
+		/// <summary>
+		///   Left direction.
+		/// </summary>
+		Left,
+		/// <summary>
+		///   Right direction.
+		/// </summary>
+		Right
+	}
+
+	/// <summary>
 	///   Image display information.
 	/// </summary>
 	[Serializable]
-	public class ImageInfo : BinarySerializable, IEquatable<ImageInfo>
+	public class ImageInfo : BinarySerializable, IXmlLoadable, IEquatable<ImageInfo>
 	{
 		/// <summary>
 		///   Constructor.
@@ -42,6 +68,7 @@ namespace SharpGfx
 		{
 			Path  = string.Empty;
 			Rect  = new FloatRect();
+			Orientation = Direction.Up;
 			Color = new Color( 255, 255, 255, 255 );
 		}
 		/// <summary>
@@ -60,11 +87,11 @@ namespace SharpGfx
 
 			Path  = new string( i.Path.ToCharArray() );
 			Rect  = i.Rect;
+			Orientation = i.Orientation;
 			Color = i.Color;
 		}
 		/// <summary>
-		///   Constructor that assigns texture path along with optional rect 
-		///   and color.
+		///   Constructor that assigns texture path along with optional rect, orientation and color.
 		/// </summary>
 		/// <param name="path">
 		///   Texture path.
@@ -72,14 +99,18 @@ namespace SharpGfx
 		/// <param name="rect">
 		///   Texture display rect.
 		/// </param>
+		/// <param name="dir">
+		///   Orientation direction.
+		/// </param>
 		/// <param name="col">
 		///   Texture color modifier.
 		/// </param>
-		public ImageInfo( string path, FloatRect? rect = null, Color? col = null )
+		public ImageInfo( string path, FloatRect? rect = null, Direction? dir = null, Color? col = null )
 		{
-			Path  = path ?? string.Empty;
-			Rect  = rect ?? new FloatRect();
-			Color = col  ?? new Color( 255, 255, 255, 255 );
+			Path        = path ?? string.Empty;
+			Rect        = rect ?? new FloatRect();
+			Orientation = dir  ?? Direction.Up;
+			Color       = col  ?? new Color( 255, 255, 255, 255 );
 		}
 
 		/// <summary>
@@ -105,6 +136,13 @@ namespace SharpGfx
 		///   Texture color modifier.
 		/// </summary>
 		public Color Color { get; set; }
+		/// <summary>
+		///   Texture orientation modifier.
+		/// </summary>
+		public Direction Orientation
+		{
+			get; set;
+		}
 
 		/// <summary>
 		///   Sets the texture display rect to the full texture.
@@ -120,6 +158,76 @@ namespace SharpGfx
 		}
 
 		/// <summary>
+		///   Calculates and returns the vertex at the given index from top-left to bottom-left.
+		/// </summary>
+		/// <param name="index">
+		///   The index of the vertex.
+		/// </param>
+		/// <param name="tran">
+		///   Transform of the display image.
+		/// </param>
+		/// <returns>
+		///   The vertex at the given index to display the image.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///   If index is out of range (greater than 3).
+		/// </exception>
+		/// <exception cref="ArgumentNullException">
+		///   If transform is null.
+		/// </exception>
+		public Vertex GetVertex( uint index, Transform tran )
+		{
+			if( tran == null )
+				throw new ArgumentNullException();
+			if( index > 3 )
+				throw new ArgumentOutOfRangeException( nameof( index ), "Vertex index is out of range." );
+
+			FloatRect bounds = tran.GlobalBounds,
+			          rect   = Rect;
+
+			if( rect.Width <= 0.0f || rect.Height <= 0.0f )
+			{
+				if( IsTextureValid )
+				{
+					Vector2u ts = Assets.Manager.Get<Texture>( Path ).Size;
+					rect = new FloatRect( 0, 0, ts.X, ts.Y );
+				}
+				else
+				{
+					Vector2f ts = tran.GlobalSize;
+					rect = new FloatRect( 0, 0, ts.X, ts.Y );
+				}
+			}
+
+			uint texindex = index;
+
+			switch( Orientation )
+			{
+				case Direction.Right:
+					texindex++;
+					break;
+				case Direction.Down:
+					texindex += 2;
+					break;
+				case Direction.Left:
+					texindex += 3;
+					break;
+			}
+
+			if( texindex >= 4 )
+				texindex %= 4;
+
+			return new Vertex
+			{
+				Position = new Vector2f( index > 0 && index < 3 ? bounds.Left + bounds.Width : bounds.Left,
+				                         index > 1 ? bounds.Top + bounds.Height : bounds.Top ),
+				Color = Color,
+				TexCoords = new Vector2f( texindex > 0 && texindex < 3 ? rect.Left + rect.Width : rect.Left,
+										  texindex > 1 ? rect.Top + rect.Height : rect.Top )
+			};
+		}
+
+		/// <summary>
 		///   Loads the object from a stream.
 		/// </summary>
 		/// <param name="br">
@@ -131,17 +239,18 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load ImageInfo from null stream.", false, LogType.Error );
 
 			try
 			{
-				Path  = br.ReadString();
-				Rect  = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
-				Color = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
+				Path        = br.ReadString();
+				Rect        = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
+				Color       = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
+				Orientation = (Direction)br.ReadInt32();
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load ImageInfo from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -158,20 +267,99 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save ImageInfo to null stream.", false, LogType.Error );
 
 			try
 			{
 				bw.Write( Path );
 				bw.Write( Rect.Left ); bw.Write( Rect.Top ); bw.Write( Rect.Width ); bw.Write( Rect.Height );
 				bw.Write( Color.R ); bw.Write( Color.G ); bw.Write( Color.B ); bw.Write( Color.A );
+				bw.Write( (int)Orientation );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to save ImageInfo to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load ImageInfo from a null XmlElement.", false, LogType.Error );
+
+			XmlElement rect   = element[ "rect" ],
+					   color  = element[ "color" ];
+
+			if( rect == null )
+				return Logger.LogReturn( "Failed loading ImageInfo: No rect element.", false, LogType.Error );
+			if( color == null )
+				return Logger.LogReturn( "Failed loading ImageInfo: No color element.", false, LogType.Error );
+
+			try
+			{
+				Path        = element.GetAttribute( "texture" );
+				Rect        = new FloatRect( float.Parse( rect.GetAttribute( "x" ) ), float.Parse( rect.GetAttribute( "y" ) ),
+				                             float.Parse( rect.GetAttribute( "w" ) ), float.Parse( rect.GetAttribute( "h" ) ) );
+				Color       = new Color( byte.Parse( color.GetAttribute( "r" ) ), byte.Parse( color.GetAttribute( "g" ) ),
+								         byte.Parse( color.GetAttribute( "b" ) ), byte.Parse( color.GetAttribute( "a" ) ) );
+				Orientation = (Direction)Enum.Parse( typeof( Direction ), element.GetAttribute( "orientation" ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading ImageInfo: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<image_info texture=\"" + Path + "\"" );
+			sb.AppendLine( "            orientation=\"" + Orientation.ToString() + "\">" );
+
+			sb.Append( "\t<rect x=\"" ); 
+			sb.Append( Rect.Left );
+			sb.Append( "\" y=\"" );
+			sb.Append( Rect.Top );
+			sb.AppendLine( "\"" );
+			sb.Append( "\t      w=\"" );
+			sb.Append( Rect.Width );
+			sb.Append( "\" h=\"" );
+			sb.Append( Rect.Height );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "\t<color r=\"" );
+			sb.Append( Color.R );
+			sb.Append( "\" g=\"" );
+			sb.Append( Color.G );
+			sb.Append( "\" b=\"" );
+			sb.Append( Color.B );
+			sb.Append( "\" a=\"" );
+			sb.Append( Color.A );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</image_info>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>
@@ -188,6 +376,7 @@ namespace SharpGfx
 			return other != null &&
 			       Path?.Trim()?.ToLower() == other.Path?.Trim()?.ToLower() &&
 				   Rect  == other.Rect &&
+				   Orientation == other.Orientation &&
 				   Color == other.Color;
 		}
 	}

@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// TextInfo.cs 
+// TextStyle.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // SharpGfx - A basic graphics library for use with SFML.Net.
@@ -22,6 +22,8 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 
 using SharpLogger;
@@ -33,7 +35,7 @@ namespace SharpGfx
 	///   Text style information.
 	/// </summary>
 	[Serializable]
-	public class TextStyle : BinarySerializable, IEquatable<TextStyle>
+	public class TextStyle : BinarySerializable, IXmlLoadable, IEquatable<TextStyle>
 	{
 		/// <summary>
 		///   Constructor.
@@ -206,7 +208,7 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Unable to load TextInfo from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -217,9 +219,9 @@ namespace SharpGfx
 				FillColor    = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
 				OutlineColor = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to load TextInfo from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -236,7 +238,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Unable to save TextStyle to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -249,12 +251,104 @@ namespace SharpGfx
 				bw.Write( OutlineColor.R ); bw.Write( OutlineColor.G );
 				bw.Write( OutlineColor.B ); bw.Write( OutlineColor.A );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Unable to save TextStyle to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load TextStyle from a null XmlElement.", false, LogType.Error );
+
+			XmlElement fcol = element[ "fill_color" ],
+			           ocol = element[ "outline_color" ];
+
+			if( fcol == null )
+				return Logger.LogReturn( "Failed loading TextStyle: No fill_color element.", false, LogType.Error );
+			if( ocol == null )
+				return Logger.LogReturn( "Failed loading TextStyle: No outline_color element.", false, LogType.Error );
+
+			try
+			{
+				FontPath = element.GetAttribute( "font" );
+				Size     = uint.Parse( element.GetAttribute( "size" ) );
+				Style    = uint.Parse( element.GetAttribute( "style" ) );
+				Outline  = float.Parse( element.GetAttribute( "outline" ) );
+
+				FillColor    = new Color( byte.Parse( fcol.GetAttribute( "r" ) ), byte.Parse( fcol.GetAttribute( "g" ) ),
+									      byte.Parse( fcol.GetAttribute( "b" ) ), byte.Parse( fcol.GetAttribute( "a" ) ) );
+				OutlineColor = new Color( byte.Parse( ocol.GetAttribute( "r" ) ), byte.Parse( ocol.GetAttribute( "g" ) ),
+									      byte.Parse( ocol.GetAttribute( "b" ) ), byte.Parse( ocol.GetAttribute( "a" ) ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading TextStyle: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<text_style font=\"" );
+			sb.Append( FontPath ?? string.Empty );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "            size=\"" );
+			sb.Append( Size );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "            style=\"" );
+			sb.Append( Style );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "            outline=\"" );
+			sb.Append( Outline );
+			sb.AppendLine( "\">" );
+
+			sb.Append( "\t<fill_color r=\"" );
+			sb.Append( FillColor.R );
+			sb.Append( "\" g=\"" );
+			sb.Append( FillColor.G );
+			sb.Append( "\" b=\"" );
+			sb.Append( FillColor.B );
+			sb.Append( "\" a=\"" );
+			sb.Append( FillColor.A );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "\t<outline_color r=\"" );
+			sb.Append( OutlineColor.R );
+			sb.Append( "\" g=\"" );
+			sb.Append( OutlineColor.G );
+			sb.Append( "\" b=\"" );
+			sb.Append( OutlineColor.B );
+			sb.Append( "\" a=\"" );
+			sb.Append( OutlineColor.A );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</text_style>" );
+			return sb.ToString();
 		}
 
 		/// <summary>

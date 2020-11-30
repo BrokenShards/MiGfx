@@ -30,7 +30,7 @@
               The positive name.
             </param>
         </member>
-        <member name="M:SFInput.Action.#ctor(System.String,SFInput.InputMap)">
+        <member name="M:SFInput.Action.#ctor(System.String,SFInput.InputMap[])">
             <summary>
               Constructs the object with the given positive name and input map.
             </summary>
@@ -188,12 +188,12 @@
               If the action is valid.
             </summary>
         </member>
-        <member name="M:SFInput.Action.LoadFromXml(System.Xml.XmlNode)">
+        <member name="M:SFInput.Action.LoadFromXml(System.Xml.XmlElement)">
             <summary>
               Loads data from an xml element.
             </summary>
-            <param name="node">
-              The node to load data from.
+            <param name="ele">
+              The element to load data from.
             </param>
             <returns>
               True if loaded successfully and false otherwise.
@@ -203,17 +203,6 @@
             <summary>
               Returns the action as an xml string, ready to be written to file.
             </summary>
-            <returns>
-              The action as an xml string.
-            </returns>
-        </member>
-        <member name="M:SFInput.Action.ToString(System.UInt32)">
-            <summary>
-              Returns the action as an xml string with a given amount of indentation.
-            </summary>
-            <param name="tab">
-              The amount of tabs to use for indentation.
-            </param>
             <returns>
               The action as an xml string.
             </returns>
@@ -242,6 +231,14 @@
             </summary>
             <param name="a">
               The object to copy.
+            </param>
+        </member>
+        <member name="M:SFInput.ActionSet.#ctor(SFInput.Action[])">
+            <summary>
+              Constructs the set, populating it with one or multiple actions.
+            </summary>
+            <param name="acts">
+              The actions to construct the set with.
             </param>
         </member>
         <member name="P:SFInput.ActionSet.Item(System.String)">
@@ -312,6 +309,17 @@
               True if the action was successfully added to the set and false otherwise.
             </returns>
         </member>
+        <member name="M:SFInput.ActionSet.Add(SFInput.Action[])">
+            <summary>
+              Adds multipe actions to the set.
+            </summary>
+            <param name="acts">
+              One or multiple actions to add.
+            </param>
+            <returns>
+              The amount of actions that were successfully added to the set.
+            </returns>
+        </member>
         <member name="M:SFInput.ActionSet.Remove(SFInput.Action)">
             <summary>
               Removes either the given action, or an existing action with the same name from the set.
@@ -348,6 +356,17 @@
             </param>
             <returns>
               True on success and false on failure.
+            </returns>
+        </member>
+        <member name="M:SFInput.ActionSet.LoadFromXml(System.Xml.XmlElement)">
+            <summary>
+              Attempts to load the object from the xml element.
+            </summary>
+            <param name="element">
+              The xml element.
+            </param>
+            <returns>
+              True if object data was loaded successfully and false otherwise.
             </returns>
         </member>
         <member name="M:SFInput.ActionSet.ToString">
@@ -441,7 +460,7 @@
         </member>
         <member name="P:SFInput.Input.Actions">
             <summary>
-              Currently mapped actions.
+              Currently mapped actions for each player.
             </summary>
         </member>
         <member name="M:SFInput.Input.JoystickConnected(System.UInt32)">
@@ -581,43 +600,89 @@
               True if the axis is valid for the given device and has just been released, otherwise false.
             </returns>
         </member>
-        <member name="M:SFInput.Input.IsPressed(System.String)">
+        <member name="M:SFInput.Input.IsPressed(System.String,System.UInt32)">
             <summary>
               Checks if the input mapped to action is pressed.
             </summary>
             <param name="action">
               The name of the mapped action.
             </param>
+            <param name="player">
+              The player index.
+            </param>
             <returns>
-              True if action is valid, mapped and pressed, otherwise false.
+              True if index and action are valid, mapped and pressed, otherwise false.
             </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              If player greater than or equal to <see cref="F:SFInput.Input.MaxJoysticks"/>.
+            </exception>
         </member>
-        <member name="M:SFInput.Input.JustPressed(System.String)">
+        <member name="M:SFInput.Input.JustPressed(System.String,System.UInt32)">
             <summary>
               Checks if the input mapped to action was just pressed.
             </summary>
             <param name="action">
               The name of the mapped action.
             </param>
+            <param name="player">
+              The player index.
+            </param>
             <returns>
-              True if action is valid, mapped and was just pressed, otherwise false.
+              True if index and action are valid, mapped and was just pressed, otherwise false.
             </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              If player greater than or equal to <see cref="F:SFInput.Input.MaxJoysticks"/>.
+            </exception>
         </member>
-        <member name="M:SFInput.Input.JustReleased(System.String)">
+        <member name="M:SFInput.Input.JustReleased(System.String,System.UInt32)">
             <summary>
               Checks if the input mapped to action was just released.
             </summary>
             <param name="action">
               The name of the mapped action.
             </param>
+            <param name="player">
+              The player index.
+            </param>
             <returns>
-              True if action is valid, mapped and was just released, otherwise false.
+              True if index and action are valid, mapped and was just released, otherwise false.
             </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              If player greater than or equal to <see cref="F:SFInput.Input.MaxJoysticks"/>.
+            </exception>
+        </member>
+        <member name="M:SFInput.Input.GetValue(System.String,System.UInt32)">
+            <summary>
+              Gets the current value of the action.
+            </summary>
+            <param name="action">
+              The name of the mapped action.
+            </param>
+            <param name="player">
+              The player index.
+            </param>
+            <returns>
+              The current value of the mapped action if it is valid, otherwise zero.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              If player greater than or equal to <see cref="F:SFInput.Input.MaxJoysticks"/>.
+            </exception>
         </member>
         <member name="M:SFInput.Input.Update">
             <summary>
               Updates input device states.
             </summary>
+        </member>
+        <member name="M:SFInput.Input.LoadFromXml(System.Xml.XmlElement)">
+            <summary>
+              Attempts to load the object from the xml element.
+            </summary>
+            <param name="element">
+              The xml element.
+            </param>
+            <returns>
+              True if the object was loaded successfully and false otherwise.
+            </returns>
         </member>
         <member name="M:SFInput.Input.LoadFromFile(System.String)">
             <summary>
@@ -630,14 +695,27 @@
               True on success and false on failure.
             </returns>
         </member>
-        <member name="M:SFInput.Input.SaveToFile(System.String)">
+        <member name="M:SFInput.Input.SaveToFile(System.String,System.Boolean)">
             <summary>
-              Saves the current action set to an optional path
+              Saves the action set to an optional path, optionally overwriting any existing file.
             </summary>
             <param name="path">
-              The path to save the action set to, or null to use the default path.
+              File path.
             </param>
-            <returns></returns>
+            <param name="overwrite">
+              If an already existing file should be overwritten.
+            </param>
+            <returns>
+              True if the action set was successfully written to file, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.Input.ToString">
+            <summary>
+              Converts the object to an xml string.
+            </summary>
+            <returns>
+              Returns the object as an xml string.
+            </returns>
         </member>
         <member name="T:SFInput.InputDevice">
             <summary>
@@ -763,12 +841,12 @@
               If the inputs should be inversed.
             </summary>
         </member>
-        <member name="M:SFInput.InputMap.LoadFromXml(System.Xml.XmlNode)">
+        <member name="M:SFInput.InputMap.LoadFromXml(System.Xml.XmlElement)">
             <summary>
-              Loads data from an xml node.
+              Loads data from an xml element.
             </summary>
-            <param name="node">
-              The node to load data from.
+            <param name="ele">
+              The element to load data from.
             </param>
             <returns>
               True if loaded successfully and false otherwise.
@@ -778,17 +856,6 @@
             <summary>
               Gets the xml file representation of the object as a string with no added indentation.
             </summary>
-            <returns>
-              The xml object data as a string.
-            </returns>
-        </member>
-        <member name="M:SFInput.InputMap.ToString(System.UInt32)">
-            <summary>
-              Gets the xml file representation of the object as a string.
-            </summary>
-            <param name="tab">
-              The amount of tabs that should be used for indentation.
-            </param>
             <returns>
               The xml object data as a string.
             </returns>
@@ -988,6 +1055,38 @@
             </param>
             <returns>
               True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AnyPressed">
+            <summary>
+              Checks if any button is currently pressed.
+            </summary>
+            <returns>
+              True if any buttons are currently pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AnyJustPressed">
+            <summary>
+              Checks if any button has just been pressed.
+            </summary>
+            <returns>
+              True if any buttons have just been pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AnyJustReleased">
+            <summary>
+              Checks if any button has just been pressed.
+            </summary>
+            <returns>
+              True if any buttons have just been pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.JoystickManager.AnyJustMoved">
+            <summary>
+              Checks if any axis has just been moved.
+            </summary>
+            <returns>
+              True if any axies have just been moved and false otherwise.
             </returns>
         </member>
         <member name="M:SFInput.JoystickManager.GetAxis(System.UInt32)">
@@ -1501,6 +1600,17 @@
               A deep copy of the object.
             </returns>
         </member>
+        <member name="M:SFInput.JoystickState.Equals(SFInput.JoystickState)">
+            <summary>
+              Checks if this object is equal to another.
+            </summary>
+            <param name="other">
+              The object to check against.
+            </param>
+            <returns>
+              True if this object is considered equal to the given object.
+            </returns>
+        </member>
         <member name="F:SFInput.JoystickState.m_axis">
             <summary>
               Array containing axis values.
@@ -1660,6 +1770,30 @@
               True if the key index is valid and the key has just been released, otherwise false.
             </returns>
         </member>
+        <member name="M:SFInput.KeyboardManager.AnyPressed">
+            <summary>
+              Checks if any key is currently pressed.
+            </summary>
+            <returns>
+              True if any keys are currently pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.AnyJustPressed">
+            <summary>
+              Checks if any key has just been pressed.
+            </summary>
+            <returns>
+              True if any keys have just been pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardManager.AnyJustReleased">
+            <summary>
+              Checks if any key has just been pressed.
+            </summary>
+            <returns>
+              True if any keys have just been pressed and false otherwise.
+            </returns>
+        </member>
         <member name="T:SFInput.KeyboardState">
             <summary>
               Represents the state of the keyboard at a given moment.
@@ -1735,6 +1869,17 @@
             </summary>
             <returns>
               A deep copy of the object.
+            </returns>
+        </member>
+        <member name="M:SFInput.KeyboardState.Equals(SFInput.KeyboardState)">
+            <summary>
+              Checks if this object is equal to another.
+            </summary>
+            <param name="other">
+              The object to check against.
+            </param>
+            <returns>
+              True if this object is considered equal to the given object.
             </returns>
         </member>
         <member name="T:SFInput.MouseManager">
@@ -2002,6 +2147,38 @@
             </param>
             <returns>
               True if the button index is valid and the button has just been released, otherwise false.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AnyPressed">
+            <summary>
+              Checks if any button is currently pressed.
+            </summary>
+            <returns>
+              True if any buttons are currently pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AnyJustPressed">
+            <summary>
+              Checks if any button has just been pressed.
+            </summary>
+            <returns>
+              True if any buttons have just been pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AnyJustReleased">
+            <summary>
+              Checks if any button has just been pressed.
+            </summary>
+            <returns>
+              True if any buttons have just been pressed and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseManager.AnyJustMoved">
+            <summary>
+              Checks if any axis has just been moved.
+            </summary>
+            <returns>
+              True if any axies have just been moved and false otherwise.
             </returns>
         </member>
         <member name="M:SFInput.MouseManager.GetAxis(System.UInt32)">
@@ -2421,6 +2598,17 @@
             </summary>
             <returns>
               A deep copy of the object.
+            </returns>
+        </member>
+        <member name="M:SFInput.MouseState.Equals(SFInput.MouseState)">
+            <summary>
+              Checks if this object is equal to another.
+            </summary>
+            <param name="other">
+              The object to check against.
+            </param>
+            <returns>
+              True if this object is considered equal to the given object.
             </returns>
         </member>
     </members>

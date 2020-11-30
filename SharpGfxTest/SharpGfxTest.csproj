@@ -61,6 +61,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\SharpSerial.dll</HintPath>
     </Reference>
+    <Reference Include="SharpTest">
+      <HintPath>..\Dependencies\SharpTest.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -78,7 +81,6 @@
     <Compile Include="Source\GfxTest.cs" />
     <Compile Include="Source\Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\TestModule.cs" />
     <Compile Include="Source\UITest.cs" />
   </ItemGroup>
   <ItemGroup>

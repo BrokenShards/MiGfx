@@ -7,18 +7,37 @@ A basic C# graphics library for use with SFML.Net.
 - SharpID `https://github.com/BrokenShards/SharpID.git`
 - SharpLogger `https://github.com/BrokenShards/SharpLogger.git`
 - SharpSerial `https://github.com/BrokenShards/SharpSerial.git`
+- SharpTest `https://github.com/BrokenShards/SharpTest.git`
 - XInputDotNetPure `https://github.com/speps/XInputDotNet.git`
 
 ## NOTE
-Please note `UI.Slider` is incomplete and not in a usable state, it is only included in the current release
-as an artifact from merging SharpUI into SharpGfx.
+Please note `UI.Slider` is incomplete and not in a usable state, it is only included in the current 
+release as an artifact from merging SharpUI into SharpGfx.
+Also SharpTest is only required for the test project, SharpGfx itself does not depend on it.
 
 ## TODO
+- Write IXmlLoadable tests.
 - Finish `UI.Slider`.
-- Implement UI containers/layouting.
-- Implement visual tests with user input for graphical classes.
+- Implement UI containers/grouping/layouting.
 
 ## Changelog
+
+### Version 0.6.0
+- `TextBox` now implements the missing `LoadFromStream(BinaryReader)`, `SaveToStream(BinaryWriter)`
+  and `Equals(TextBox)` methods.
+- Now all graphical classes that implement `IBinarySerializable`/`BinarySerializable` also 
+  implement `IXmlLoadable`. This enables modifiable objects or objects in development to be 
+  implemented and easily changed in xml, then exported to a binary file for release.
+- `SoundManager` now properly disposes of its music track on dispose.
+- The test project now uses SharpTest for testing.
+- Updated SFInput to version 0.6.0.
+- Updated SharpSerial to version 0.5.0.
+
+### Version 0.5.1
+- Visual tests with user input have been implemented for graphical classes.
+- Added a default texture for `UI.Slider`.
+- Updated SFInput to version 0.5.2.
+- Updated project to copy `XInputInterface.dll` to the build directory.
 
 ### Version 0.5.0
 - SharpUI has now been merged into SharpGfx and thus now depends on SFInput and XInputDotNetPure.
@@ -31,7 +50,8 @@ as an artifact from merging SharpUI into SharpGfx.
 ### Version 0.4.0
 - Added a sanity test project.
 - Fixed issue where Animations were not serializing and deserializing correctly.
-- Now all classes inherit from `System.IEquatable<T>` for easy equality comparison for the test project.
+- Now all classes inherit from `System.IEquatable<T>` for easy equality comparison for the test 
+  project.
 - Updated SharpID to version 0.3.0.
 - Updated SharpLogger to version 0.3.1.
 - Updated SharpSerial to version 0.3.0.

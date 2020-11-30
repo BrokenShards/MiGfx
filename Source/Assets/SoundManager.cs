@@ -79,5 +79,14 @@ namespace SharpGfx
 
 			return true;
 		}
+
+		/// <summary>
+		///   Disposes of all assets.
+		/// </summary>
+		public override void Dispose()
+		{
+			base.Dispose();
+			MusicTrack?.Dispose();
+		}
 	}
 }

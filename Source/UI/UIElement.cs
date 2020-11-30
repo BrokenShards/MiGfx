@@ -22,6 +22,8 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 using SFML.Window;
 
@@ -35,7 +37,7 @@ namespace SharpGfx.UI
 	///   Base class for GUI elements.
 	/// </summary>
 	[Serializable]
-	public abstract class UIElement : BinarySerializable, Drawable, IIdentifiable<string>, IEquatable<UIElement>, IDisposable, ITransformable
+	public abstract class UIElement : BinarySerializable, IXmlLoadable, Drawable, IIdentifiable<string>, IEquatable<UIElement>, IDisposable, ITransformable
 	{
 		/// <summary>
 		///   Constructor.
@@ -288,6 +290,44 @@ namespace SharpGfx.UI
 
 			if( !Transform.SaveToStream( sw ) )
 				return Logger.LogReturn( "Unable to save UIElements' Transform to stream.", false, LogType.Error );
+
+			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public virtual bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load UIElement from a null XmlElement.", false, LogType.Error );
+
+			XmlElement trn = element[ "transform" ];
+
+			if( trn == null )
+				return Logger.LogReturn( "Failed loading UIElement: No transform element.", false, LogType.Error );
+
+			Transform = new Transform();
+
+			if( !Transform.LoadFromXml( trn ) )
+				return Logger.LogReturn( "Failed loading UIElement: Loading Transform failed.", false, LogType.Error );
+
+			try
+			{
+				ID      = element.GetAttribute( "id" );
+				Enabled = bool.Parse( element.GetAttribute( "enabled" ) );
+				Visible = bool.Parse( element.GetAttribute( "visible" ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading UIElement: " + e.Message, false, LogType.Error );
+			}
 
 			return true;
 		}

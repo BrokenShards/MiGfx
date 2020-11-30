@@ -30,6 +30,7 @@ using SharpGfx;
 using SharpGfx.UI;
 using SharpLogger;
 using SharpSerial;
+using SharpTest;
 
 using Image = SharpGfx.UI.Image;
 
@@ -322,7 +323,7 @@ namespace SharpGfxTest
 			if( Test.Manager == null )
 				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
 
-			Button lab = Button.Default( "label_test", "Test" );
+			Button lab = Button.Default( "button_test", "Test" );
 			lab.Transform.Center = window.GetView().Center;
 
 			if( !Test.Manager.Add( lab ) )

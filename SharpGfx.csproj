@@ -87,7 +87,7 @@
     <Compile Include="Source\Assets\TextureManager.cs" />
     <Compile Include="Source\ImageInfo.cs" />
     <Compile Include="Source\Sprite.cs" />
-    <Compile Include="Source\TextInfo.cs" />
+    <Compile Include="Source\TextStyle.cs" />
     <Compile Include="Source\Tileset.cs" />
     <Compile Include="Source\Transform.cs" />
     <Compile Include="Source\UI\AnimatedImage.cs" />
@@ -111,19 +111,13 @@
     <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\UI\Button.fw.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\UI\Button.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\UI\CheckBox.fw.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\CheckBox.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\UI\TextBox.fw.png">
+    <Content Include="Assets\UI\Slider.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\TextBox.png">

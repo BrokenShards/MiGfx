@@ -180,18 +180,15 @@ namespace SharpGfx
 			}
 			catch( UnauthorizedAccessException )
 			{
-				Logger.Log( "Do not have permission to create folder structure. Try running again as admin?", LogType.Error );
-				return false;
+				return Logger.LogReturn( "Do not have permission to create folder structure. Try running again as admin?", false, LogType.Error );
 			}
 			catch( PathTooLongException )
 			{
-				Logger.Log( "Folder structure path too long. Try relocating game closer to root?", LogType.Error );
-				return false;
+				return Logger.LogReturn( "Folder structure path too long. Try relocating game closer to root?", false, LogType.Error );
 			}
 			catch( Exception e )
 			{
-				Logger.Log( "Unable to create folder structure: " + e.Message, LogType.Error );
-				return false;
+				return Logger.LogReturn( "Unable to create folder structure: " + e.Message, false, LogType.Error );
 			}
 
 			return true;

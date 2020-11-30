@@ -22,6 +22,8 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 using SFML.System;
 
@@ -45,7 +47,7 @@ namespace SharpGfx
 	///   A 2D transformation.
 	/// </summary>
 	[Serializable]
-	public class Transform : BinarySerializable, IEquatable<Transform>
+	public class Transform : BinarySerializable, IXmlLoadable, IEquatable<Transform>
 	{
 		/// <summary>
 		///   Constructor.
@@ -188,7 +190,7 @@ namespace SharpGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return false;
+				return Logger.LogReturn( "Cannot load Transform from a null stream.", false, LogType.Error );
 
 			try
 			{
@@ -196,9 +198,9 @@ namespace SharpGfx
 				LocalSize = new Vector2f( br.ReadSingle(), br.ReadSingle() );
 				Scale     = new Vector2f( br.ReadSingle(), br.ReadSingle() );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Failed loading Transform: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -215,7 +217,7 @@ namespace SharpGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return false;
+				return Logger.LogReturn( "Cannot save Transform to a null stream.", false, LogType.Error );
 
 			try
 			{
@@ -223,12 +225,86 @@ namespace SharpGfx
 				bw.Write( LocalSize.X ); bw.Write( LocalSize.Y );
 				bw.Write( Scale.X );     bw.Write( Scale.Y );
 			}
-			catch
+			catch( Exception e )
 			{
-				return false;
+				return Logger.LogReturn( "Failed saving Transform: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public bool LoadFromXml( XmlElement element )
+		{
+			if( element == null )
+				return Logger.LogReturn( "Cannot load Transform from a null XmlElement.", false, LogType.Error );
+
+			XmlElement position = element[ "position" ],
+			           size     = element[ "size" ],
+			           scale    = element[ "scale" ];
+
+			if( position == null )
+				return Logger.LogReturn( "Failed loading Transform: No position element.", false, LogType.Error );
+			if( size == null )
+				return Logger.LogReturn( "Failed loading Transform: No size element.", false, LogType.Error );
+			if( scale == null )
+				return Logger.LogReturn( "Failed loading Transform: No scale element.", false, LogType.Error );
+
+			try
+			{
+				Position  = new Vector2f( float.Parse( position.GetAttribute( "x" ) ), float.Parse( position.GetAttribute( "y" ) ) );
+				LocalSize = new Vector2f( float.Parse( size.GetAttribute( "x" ) ),     float.Parse( size.GetAttribute( "y" ) ) );
+				Scale     = new Vector2f( float.Parse( scale.GetAttribute( "x" ) ),    float.Parse( scale.GetAttribute( "y" ) ) );
+			}
+			catch( Exception e )
+			{
+				return Logger.LogReturn( "Failed loading Transform: " + e.Message, false, LogType.Error );
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine( "<transform>" );
+
+			sb.Append( "\t<position x=\"" );
+			sb.Append( Position.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( Position.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "\t<size x=\"" );
+			sb.Append( LocalSize.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( LocalSize.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "\t<scale x=\"" );
+			sb.Append( Scale.X );
+			sb.Append( "\" y=\"" );
+			sb.Append( Scale.Y );
+			sb.AppendLine( "\"/>" );
+
+			sb.Append( "</transform>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

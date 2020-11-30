@@ -22,8 +22,11 @@
 
 using System;
 using System.IO;
+using System.Text;
+using System.Xml;
 using SFML.Graphics;
 using SharpLogger;
+using SharpSerial;
 
 namespace SharpGfx.UI
 {
@@ -150,6 +153,64 @@ namespace SharpGfx.UI
 				return Logger.LogReturn( "Unable to save UIImages' Image to stream", false, LogType.Error );
 
 			return true;
+		}
+
+		/// <summary>
+		///   Attempts to load the object from the xml element.
+		/// </summary>
+		/// <param name="element">
+		///   The xml element.
+		/// </param>
+		/// <returns>
+		///   True if the object was successfully loaded, otherwise false.
+		/// </returns>
+		public override bool LoadFromXml( XmlElement element )
+		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
+			XmlElement spr = element[ "sprite" ];
+
+			if( spr == null )
+				return Logger.LogReturn( "Failed loading Image: No sprite element.", false, LogType.Error );
+
+			if( m_sprite == null )
+				m_sprite = new Sprite();
+
+			if( !m_sprite.LoadFromXml( spr ) )
+				return Logger.LogReturn( "Failed loading Image: Loading Sprite failed.", false, LogType.Error );
+
+			return true;
+		}
+
+		/// <summary>
+		///   Converts the object to an xml string.
+		/// </summary>
+		/// <returns>
+		///   Returns the object to an xml string.
+		/// </returns>
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<image id=\"" );
+			sb.Append( ID );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       enabled=\"" );
+			sb.Append( Enabled );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       visible=\"" );
+			sb.Append( Visible );
+			sb.AppendLine( "\">" );
+
+			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( m_sprite,  1 ) );
+
+			sb.Append( "</image>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

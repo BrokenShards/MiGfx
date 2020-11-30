@@ -25,6 +25,7 @@ using SFML.Graphics;
 
 using SharpGfx;
 using SharpLogger;
+using SharpTest;
 
 namespace SharpGfxTest
 {

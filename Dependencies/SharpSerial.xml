@@ -774,13 +774,13 @@
               Interface for objects that can be serialized/deserialized to/from a file.
             </summary>
             <typeparam name="DataT">
-              The type of serialization data.
+              The data type the object is serialized into.
             </typeparam>
             <typeparam name="ReadT">
-              The type used to deserialize from a stream.
+              The stream reader type used to deserialize the object from a stream.
             </typeparam>
             <typeparam name="WriteT">
-              The type used to  serialize to a stream.
+              The stream writer type used to serialize the object to a stream.
             </typeparam>
         </member>
         <member name="P:SharpSerial.ISerializable`3.FileData">
@@ -833,7 +833,7 @@
               The xml element.
             </param>
             <returns>
-              True if the object was successfully loaded and false otherwise.
+              True if the object was successfully loaded, otherwise false.
             </returns>
         </member>
         <member name="T:SharpSerial.TextSerializable">
@@ -843,7 +843,7 @@
         </member>
         <member name="P:SharpSerial.TextSerializable.FileData">
             <summary>
-              The object serialized into its file data.
+              The object serialized into file data.
             </summary>
             <remarks>
               Used by the default implementation of <see cref="M:SharpSerial.TextSerializable.SaveToStream(System.IO.StreamWriter)"/>.
@@ -917,7 +917,7 @@
         </member>
         <member name="P:SharpSerial.BinarySerializable.FileData">
             <summary>
-              The object serialized into its file data.
+              The object serialized into file data.
             </summary>
             <remarks>
               Used by the default implementation of <see cref="M:SharpSerial.BinarySerializable.SaveToStream(System.IO.BinaryWriter)"/>.
@@ -988,6 +988,11 @@
               Base class for objects that can be loaded from an xml element.
             </summary>
         </member>
+        <member name="F:SharpSerial.XmlLoadable.XmlHeader">
+            <summary>
+              Standard xml header.
+            </summary>
+        </member>
         <member name="M:SharpSerial.XmlLoadable.LoadFromXml(System.Xml.XmlElement)">
             <summary>
               Attempts to load the object from the xml element.
@@ -997,6 +1002,39 @@
             </param>
             <returns>
               True if the object was successfully loaded and false otherwise.
+            </returns>
+        </member>
+        <member name="M:SharpSerial.XmlLoadable.ToString">
+            <summary>
+              Converts the object to an xml string.
+            </summary>
+            <returns>
+              Returns the object to an xml string.
+            </returns>
+        </member>
+        <member name="M:SharpSerial.XmlLoadable.ToString(System.UInt32)">
+            <summary>
+              Converts the object to an xml string with the given indentation level.
+            </summary>
+            <param name="indent">
+              Indentation level.
+            </param>
+            <returns>
+              Returns the object to an xml string with the given indentation level.
+            </returns>
+        </member>
+        <member name="M:SharpSerial.XmlLoadable.ToString(SharpSerial.IXmlLoadable,System.UInt32)">
+            <summary>
+              Converts the object to an xml string with optional indentation.
+            </summary>
+            <param name="xl">
+              The object.
+            </param>
+            <param name="indent">
+              Indentation level.
+            </param>
+            <returns>
+              Returns the object to an xml string with the given indentation level.
             </returns>
         </member>
         <member name="M:SharpSerial.XmlLoadable.FromXml``1(System.Xml.XmlElement)">
@@ -1013,7 +1051,7 @@
               A valid object of type T loaded from the xml element on success and null on failure.
             </returns>
         </member>
-        <member name="M:SharpSerial.XmlLoadable.FromXml``1(System.String,System.String,System.Xml.XmlNamespaceManager)">
+        <member name="M:SharpSerial.XmlLoadable.FromFile``1(System.String,System.String,System.Xml.XmlNamespaceManager)">
             <summary>
               Attempts to create a new object loaded from xml at the given path.
             </summary>
@@ -1031,6 +1069,27 @@
             </param>
             <returns>
               A valid object of type T on success and null on failure.
+            </returns>
+        </member>
+        <member name="M:SharpSerial.XmlLoadable.ToFile(SharpSerial.IXmlLoadable,System.String,System.Boolean)">
+            <summary>
+              Attempts to save XmlLoadable object to file.
+            </summary>
+            <remarks>
+              Please note <see cref="F:SharpSerial.XmlLoadable.XmlHeader"/> will be written at the beginning of the file
+              before the file data.
+            </remarks>
+            <param name="x">
+              The object to save.
+            </param>
+            <param name="path">
+              The path to save the object to.
+            </param>
+            <param name="overwrite">
+              If an already existing file should be overwritten.
+            </param>
+            <returns>
+              True if the object was written to file successfully, otherwise false.
             </returns>
         </member>
     </members>
