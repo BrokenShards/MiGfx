@@ -1037,7 +1037,7 @@
               Returns the object to an xml string with the given indentation level.
             </returns>
         </member>
-        <member name="M:SharpSerial.XmlLoadable.FromXml``1(System.Xml.XmlElement)">
+        <member name="M:SharpSerial.XmlLoadable.FromElement``1(System.Xml.XmlElement)">
             <summary>
               Attempts to create a new object from the xml element.
             </summary>
@@ -1060,6 +1060,26 @@
             </typeparam>
             <param name="path">
               The path of the xml document.
+            </param>
+            <param name="xpath">
+              Optional xpath expression to select a single node to load from.
+            </param>
+            <param name="nsm">
+              Optional xml namespace manager.
+            </param>
+            <returns>
+              A valid object of type T on success and null on failure.
+            </returns>
+        </member>
+        <member name="M:SharpSerial.XmlLoadable.FromXml``1(System.String,System.String,System.Xml.XmlNamespaceManager)">
+            <summary>
+              Attempts to create a new object from a string.
+            </summary>
+            <typeparam name="T">
+              The type to load.
+            </typeparam>
+            <param name="xml">
+              The xml string.
             </param>
             <param name="xpath">
               Optional xpath expression to select a single node to load from.

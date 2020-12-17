@@ -85,7 +85,7 @@ namespace SharpGfx.UI
 				Images[ i ] = new ImageInfo();
 
 			Checked = false;
-			m_image = new Image();
+			m_image = new Image( EmbeddedID );
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -119,7 +119,7 @@ namespace SharpGfx.UI
 				Images[ i ] = new ImageInfo();
 
 			Checked = false;
-			m_image = new Image();
+			m_image = new Image( EmbeddedID );
 		}
 
 		/// <summary>
@@ -195,15 +195,24 @@ namespace SharpGfx.UI
 		{
 			m_image.Transform = Transform;
 
-			bool click = Clicked;
+			bool hover = Hovering,
+				 click = Clicked;
+
+			if( Manager != null )
+			{
+				if( Manager.LastInteraction == Interaction.Mouse )
+				{
+					if( hover )
+						Manager.Select( ID );
+					else if( Selected )
+						Manager.Select( null );
+				}
+			}
+			else
+				Selected = hover;
 
 			if( click )
-			{
-				if( Manager != null )
-					Manager.Select( ID );
-
 				Checked = !Checked;
-			}
 			
 			m_image.DisplayImage = Images[ (int)State ];
 			m_image.Update( dt );
@@ -236,6 +245,8 @@ namespace SharpGfx.UI
 			if( !base.LoadFromStream( sr ) )
 				return false;
 
+			m_image = new Image( EmbeddedID );
+
 			for( CheckBoxState s = 0; (int)s < Enum.GetNames( typeof( CheckBoxState ) ).Length; s++ )
 				if( !Images[ (int)s ].LoadFromStream( sr ) )
 					return Logger.LogReturn( "Unable to load UICheckbox data image from stream.", false, LogType.Error );
@@ -249,7 +260,6 @@ namespace SharpGfx.UI
 				return Logger.LogReturn( "Unable to load UICheckbox: " + e.Message + ".", false, LogType.Error );
 			}
 
-			m_image = new Image();
 			return true;
 		}
 		/// <summary>
@@ -296,10 +306,11 @@ namespace SharpGfx.UI
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			XmlNodeList data = element.SelectNodes( "image_info" );
+			Checked = false;
+			XmlNodeList data = element.SelectNodes( nameof( ImageInfo ) );
 
 			if( data.Count != Images.Length )
-				return Logger.LogReturn( "Failed loading CheckBox: Incorrect amount of image_info elements.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading CheckBox: Incorrect amount of ImageInfo xml elements.", false, LogType.Error );
 
 			for( int i = 0; i < Images.Length; i++ )
 			{
@@ -309,13 +320,18 @@ namespace SharpGfx.UI
 					return Logger.LogReturn( "Failed loading CheckBox: Loading ImageInfo failed.", false, LogType.Error );
 			}
 
-			try
+			string check = element.GetAttribute( nameof( Checked ) );
+
+			if( !string.IsNullOrWhiteSpace( check ) )
 			{
-				Checked = bool.Parse( element.GetAttribute( "checked" ) );
-			}
-			catch( Exception e )
-			{
-				return Logger.LogReturn( "Failed loading CheckBox: " + e.Message, false, LogType.Error );
+				try
+				{
+					Checked = bool.Parse( check );
+				}
+				catch( Exception e )
+				{
+					return Logger.LogReturn( "Failed loading CheckBox: " + e.Message, false, LogType.Error );
+				}
 			}
 
 			return true;
@@ -331,19 +347,21 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<checkbox id=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( CheckBox ) );
+			sb.Append( "          " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          enabled=\"" );
+			sb.Append( "          " + nameof( Enabled ) + "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          visible=\"" );
+			sb.Append( "          " + nameof( Visible ) + "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          checked=\"" );
+			sb.Append( "          " + nameof( Checked ) + "=\"" );
 			sb.Append( Checked );
 			sb.AppendLine( "\">" );
 
@@ -352,7 +370,9 @@ namespace SharpGfx.UI
 			for( int i = 0; i < Images.Length; i++ )
 				sb.AppendLine( XmlLoadable.ToString( Images[ i ], 1 ) );
 
-			sb.Append( "</checkbox>" );
+			sb.Append( "</" );
+			sb.Append( nameof( CheckBox ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}
@@ -417,7 +437,7 @@ namespace SharpGfx.UI
 
 			Vector2u size = tex.Size;
 
-			box.Transform.LocalSize = (Vector2f)size / 2.0f;
+			box.Transform.Size = (Vector2f)size / 2.0f;
 
 			box.Images[ 0 ] = new ImageInfo( FilePaths.CheckBoxTexture, new FloatRect( 0,          0,          size.X / 2, size.Y / 2 ) );
 			box.Images[ 1 ] = new ImageInfo( FilePaths.CheckBoxTexture, new FloatRect( size.X / 2, 0,          size.X / 2, size.Y / 2 ) );

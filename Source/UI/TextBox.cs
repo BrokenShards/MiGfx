@@ -185,36 +185,32 @@ namespace SharpGfx.UI
 		public virtual bool LoadFromXml( XmlElement element )
 		{
 			if( element == null )
-				return Logger.LogReturn( "Cannot load TextBoxData from a null XmlElement.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load TextBoxData from a null xml element.", false, LogType.Error );
 
-			XmlElement img = element[ "image_info" ],
-					   txt = element[ "text_style" ],
-					   off = element[ "offset" ];
+			XmlElement img = element[ nameof( ImageInfo ) ],
+					   txt = element[ nameof( TextStyle ) ],
+					   off = element[ nameof( TextOffset ) ];
 
 			if( img == null )
-				return Logger.LogReturn( "Failed loading TextBoxData: No image_info element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBoxData: No ImageInfo xml element.", false, LogType.Error );
 			if( txt == null )
-				return Logger.LogReturn( "Failed loading TextBoxData: No text_style element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBoxData: No TextStyle xml element.", false, LogType.Error );
 			if( off == null )
-				return Logger.LogReturn( "Failed loading TextBoxData: No offset element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBoxData: No TextOffset xml element.", false, LogType.Error );
 
 			Image = new ImageInfo();
 			Text  = new TextStyle();
+
+			Vector2f? o = Xml.ToVec2f( off );
 
 			if( !Image.LoadFromXml( img ) )
 				return Logger.LogReturn( "Failed loading TextBoxData: Loading ImageInfo failed.", false, LogType.Error );
 			if( !Text.LoadFromXml( txt ) )
 				return Logger.LogReturn( "Failed loading TextBoxData: Loading TextStyle failed.", false, LogType.Error );
+			if( !o.HasValue )
+				return Logger.LogReturn( "Failed loading TextBoxData: Unable to parse TextOffset xml element.", false, LogType.Error );
 
-			try
-			{
-				TextOffset = new Vector2f( float.Parse( off.GetAttribute( "x" ) ),
-										   float.Parse( off.GetAttribute( "y" ) ) );
-			}
-			catch( Exception e )
-			{
-				return Logger.LogReturn( "Failed loading TextBoxData: " + e.Message, false, LogType.Error );
-			}
+			TextOffset = o.Value;
 
 			return true;
 		}
@@ -229,17 +225,13 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendLine( "<textbox_data>" );
+			sb.AppendLine( "<" + nameof( TextBoxData ) + ">" );
+
 			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
+			sb.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) );
 
-			sb.Append( "\t<offset x=\"" );
-			sb.Append( TextOffset.X );
-			sb.Append( "\" y=\"" );
-			sb.Append( TextOffset.Y );
-			sb.AppendLine( "\"/>" );
-
-			sb.Append( "</textbox_data>" );
+			sb.AppendLine( "</" + nameof( TextBoxData ) + ">" );
 
 			return sb.ToString();
 		}
@@ -258,7 +250,7 @@ namespace SharpGfx.UI
 			return other != null &&
 				   Image.Equals( other.Image ) &&
 				   Text.Equals( other.Text ) &&
-				   TextOffset == other.TextOffset;
+				   TextOffset.Equals( other.TextOffset );
 		}
 	}
 	/// <summary>
@@ -277,8 +269,8 @@ namespace SharpGfx.UI
 			CenterText     = false;
 			Multiline      = false;
 
-			m_label = new Label();
-			m_box   = new Image();
+			m_label = new Label( EmbeddedID );
+			m_box   = new Image( EmbeddedID );
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -311,8 +303,8 @@ namespace SharpGfx.UI
 			CenterText     = false;
 			Multiline      = false;
 
-			m_label = new Label();
-			m_box   = new Image();
+			m_label = new Label( EmbeddedID );
+			m_box   = new Image( EmbeddedID );
 		}
 
 		/// <summary>
@@ -480,13 +472,15 @@ namespace SharpGfx.UI
 			if( !base.LoadFromStream( sr ) )
 				return false;
 
+			SelectedData   = new TextBoxData();
+			DeselectedData = new TextBoxData();
+			m_box          = new Image( EmbeddedID );
+			m_label        = new Label( EmbeddedID );
+
 			if( !SelectedData.LoadFromStream( sr ) )
 				return Logger.LogReturn( "Failed loading TextBox SelectedData from stream.", false, LogType.Error );
 			if( !DeselectedData.LoadFromStream( sr ) )
 				return Logger.LogReturn( "Failed loading TextBox DeselectedData from stream.", false, LogType.Error );
-
-			m_box   = new Image();
-			m_label = new Label();
 
 			try
 			{
@@ -544,28 +538,36 @@ namespace SharpGfx.UI
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			XmlElement  str  = element[ "string" ];
-			XmlNodeList data = element.SelectNodes( "textbox_data" );
+			XmlElement  str  = element[ nameof( String ) ];
+			XmlNodeList data = element.SelectNodes( nameof( TextBoxData ) );
 
-			if( str == null )
-				return Logger.LogReturn( "Failed loading TextBox: No string element.", false, LogType.Error );
-			if( data.Count != 2 )
-				return Logger.LogReturn( "Failed loading TextBox: Incorrect amount of textbox_data elements.", false, LogType.Error );
+			if( data.Count < 1 || data.Count > 2 )
+				return Logger.LogReturn( "Failed loading TextBox: Incorrect amount of TextBoxData elements.", false, LogType.Error );
 
 			SelectedData   = new TextBoxData();
 			DeselectedData = new TextBoxData();
+			m_box          = new Image( EmbeddedID );
+			m_label        = new Label( EmbeddedID );
 
 			if( !SelectedData.LoadFromXml( (XmlElement)data[ 0 ] ) )
 				return Logger.LogReturn( "Failed loading TextBox: Loading SelectedData failed.", false, LogType.Error );
-			if( !DeselectedData.LoadFromXml( (XmlElement)data[ 1 ] ) )
-				return Logger.LogReturn( "Failed loading TextBox: Loading DeselectedData failed.", false, LogType.Error );
-
-			m_box   = new Image();
-			m_label = new Label();
+			if( data.Count == 1 )
+			{
+				if( !DeselectedData.LoadFromXml( (XmlElement)data[ 0 ] ) )
+					return Logger.LogReturn( "Failed loading TextBox: Loading SelectedData as DeselectedData failed.", false, LogType.Error );
+			}
+			else
+			{
+				if( !DeselectedData.LoadFromXml( (XmlElement)data[ 1 ] ) )
+					return Logger.LogReturn( "Failed loading TextBox: Loading DeselectedData failed.", false, LogType.Error );
+			}
 
 			try
 			{
-				String = str.Value;
+				if( str != null )
+					String = str.Value;
+				else
+					String = string.Empty;
 			}
 			catch( Exception e )
 			{
@@ -585,15 +587,15 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<textbox id=\"" );
+			sb.Append( "<" + nameof( TextBox ) + " " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "         enabled=\"" );
+			sb.Append( "         " + nameof( Enabled ) + "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "         visible=\"" );
+			sb.Append( "         " + nameof( Visible ) + "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\">" );
 
@@ -601,11 +603,11 @@ namespace SharpGfx.UI
 			sb.AppendLine( XmlLoadable.ToString( SelectedData, 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( DeselectedData, 1 ) );
 
-			sb.Append( "\t<string>" );
+			sb.Append( "\t<" + nameof( String ) + ">" );
 			sb.Append( String );
-			sb.AppendLine( "</string>" );
+			sb.AppendLine( "</" + nameof( String ) + ">" );
 
-			sb.Append( "</button>" );
+			sb.Append( "</" + nameof( TextBox ) + ">" );
 
 			return sb.ToString();
 		}
@@ -692,7 +694,7 @@ namespace SharpGfx.UI
 
 			Vector2u size = tex.Size;
 
-			box.Transform.LocalSize = new Vector2f( size.X, multi ? size.Y / 3u : size.Y / 6u );
+			box.Transform.Size = new Vector2f( size.X, multi ? size.Y / 3u : size.Y / 6u );
 			
 			ImageInfo si = new ImageInfo( FilePaths.TextBoxTexture, new FloatRect( 0, 0,               size.X, size.Y / 6u ) );
 			ImageInfo ss = new ImageInfo( FilePaths.TextBoxTexture, new FloatRect( 0, size.Y / 6u,     size.X, size.Y / 6u ) );

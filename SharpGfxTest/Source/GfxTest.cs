@@ -67,6 +67,14 @@ namespace SharpGfxTest
 			if( !f2.Equals( f1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Frame has incorrect values.", false );
 
+			string xml = XmlLoadable.XmlHeader + "\r\n" + f1.ToString();
+			Frame x = XmlLoadable.FromXml<Frame>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Frame from xml.", false );
+			if( !x.Equals( f1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Frame has incorrect values.", false );
+
 			return Logger.LogReturn( "Success!", true );
 		}
 	}
@@ -78,20 +86,20 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running Animation Tests..." );
 
-			Animation anim = new Animation( "test" );
+			Animation a1 = new Animation( "test" );
 
-			if( anim.ID.ToLower() != "test" )
+			if( a1.ID.ToLower() != "test" )
 				return Logger.LogReturn( "Failed: Animation ID did not get set correctly with constructor.", false );
 
 			for( int i = 0; i < 10; i++ )
-				anim.Add( new Frame( new FloatRect( 0, 0, 24, 24 ), Time.FromSeconds( 1.0f ) ) );
+				a1.Add( new Frame( new FloatRect( 0, 0, 24, 24 ), Time.FromSeconds( 1.0f ) ) );
 
-			if( anim.Count != 10 )
+			if( a1.Count != 10 )
 				return Logger.LogReturn( "Failed: Frame did not get added to the animation correctly.", false );
-			if( anim.Length != Time.FromSeconds( 1.0f * 10 ) )
+			if( a1.Length != Time.FromSeconds( 1.0f * 10 ) )
 				return Logger.LogReturn( "Failed: Animation length is incorrect.", false );
 
-			if( !BinarySerializable.ToFile( anim, AnimationPath, true ) )
+			if( !BinarySerializable.ToFile( a1, AnimationPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Animation to file.", false );
 
 			Animation a2 = BinarySerializable.FromFile<Animation>( AnimationPath );
@@ -105,8 +113,16 @@ namespace SharpGfxTest
 
 			if( a2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Animation from file.", false );
-			if( !a2.Equals( anim ) )
+			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Animation has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			Animation x = XmlLoadable.FromXml<Animation>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Animation from xml.", false );
+			if( !x.Equals( a1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Animation has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -119,7 +135,7 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running AnimationSet Tests..." );
 
-			AnimationSet set = new AnimationSet();
+			AnimationSet a1 = new AnimationSet();
 
 			for( int i = 0; i < 10; i++ )
 			{
@@ -128,14 +144,14 @@ namespace SharpGfxTest
 				for( int f = 0; f < 10; f++ )
 					anim.Add( new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) );
 
-				if( !set.Add( anim ) )
+				if( !a1.Add( anim ) )
 					return Logger.LogReturn( "Failed: Unable to add Animation to AnimationSet.", false );
 			}
 
-			if( set.Count != 10 )
+			if( a1.Count != 10 )
 				return Logger.LogReturn( "Failed: Not all Animations were added to AnimationSet.", false );
 
-			if( !BinarySerializable.ToFile( set, AnimationSetPath, true ) )
+			if( !BinarySerializable.ToFile( a1, AnimationSetPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize AnimationSet to file.", false );
 
 			AnimationSet a2 = BinarySerializable.FromFile<AnimationSet>( AnimationSetPath );
@@ -149,8 +165,16 @@ namespace SharpGfxTest
 
 			if( a2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize AnimationSet from file.", false );
-			if( !a2.Equals( set ) )
+			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimationSet has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			AnimationSet x = XmlLoadable.FromXml<AnimationSet>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load AnimationSet from xml.", false );
+			if( !x.Equals( a1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded AnimationSet has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -163,12 +187,12 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running Animator Tests..." );
 
-			Animator anim = new Animator();
+			Animator a1 = new Animator();
 
-			if( !anim.AnimationSet.Add( new Animation( "test", new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) ) ) )
+			if( !a1.Animations.Add( new Animation( "test", new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) ) ) )
 				return Logger.LogReturn( "Failed: Unable to add Animation to Animators' AnimationSet.", false );
 
-			if( !BinarySerializable.ToFile( anim, AnimatorPath, true ) )
+			if( !BinarySerializable.ToFile( a1, AnimatorPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Animator to file.", false );
 
 			Animator a2 = BinarySerializable.FromFile<Animator>( AnimatorPath );
@@ -182,8 +206,16 @@ namespace SharpGfxTest
 
 			if( a2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Animator from file.", false );
-			if( !a2.Equals( anim ) )
+			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Animator has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			Animator x = XmlLoadable.FromXml<Animator>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Animator from xml.", false );
+			if( !x.Equals( a1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Animator has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -196,12 +228,12 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running ImageInfo Tests..." );
 
-			ImageInfo img = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), null, Color.Blue );
+			ImageInfo i1 = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), null, Color.Blue );
 
-			if( !BinarySerializable.ToFile( img, ImageInfoPath, true ) )
+			if( !BinarySerializable.ToFile( i1, ImageInfoPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize ImageInfo to file.", false );
 
-			ImageInfo img2 = BinarySerializable.FromFile<ImageInfo>( ImageInfoPath );
+			ImageInfo i2 = BinarySerializable.FromFile<ImageInfo>( ImageInfoPath );
 
 			try
 			{
@@ -210,10 +242,18 @@ namespace SharpGfxTest
 			catch
 			{ }
 
-			if( img2 == null )
+			if( i2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize ImageInfo from file.", false );
-			if( !img2.Equals( img ) )
+			if( !i2.Equals( i1 ) )
 				return Logger.LogReturn( "Failed: Deserialized ImageInfo has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + i1.ToString();
+			ImageInfo x = XmlLoadable.FromXml<ImageInfo>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load ImageInfo from xml.", false );
+			if( !x.Equals( i1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded ImageInfo has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -227,15 +267,15 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running Sprite Tests..." );
 
-			Sprite spr = new Sprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), null, Color.Red ) );
+			Sprite s1 = new Sprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), null, Color.Red ) );
 
-			spr.Transform.Position = new Vector2f( 100, 100 );
-			spr.Transform.LocalSize = new Vector2f( 100, 100 );
+			s1.Transform.Position = new Vector2f( 100, 100 );
+			s1.Transform.Size = new Vector2f( 100, 100 );
 
-			if( !BinarySerializable.ToFile( spr, SpritePath, true ) )
+			if( !BinarySerializable.ToFile( s1, SpritePath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Sprite to file.", false );
 
-			Sprite spr2 = BinarySerializable.FromFile<Sprite>( SpritePath );
+			Sprite s2 = BinarySerializable.FromFile<Sprite>( SpritePath );
 
 			try
 			{
@@ -244,10 +284,18 @@ namespace SharpGfxTest
 			catch
 			{ }
 
-			if( spr2 == null )
+			if( s2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Sprite from file.", false );
-			if( !spr2.Equals( spr ) )
+			if( !s2.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Sprite has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + s1.ToString();
+			Sprite x = XmlLoadable.FromXml<Sprite>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Sprite from xml.", false );
+			if( !x.Equals( s1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Sprite has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -260,18 +308,18 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running AnimatedSprite Tests..." );
 
-			AnimatedSprite spr = new AnimatedSprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), null, Color.Red ) );
+			AnimatedSprite s1 = new AnimatedSprite( new ImageInfo( "test.png", new FloatRect( 0, 0, 30, 30 ), null, Color.Red ) );
 
-			spr.Transform.Position = new Vector2f( 100, 100 );
-			spr.Transform.LocalSize = new Vector2f( 100, 100 );
+			s1.Transform.Position = new Vector2f( 100, 100 );
+			s1.Transform.Size = new Vector2f( 100, 100 );
 
-			if( !spr.Animator.AnimationSet.Add( new Animation( "test", new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) ) ) )
+			if( !s1.Animator.Animations.Add( new Animation( "test", new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) ) ) )
 				return Logger.LogReturn( "Failed: Unable to add Animation to AnimatedSprites' Animator.", false );
 
-			if( !BinarySerializable.ToFile( spr, AnimatedSpritePath, true ) )
+			if( !BinarySerializable.ToFile( s1, AnimatedSpritePath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize AnimatedSprite to file.", false );
 
-			AnimatedSprite spr2 = BinarySerializable.FromFile<AnimatedSprite>( AnimatedSpritePath );
+			AnimatedSprite s2 = BinarySerializable.FromFile<AnimatedSprite>( AnimatedSpritePath );
 
 			try
 			{
@@ -280,10 +328,18 @@ namespace SharpGfxTest
 			catch
 			{ }
 
-			if( spr2 == null )
+			if( s2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize AnimatedSprite from file.", false );
-			if( !spr2.Equals( spr ) )
+			if( !s2.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimatedSprite has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + s1.ToString();
+			AnimatedSprite x = XmlLoadable.FromXml<AnimatedSprite>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load AnimatedSprite from xml.", false );
+			if( !x.Equals( s1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded AnimatedSprite has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -297,12 +353,12 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running TextStyle Tests..." );
 
-			TextStyle txt = new TextStyle( "image.png", 33, 0, Color.Red, 1, Color.Blue );
+			TextStyle t1 = new TextStyle( "font.ttf", 33, 0, Color.Red, 1, Color.Blue );
 
-			if( !BinarySerializable.ToFile( txt, TextStylePath, true ) )
+			if( !BinarySerializable.ToFile( t1, TextStylePath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize TextStyle to file.", false );
 
-			TextStyle txt2 = BinarySerializable.FromFile<TextStyle>( TextStylePath );
+			TextStyle t2 = BinarySerializable.FromFile<TextStyle>( TextStylePath );
 
 			try
 			{
@@ -311,10 +367,18 @@ namespace SharpGfxTest
 			catch
 			{ }
 
-			if( txt2 == null )
+			if( t2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize TextStyle from file.", false );
-			if( !txt2.Equals( txt ) )
+			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			TextStyle x = XmlLoadable.FromXml<TextStyle>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load TextStyle from xml.", false );
+			if( !x.Equals( t1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded TextStyle has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -327,12 +391,15 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running Tileset Tests..." );
 
-			Tileset tile = new Tileset( "test", null, new Vector2u( 64, 64 ), new Vector2u( 4, 4 ), new Vector2u( 4, 4 ) );
+			Tileset t1 = new Tileset( "test", null, new Vector2u( 64, 64 ), new Vector2u( 4, 4 ), new Vector2u( 4, 4 ) )
+			{ 
+				Texture = "texture" 
+			};
 
-			if( !BinarySerializable.ToFile( tile, TilesetPath, true ) )
+			if( !BinarySerializable.ToFile( t1, TilesetPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Tileset to file.", false );
 
-			Tileset tile2 = BinarySerializable.FromFile<Tileset>( TilesetPath );
+			Tileset t2 = BinarySerializable.FromFile<Tileset>( TilesetPath );
 
 			try
 			{
@@ -341,10 +408,18 @@ namespace SharpGfxTest
 			catch
 			{ }
 
-			if( tile2 == null )
+			if( t2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Tileset from file.", false );
-			if( !tile2.Equals( tile ) )
+			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Tileset has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			Tileset x = XmlLoadable.FromXml<Tileset>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Tileset from xml.", false );
+			if( !x.Equals( t1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Tileset has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}
@@ -357,21 +432,21 @@ namespace SharpGfxTest
 		{
 			Logger.Log( "Running Transform Tests..." );
 
-			Transform tran = new Transform();
+			Transform t1 = new Transform();
 
-			if( tran.Position != default( Vector2f ) )
+			if( t1.Position != default( Vector2f ) )
 				return Logger.LogReturn( "Failed: Transform initial position is not zero.", false );
-			if( tran.LocalSize != new Vector2f( 1.0f, 1.0f ) )
+			if( t1.Size != new Vector2f( 1.0f, 1.0f ) )
 				return Logger.LogReturn( "Failed: Transform initial size is not one.", false );
-			if( tran.Scale != new Vector2f( 1.0f, 1.0f ) )
+			if( t1.Scale != new Vector2f( 1.0f, 1.0f ) )
 				return Logger.LogReturn( "Failed: Transform initial scale is not one.", false );
 
-			tran.Scale = new Vector2f( 4.0f, 4.0f );
+			t1.Scale = new Vector2f( 4.0f, 4.0f );
 
-			if( tran.GlobalSize != new Vector2f( 1.0f * 4.0f, 1.0f * 4.0f ) )
+			if( t1.GlobalSize != new Vector2f( 1.0f * 4.0f, 1.0f * 4.0f ) )
 				return Logger.LogReturn( "Failed: Transform scaled position is incorrect.", false );
 
-			if( !BinarySerializable.ToFile( tran, TransformPath, true ) )
+			if( !BinarySerializable.ToFile( t1, TransformPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Transform to file.", false );
 
 			Transform t2 = BinarySerializable.FromFile<Transform>( TransformPath );
@@ -385,8 +460,16 @@ namespace SharpGfxTest
 
 			if( t2 == null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Transform from file.", false );
-			if( !t2.Equals( tran ) )
+			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			Transform x = XmlLoadable.FromXml<Transform>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Transform from xml.", false );
+			if( !x.Equals( t1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Transform has incorrect values.", false );
 
 			return Logger.LogReturn( "Success!", true );
 		}

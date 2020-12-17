@@ -190,35 +190,31 @@ namespace SharpGfx.UI
 			if( element == null )
 				return Logger.LogReturn( "Cannot load ButtonData from a null XmlElement.", false, LogType.Error );
 
-			XmlElement img = element[ "image_info" ],
-					   txt = element[ "text_style" ],
-					   off = element[ "offset" ];
+			Image      = new ImageInfo();
+			Text       = new TextStyle();
+			TextOffset = new Vector2f();
+
+			XmlElement img = element[ nameof( ImageInfo ) ],
+					   txt = element[ nameof( TextStyle ) ],
+					   off = element[ nameof( TextOffset ) ];
+
+			Vector2f? o = off != null ? Xml.ToVec2f( off ) : null;
 
 			if( img == null )
-				return Logger.LogReturn( "Failed loading ButtonData: No image_info element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading ButtonData: No ImageInfo xml element.", false, LogType.Error );
 			if( txt == null )
-				return Logger.LogReturn( "Failed loading ButtonData: No text_style element.", false, LogType.Error );
-			if( off == null )
-				return Logger.LogReturn( "Failed loading ButtonData: No offset element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading ButtonData: No TextStyle xml element.", false, LogType.Error );
+			if( off != null && !o.HasValue )
+				return Logger.LogReturn( "Failed loading ButtonData: Unable to parse TextOffset xml element.", false, LogType.Error );
+			else if( !o.HasValue )
+				o = new Vector2f();
 
-			Image = new ImageInfo();
-			Text  = new TextStyle();
-			
 			if( !Image.LoadFromXml( img ) )
 				return Logger.LogReturn( "Failed loading ButtonData: Loading ImageInfo failed.", false, LogType.Error );
 			if( !Text.LoadFromXml( txt ) )
 				return Logger.LogReturn( "Failed loading ButtonData: Loading TextStyle failed.", false, LogType.Error );
 
-			try
-			{
-				TextOffset = new Vector2f( float.Parse( off.GetAttribute( "x" ) ), 
-				                           float.Parse( off.GetAttribute( "y" ) ) );
-			}
-			catch( Exception e )
-			{
-				return Logger.LogReturn( "Failed loading ButtonData: " + e.Message, false, LogType.Error );
-			}
-
+			TextOffset = o.Value;
 			return true;
 		}
 
@@ -232,17 +228,17 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendLine( "<button_data>" );
+			sb.Append( "<" );
+			sb.Append( nameof( ButtonData ) );
+			sb.AppendLine( ">" );
+
 			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
+			sb.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) );
 
-			sb.Append( "\t<offset x=\"" );
-			sb.Append( TextOffset.X );
-			sb.Append( "\" y=\"" );
-			sb.Append( TextOffset.Y );
-			sb.AppendLine( "\"/>" );
-
-			sb.Append( "</button_data>" );
+			sb.Append( "</" );
+			sb.Append( nameof( ButtonData ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}
@@ -274,8 +270,8 @@ namespace SharpGfx.UI
 		public Button()
 		:	base()
 		{
-			m_image = new Image();
-			m_label = new Label();
+			m_image = new Image( EmbeddedID );
+			m_label = new Label( EmbeddedID );
 			State   = ButtonState.Idle;
 			Data    = new ButtonData[ Enum.GetNames( typeof( ButtonState ) ).Length ];
 
@@ -311,8 +307,8 @@ namespace SharpGfx.UI
 		public Button( string id, string text = null )
 		:	base( id )
 		{
-			m_image = new Image();
-			m_label = new Label();
+			m_image = new Image( EmbeddedID );
+			m_label = new Label( EmbeddedID );
 			State   = ButtonState.Idle;
 			Data    = new ButtonData[ Enum.GetNames( typeof( ButtonState ) ).Length ];
 			String  = text ?? string.Empty;
@@ -401,16 +397,19 @@ namespace SharpGfx.UI
 			bool hover = Hovering,
 			     click = Clicked;
 
-			if( Manager.LastInteraction == Interaction.Mouse )
+			if( Manager != null )
 			{
-				if( hover )
-					Manager.Select( ID );
-				else if( Selected )
-					Manager.Select( null );
-			}
+				if( Manager.LastInteraction == Interaction.Mouse )
+				{
+					if( hover )
+						Manager.Select( ID );
+					else if( Selected )
+						Manager.Select( null );
+				}
 
-			if( !Selected && click )
-				Manager.Select( ID );
+				if( !Selected && click )
+					Manager.Select( ID );
+			}
 
 			State = click ? ButtonState.Click : ( hover || Selected ? ButtonState.Hover : ButtonState.Idle );
 			int s = (int)State;
@@ -460,6 +459,9 @@ namespace SharpGfx.UI
 			if( !base.LoadFromStream( sr ) )
 				return false;
 
+			m_image = new Image( EmbeddedID );
+			m_label = new Label( EmbeddedID );
+
 			if( !m_label.LoadFromStream( sr ) )
 				return Logger.LogReturn( "Unable to load UIButton label from stream.", false, LogType.Error );
 
@@ -467,7 +469,6 @@ namespace SharpGfx.UI
 				if( !bd.LoadFromStream( sr ) )
 					return Logger.LogReturn( "Unable to load UIButton data from stream.", false, LogType.Error );
 
-			m_image = new Image();
 			return true;
 		}
 		/// <summary>
@@ -508,13 +509,16 @@ namespace SharpGfx.UI
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			XmlElement  lab  = element[ "label" ];
-			XmlNodeList data = element.SelectNodes( "button_data" );
+			m_image = new Image( EmbeddedID );
+			m_label = new Label( EmbeddedID );
+
+			XmlElement  lab  = element[ nameof( Label ) ];
+			XmlNodeList data = element.SelectNodes( nameof( ButtonData ) );
 
 			if( lab == null )
-				return Logger.LogReturn( "Failed loading Button: No label element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Button: No Label xml element.", false, LogType.Error );
 			if( data.Count != Data.Length )
-				return Logger.LogReturn( "Failed loading Button: Incorrect amount of button_data elements.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Button: Incorrect amount of ButtonData xml elements.", false, LogType.Error );
 
 			if( !m_label.LoadFromXml( lab ) )
 				return Logger.LogReturn( "Failed loading Button: Loading Label failed.", false, LogType.Error );
@@ -540,15 +544,17 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<button id=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( Button ) );
+			sb.Append( "        " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "        enabled=\"" );
+			sb.Append( "        " + nameof( Enabled ) + "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "        visible=\"" );
+			sb.Append( "        " + nameof( Visible ) + "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\">" );
 
@@ -558,7 +564,9 @@ namespace SharpGfx.UI
 			for( int i = 0; i < Data.Length; i++ )
 				sb.AppendLine( XmlLoadable.ToString( Data[ i ], 1 ) );
 
-			sb.Append( "</button>" );
+			sb.Append( "</" );
+			sb.Append( nameof( Button ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}
@@ -596,7 +604,7 @@ namespace SharpGfx.UI
 		{
 			string name = string.Empty;
 
-			using( AnimatedImage a = new AnimatedImage() )
+			using( Button a = new Button() )
 				name = a.TypeName;
 
 			return name;
@@ -625,7 +633,7 @@ namespace SharpGfx.UI
 
 			Vector2u size = tex.Size;
 
-			but.Transform.LocalSize = new Vector2f( size.X, size.Y / 3u );
+			but.Transform.Size = new Vector2f( size.X, size.Y / 3u );
 
 			but.Data[ 0 ].Image = new ImageInfo( FilePaths.ButtonTexture, new FloatRect( 0, 0,               size.X, size.Y / 3u ) );
 			but.Data[ 0 ].Text  = new TextStyle( FilePaths.DefaultFont );

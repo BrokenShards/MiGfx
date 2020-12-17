@@ -40,6 +40,11 @@ namespace SharpGfx.UI
 	public abstract class UIElement : BinarySerializable, IXmlLoadable, Drawable, IIdentifiable<string>, IEquatable<UIElement>, IDisposable, ITransformable
 	{
 		/// <summary>
+		///   ID given to elements embedded within elements.
+		/// </summary>
+		public const string EmbeddedID = "SharpGfxUIEmbeddedID";
+
+		/// <summary>
 		///   Constructor.
 		/// </summary>
 		public UIElement()
@@ -308,21 +313,29 @@ namespace SharpGfx.UI
 			if( element == null )
 				return Logger.LogReturn( "Cannot load UIElement from a null XmlElement.", false, LogType.Error );
 
-			XmlElement trn = element[ "transform" ];
+			Transform = new Transform();
+			Enabled   = true;
+			Visible   = true;
+
+			XmlElement trn = element[ nameof( SharpGfx.Transform ) ];
 
 			if( trn == null )
-				return Logger.LogReturn( "Failed loading UIElement: No transform element.", false, LogType.Error );
-
-			Transform = new Transform();
-
-			if( !Transform.LoadFromXml( trn ) )
+				return Logger.LogReturn( "Failed loading UIElement: No Transform xml element.", false, LogType.Error );
+			if(	!Transform.LoadFromXml( trn ) )
 				return Logger.LogReturn( "Failed loading UIElement: Loading Transform failed.", false, LogType.Error );
+
+			string id = element.GetAttribute( nameof( ID ) );
+			ID = string.IsNullOrWhiteSpace( id ) ? Identifiable.NewStringID( "UI" ) : id;
 
 			try
 			{
-				ID      = element.GetAttribute( "id" );
-				Enabled = bool.Parse( element.GetAttribute( "enabled" ) );
-				Visible = bool.Parse( element.GetAttribute( "visible" ) );
+				string en  = element.GetAttribute( nameof( Enabled ) ),
+					   vis = element.GetAttribute( nameof( Visible ) );
+
+				if( !string.IsNullOrWhiteSpace( en ) )
+					Enabled = bool.Parse( en );
+				if( !string.IsNullOrWhiteSpace( vis ) )
+					Visible = bool.Parse( vis );
 			}
 			catch( Exception e )
 			{

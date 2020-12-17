@@ -302,6 +302,9 @@ namespace SharpGfx.UI
 			{
 				string s = id.ToLower();
 
+				if( Selected == s )
+					return true;
+
 				if( Contains( s ) && m_elements[ s ].IsSelectable )
 				{
 					if( !m_elements[ s ].Enabled )
@@ -430,16 +433,7 @@ namespace SharpGfx.UI
 		/// <param name="dt"></param>
 		public void Update( float dt )
 		{
-			if( Input.Manager.Mouse.AnyJustMoved() || Input.Manager.Mouse.AnyJustPressed() || Input.Manager.Mouse.AnyJustReleased() )
-				LastInteraction = Interaction.Mouse;
-			else
-			{
-				JoystickManager joy = Input.Manager.Joystick[ Input.Manager.FirstJoystick ];
-
-				if( Input.Manager.Keyboard.AnyJustPressed() || Input.Manager.Keyboard.AnyJustReleased() ||
-					( joy != null && ( joy.AnyJustPressed() || joy.AnyJustReleased() || joy.AnyJustMoved() ) ) )
-					LastInteraction = Interaction.Control;
-			}
+			LastInteraction = Input.Manager.LastDevice == InputDevice.Mouse ? Interaction.Mouse : Interaction.Control;
 
 			foreach( var v in m_elements )
 				v.Value.Update( dt );

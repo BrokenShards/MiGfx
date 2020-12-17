@@ -307,7 +307,7 @@ namespace SharpGfx
 
 			try
 			{
-				XmlNodeList anims = element.SelectNodes( "animation" );
+				XmlNodeList anims = element.SelectNodes( nameof( Animation ) );
 
 				foreach( XmlNode f in anims )
 				{
@@ -337,12 +337,16 @@ namespace SharpGfx
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendLine( "<animation_set>" );
+			sb.Append( "<" );
+			sb.Append( nameof( AnimationSet ) );
+			sb.AppendLine( ">" );
 
 			foreach( var a in m_animap )
 				sb.AppendLine( XmlLoadable.ToString( a.Value, 1 ) );
 
-			sb.Append( "</animation_set>" );
+			sb.Append( "</" );
+			sb.Append( nameof( AnimationSet ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}

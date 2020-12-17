@@ -273,25 +273,42 @@ namespace SharpGfx
 			if( element == null )
 				return Logger.LogReturn( "Cannot load TextStyle from a null XmlElement.", false, LogType.Error );
 
-			XmlElement fcol = element[ "fill_color" ],
-			           ocol = element[ "outline_color" ];
+			string font  = element.GetAttribute( nameof( FontPath ) ),
+				   size  = element.GetAttribute( nameof( Size ) ),
+				   style = element.GetAttribute( nameof( Style ) ),
+				   outln = element.GetAttribute( nameof( Outline ) );
 
+			XmlElement fcol = element[ nameof( FillColor ) ],
+					   ocol = element[ nameof( OutlineColor ) ];
+
+			Color? f = Xml.ToColor( fcol ),
+				   o = ocol != null ? Xml.ToColor( ocol ) : null;
+
+			if( string.IsNullOrWhiteSpace( font ) )
+				return Logger.LogReturn( "Failed loading TextStyle: No FontPath attribute.", false, LogType.Error );
 			if( fcol == null )
-				return Logger.LogReturn( "Failed loading TextStyle: No fill_color element.", false, LogType.Error );
-			if( ocol == null )
-				return Logger.LogReturn( "Failed loading TextStyle: No outline_color element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextStyle: No FillColor element.", false, LogType.Error );
+			if( !f.HasValue )
+				return Logger.LogReturn( "Failed loading TextStyle: Unable to parse FillColor xml element.", false, LogType.Error );
+			if( ocol != null )
+			{
+				if( !o.HasValue )
+					return Logger.LogReturn( "Failed loading TextStyle: Unable to parse OutlineColor xml element.", false, LogType.Error );
+
+				OutlineColor = o.Value;
+			}
+
+			FontPath  = font;
+			FillColor = f.Value;
 
 			try
 			{
-				FontPath = element.GetAttribute( "font" );
-				Size     = uint.Parse( element.GetAttribute( "size" ) );
-				Style    = uint.Parse( element.GetAttribute( "style" ) );
-				Outline  = float.Parse( element.GetAttribute( "outline" ) );
-
-				FillColor    = new Color( byte.Parse( fcol.GetAttribute( "r" ) ), byte.Parse( fcol.GetAttribute( "g" ) ),
-									      byte.Parse( fcol.GetAttribute( "b" ) ), byte.Parse( fcol.GetAttribute( "a" ) ) );
-				OutlineColor = new Color( byte.Parse( ocol.GetAttribute( "r" ) ), byte.Parse( ocol.GetAttribute( "g" ) ),
-									      byte.Parse( ocol.GetAttribute( "b" ) ), byte.Parse( ocol.GetAttribute( "a" ) ) );
+				if( !string.IsNullOrWhiteSpace( size ) )
+					Size = uint.Parse( size );
+				if( !string.IsNullOrWhiteSpace( style ) )
+					Style = uint.Parse( style );
+				if( !string.IsNullOrWhiteSpace( outln ) )
+					Outline = float.Parse( outln );
 			}
 			catch( Exception e )
 			{
@@ -311,43 +328,31 @@ namespace SharpGfx
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<text_style font=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( TextStyle ) );
+			sb.Append( " " + nameof( FontPath ) + "=\"" );
 			sb.Append( FontPath ?? string.Empty );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "            size=\"" );
+			sb.Append( " " + nameof( Size ) + "=\"" );
 			sb.Append( Size );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "            style=\"" );
+			sb.Append( " " + nameof( Style ) + "=\"" );
 			sb.Append( Style );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "            outline=\"" );
+			sb.Append( " " + nameof( Outline ) + "=\"" );
 			sb.Append( Outline );
 			sb.AppendLine( "\">" );
 
-			sb.Append( "\t<fill_color r=\"" );
-			sb.Append( FillColor.R );
-			sb.Append( "\" g=\"" );
-			sb.Append( FillColor.G );
-			sb.Append( "\" b=\"" );
-			sb.Append( FillColor.B );
-			sb.Append( "\" a=\"" );
-			sb.Append( FillColor.A );
-			sb.AppendLine( "\"/>" );
+			sb.AppendLine( Xml.ToString( FillColor, nameof( FillColor ), 1 ) );
+			sb.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) );
 
-			sb.Append( "\t<outline_color r=\"" );
-			sb.Append( OutlineColor.R );
-			sb.Append( "\" g=\"" );
-			sb.Append( OutlineColor.G );
-			sb.Append( "\" b=\"" );
-			sb.Append( OutlineColor.B );
-			sb.Append( "\" a=\"" );
-			sb.Append( OutlineColor.A );
-			sb.AppendLine( "\"/>" );
+			sb.Append( "</" );
+			sb.Append( nameof( TextStyle ) );
+			sb.AppendLine( ">" );
 
-			sb.Append( "</text_style>" );
 			return sb.ToString();
 		}
 
@@ -362,12 +367,13 @@ namespace SharpGfx
 		/// </returns>
 		public bool Equals( TextStyle other )
 		{
-			return FontPath     == other.FontPath  &&
+			return other != null &&
+			       FontPath.ToLower().Equals( other.FontPath.ToLower() ) &&
 				   Size         == other.Size      &&
 				   Style        == other.Style     &&
 				   Outline      == other.Outline   &&
-				   FillColor    == other.FillColor &&
-				   OutlineColor == other.OutlineColor;
+				   FillColor.Equals( other.FillColor ) &&
+				   OutlineColor.Equals( other.OutlineColor );
 		}
 
 		private uint  m_size;

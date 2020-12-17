@@ -169,14 +169,12 @@ namespace SharpGfx.UI
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			XmlElement spr = element[ "sprite" ];
+			m_sprite = new Sprite();
+
+			XmlElement spr = element[ nameof( Sprite ) ];
 
 			if( spr == null )
-				return Logger.LogReturn( "Failed loading Image: No sprite element.", false, LogType.Error );
-
-			if( m_sprite == null )
-				m_sprite = new Sprite();
-
+				return Logger.LogReturn( "Failed loading Image: No " + nameof( Sprite ) + " xml element.", false, LogType.Error );
 			if( !m_sprite.LoadFromXml( spr ) )
 				return Logger.LogReturn( "Failed loading Image: Loading Sprite failed.", false, LogType.Error );
 
@@ -193,22 +191,26 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<image id=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( Image ) );
+			sb.Append( " " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "       enabled=\"" );
+			sb.Append( "       " + nameof( Enabled ) + "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "       visible=\"" );
+			sb.Append( "       " + nameof( Visible ) + "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\">" );
 
 			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( m_sprite,  1 ) );
 
-			sb.Append( "</image>" );
+			sb.Append( "</" );
+			sb.Append( nameof( Image ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}

@@ -165,16 +165,14 @@ namespace SharpGfx.UI
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			XmlElement spr = element[ "animated_sprite" ];
+			Sprite = new AnimatedSprite();
 
-			if( spr == null )
-				return Logger.LogReturn( "Failed loading Image: No sprite element.", false, LogType.Error );
+			XmlElement aspr = element[ nameof( AnimatedSprite ) ];
 
-			if( Sprite == null )
-				Sprite = new AnimatedSprite();
-
-			if( !Sprite.LoadFromXml( spr ) )
-				return Logger.LogReturn( "Failed loading Image: Loading Sprite failed.", false, LogType.Error );
+			if( aspr == null )
+				return Logger.LogReturn( "Failed loading AnimatedImage: No AnimatedSprite xml element.", false, LogType.Error );
+			if( !Sprite.LoadFromXml( aspr ) )
+				return Logger.LogReturn( "Failed loading AnimatedImage: Loading AnimatedSprite failed.", false, LogType.Error );
 
 			return true;
 		}
@@ -189,22 +187,26 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<animated_image id=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( AnimatedImage ) );
+			sb.Append( " " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "                enabled=\"" );
+			sb.Append( "               " + nameof( Enabled ) + "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "                visible=\"" );
+			sb.Append( "               " + nameof( Visible ) + "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\">" );
 
 			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( Sprite, 1 ) );
 
-			sb.Append( "</animated_image>" );
+			sb.Append( "</" );
+			sb.Append( nameof( AnimatedImage ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}

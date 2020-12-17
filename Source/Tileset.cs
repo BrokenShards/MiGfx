@@ -371,30 +371,39 @@ namespace SharpGfx
 			if( element == null )
 				return Logger.LogReturn( "Cannot load Tileset from a null XmlElement.", false, LogType.Error );
 
-			XmlElement size = element[ "cell_size" ],
-					   off  = element[ "offset" ],
-					   pad  = element[ "padding" ];
+			string id  = element.GetAttribute( nameof( ID ) ),
+			       tex = element.GetAttribute( nameof( Texture ) );
 
+			XmlElement size = element[ nameof( CellSize ) ],
+					   off  = element[ nameof( Offset ) ],
+					   pad  = element[ nameof( Padding ) ];
+
+			if( string.IsNullOrWhiteSpace( id ) )
+				return Logger.LogReturn( "Failed loading Tileset: No ID attribute.", false, LogType.Error );
 			if( size == null )
-				return Logger.LogReturn( "Failed loading Tileset: No cell_size element.", false, LogType.Error );
-			if( off == null )
-				return Logger.LogReturn( "Failed loading Tileset: No offset element.", false, LogType.Error );
-			if( pad == null )
-				return Logger.LogReturn( "Failed loading Tileset: No padding element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Tileset: No CellSize element.", false, LogType.Error );
 
-			try
-			{
-				ID      = element.GetAttribute( "id" );
-				Texture = element.GetAttribute( "texture" );
+			ID      = id;
+			Texture = string.IsNullOrWhiteSpace( tex ) ? string.Empty : tex;
 
-				CellSize = new Vector2u( uint.Parse( size.GetAttribute( "x" ) ), uint.Parse( size.GetAttribute( "y" ) ) );
-				Offset   = new Vector2u( uint.Parse( off.GetAttribute( "x" ) ),  uint.Parse( off.GetAttribute( "y" ) ) );
-				Padding  = new Vector2u( uint.Parse( pad.GetAttribute( "x" ) ),  uint.Parse( pad.GetAttribute( "y" ) ) );
-			}
-			catch( Exception e )
-			{
-				return Logger.LogReturn( "Failed loading Tileset: " + e.Message, false, LogType.Error );
-			}
+			Vector2u? s = Xml.ToVec2u( size ),
+			          o = off != null ? Xml.ToVec2u( off ) : null,
+					  p = pad != null ? Xml.ToVec2u( pad ) : null;
+
+			if( !s.HasValue )
+				return Logger.LogReturn( "Failed loading Tileset: Unable to parse CellSize.", false, LogType.Error );
+			if( off != null && !o.HasValue )
+				return Logger.LogReturn( "Failed loading Tileset: Unable to parse Offset.", false, LogType.Error );
+			if( !o.HasValue )
+				o = new Vector2u( 0, 0 );
+			if( pad != null && !p.HasValue )
+				return Logger.LogReturn( "Failed loading Tileset: Unable to parse Padding.", false, LogType.Error );
+			if( !p.HasValue )
+				p = new Vector2u( 0, 0 );
+
+			CellSize = s.Value;
+			Offset   = o.Value;
+			Padding  = p.Value;
 
 			return true;
 		}
@@ -409,33 +418,27 @@ namespace SharpGfx
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<tileset id=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( Tileset ) );
+			sb.Append( " " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "         texture=\"" );
+			sb.Append( "         " + nameof( Texture ) + "=\"" );
 			sb.Append( Texture );
 			sb.AppendLine( "\">" );
 
-			sb.Append( "\t<cell_size x=\"" );
-			sb.Append( CellSize.X );
-			sb.Append( "\" y=\"" );
-			sb.Append( CellSize.Y );
-			sb.AppendLine( "\"/>" );
+			sb.AppendLine( Xml.ToString( CellSize, nameof( CellSize ), 1 ) );
 
-			sb.Append( "\t<offset x=\"" );
-			sb.Append( CellSize.X );
-			sb.Append( "\" y=\"" );
-			sb.Append( CellSize.Y );
-			sb.AppendLine( "\"/>" );
+			if( Offset.X != 0.0f || Offset.Y != 0.0f )
+				sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
+			if( Padding.X != 0.0f || Padding.Y != 0.0f )
+				sb.AppendLine( Xml.ToString( Padding, nameof( Padding ), 1 ) );
 
-			sb.Append( "\t<padding x=\"" );
-			sb.Append( CellSize.X );
-			sb.Append( "\" y=\"" );
-			sb.Append( CellSize.Y );
-			sb.AppendLine( "\"/>" );
+			sb.Append( "</" );
+			sb.Append( nameof( Tileset ) );
+			sb.AppendLine( ">" );
 
-			sb.Append( "</text_info>" );
 			return sb.ToString();
 		}
 
@@ -450,11 +453,12 @@ namespace SharpGfx
 		/// </returns>
 		public bool Equals( Tileset other )
 		{
-			return ID       == other.ID       &&
-				   Texture  == other.Texture  &&
-				   CellSize == other.CellSize &&
-				   Offset   == other.Offset   &&
-				   Padding  == other.Padding;
+			return other != null &&
+			       ID.Equals( other.ID ) &&
+				   Texture.Equals( other.Texture ) &&
+				   CellSize.Equals( other.CellSize ) &&
+				   Offset.Equals( other.Offset ) &&
+				   Padding.Equals( other.Padding );
 		}
 
 		private string   m_id;

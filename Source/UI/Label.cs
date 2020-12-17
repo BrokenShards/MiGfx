@@ -183,7 +183,7 @@ namespace SharpGfx.UI
 			if( bounds.Height <= 0.0f )
 				bounds.Height = 1.0f;
 
-			Transform.LocalSize = new Vector2f( bounds.Width, bounds.Height );
+			Transform.Size = new Vector2f( bounds.Width, bounds.Height );
 		}
 		/// <summary>
 		///   Draws the element.
@@ -275,16 +275,14 @@ namespace SharpGfx.UI
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			String = element.GetAttribute( "string" );
-			XmlElement txt = element[ "text_info" ];
+			Text   = new TextStyle();
+			String = element.GetAttribute( nameof( String ) );
 
-			if( txt == null )
-				return Logger.LogReturn( "Failed loading Label: No text_style element.", false, LogType.Error );
+			XmlElement sty = element[ nameof( TextStyle ) ];
 
-			if( Text == null )
-				Text = new TextStyle();
-
-			if( !Text.LoadFromXml( txt ) )
+			if( sty == null )
+				return Logger.LogReturn( "Failed loading Label: No TextStyle xml element.", false, LogType.Error );
+			if( !Text.LoadFromXml( sty ) )
 				return Logger.LogReturn( "Failed loading Label: Loading TextStyle failed.", false, LogType.Error );
 
 			return true;
@@ -300,26 +298,30 @@ namespace SharpGfx.UI
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<label id=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( Label ) );
+			sb.Append( " " + nameof( ID ) + "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "       enabled=\"" );
+			sb.Append( "       " + nameof( Enabled ) + "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "       visible=\"" );
+			sb.Append( "       " + nameof( Visible ) + "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "       string=\"" );
+			sb.Append( "       " + nameof( String ) + "=\"" );
 			sb.Append( String );
 			sb.AppendLine( "\">" );
 
 			sb.AppendLine( XmlLoadable.ToString( Transform, 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
 
-			sb.Append( "</image>" );
+			sb.Append( "</" );
+			sb.Append( nameof( Label ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}

@@ -463,6 +463,12 @@
               Currently mapped actions for each player.
             </summary>
         </member>
+        <member name="P:SFInput.Input.LastDevice">
+            <summary>
+              The device the most recent input came from. Assigned when calling 
+              <see cref="M:SFInput.Input.Update"/>.
+            </summary>
+        </member>
         <member name="M:SFInput.Input.JoystickConnected(System.UInt32)">
             <summary>
               If the joystick at the given index is connected.

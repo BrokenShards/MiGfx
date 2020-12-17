@@ -66,10 +66,10 @@ namespace SharpGfx
 		/// </summary>
 		public ImageInfo()
 		{
-			Path  = string.Empty;
-			Rect  = new FloatRect();
+			Path        = string.Empty;
+			Rect        = new FloatRect();
 			Orientation = Direction.Up;
-			Color = new Color( 255, 255, 255, 255 );
+			Color       = new Color( 255, 255, 255, 255 );
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -85,10 +85,10 @@ namespace SharpGfx
 			if( i == null )
 				throw new ArgumentNullException();
 
-			Path  = new string( i.Path.ToCharArray() );
-			Rect  = i.Rect;
+			Path        = new string( i.Path.ToCharArray() );
+			Rect        = i.Rect;
 			Orientation = i.Orientation;
-			Color = i.Color;
+			Color       = i.Color;
 		}
 		/// <summary>
 		///   Constructor that assigns texture path along with optional rect, orientation and color.
@@ -298,22 +298,35 @@ namespace SharpGfx
 			if( element == null )
 				return Logger.LogReturn( "Cannot load ImageInfo from a null XmlElement.", false, LogType.Error );
 
-			XmlElement rect   = element[ "rect" ],
-					   color  = element[ "color" ];
+			XmlElement rect   = element[ nameof( Rect ) ],
+					   color  = element[ nameof( Color ) ];
 
 			if( rect == null )
-				return Logger.LogReturn( "Failed loading ImageInfo: No rect element.", false, LogType.Error );
-			if( color == null )
-				return Logger.LogReturn( "Failed loading ImageInfo: No color element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading ImageInfo: No Rect element.", false, LogType.Error );
+
+			FloatRect? rec = Xml.ToFRect( rect );
+			Color?     col = color != null ? Xml.ToColor( color ) : null;
+
+			if( !rec.HasValue )
+				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Rect element.", false, LogType.Error );
+			if( color != null && !col.HasValue )
+				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Color element.", false, LogType.Error );
+			else if( color == null )
+				col = new Color( 255, 255, 255, 255 );
+
+			Rect  = rec.Value;
+			Color = col.Value;
 
 			try
 			{
-				Path        = element.GetAttribute( "texture" );
-				Rect        = new FloatRect( float.Parse( rect.GetAttribute( "x" ) ), float.Parse( rect.GetAttribute( "y" ) ),
-				                             float.Parse( rect.GetAttribute( "w" ) ), float.Parse( rect.GetAttribute( "h" ) ) );
-				Color       = new Color( byte.Parse( color.GetAttribute( "r" ) ), byte.Parse( color.GetAttribute( "g" ) ),
-								         byte.Parse( color.GetAttribute( "b" ) ), byte.Parse( color.GetAttribute( "a" ) ) );
-				Orientation = (Direction)Enum.Parse( typeof( Direction ), element.GetAttribute( "orientation" ) );
+				Path = element.GetAttribute( nameof( Path ) );
+
+				string or = element.GetAttribute( nameof( Orientation ) );
+
+				if( !string.IsNullOrWhiteSpace( or ) )
+					Orientation = (Direction)Enum.Parse( typeof( Direction ), or );
+				else
+					Orientation = Direction.Up;
 			}
 			catch( Exception e )
 			{
@@ -333,31 +346,17 @@ namespace SharpGfx
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendLine( "<image_info texture=\"" + Path + "\"" );
-			sb.AppendLine( "            orientation=\"" + Orientation.ToString() + "\">" );
+			sb.Append( "<" );
+			sb.Append( nameof( ImageInfo ) );
+			sb.AppendLine( " " + nameof( Path ) + "=\"" + Path + "\"" );
+			sb.AppendLine( " " + nameof( Orientation ) + "=\"" + Orientation.ToString() + "\">" );
 
-			sb.Append( "\t<rect x=\"" ); 
-			sb.Append( Rect.Left );
-			sb.Append( "\" y=\"" );
-			sb.Append( Rect.Top );
-			sb.AppendLine( "\"" );
-			sb.Append( "\t      w=\"" );
-			sb.Append( Rect.Width );
-			sb.Append( "\" h=\"" );
-			sb.Append( Rect.Height );
-			sb.AppendLine( "\"/>" );
+			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ), 1 ) );
+			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
 
-			sb.Append( "\t<color r=\"" );
-			sb.Append( Color.R );
-			sb.Append( "\" g=\"" );
-			sb.Append( Color.G );
-			sb.Append( "\" b=\"" );
-			sb.Append( Color.B );
-			sb.Append( "\" a=\"" );
-			sb.Append( Color.A );
-			sb.AppendLine( "\"/>" );
-
-			sb.Append( "</image_info>" );
+			sb.Append( "</" );
+			sb.Append( nameof( ImageInfo ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}

@@ -46,7 +46,7 @@ namespace SharpGfxTest
 
 			Image i1 = new Image( "img_test" );
 			i1.DisplayImage = new ImageInfo( Test.TexturePath );
-			i1.Transform.LocalSize = new Vector2f( 200, 200 );
+			i1.Transform.Size = new Vector2f( 200, 200 );
 
 			if( !BinarySerializable.ToFile( i1, ImagePath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Image to file.", false );
@@ -65,8 +65,17 @@ namespace SharpGfxTest
 			if( !i2.Equals( i1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Image has incorrect values.", false );
 
+			string xml = XmlLoadable.XmlHeader + "\r\n" + i1.ToString();
+			Image x = XmlLoadable.FromXml<Image>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Image from xml.", false );
+			if( !x.Equals( i1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Image has incorrect values.", false );
+
 			i1.Dispose();
 			i2.Dispose();
+			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
@@ -81,7 +90,7 @@ namespace SharpGfxTest
 			Image img = new Image( "img_test" );
 			img.DisplayImage = new ImageInfo( Test.TexturePath );
 			img.Transform.Center = window.GetView().Center;
-			img.Transform.LocalSize = new Vector2f( 200, 200 );
+			img.Transform.Size = new Vector2f( 200, 200 );
 
 			if( !Test.Manager.Add( img ) )
 				return Logger.LogReturn( "Failed: Unable to add Image to UIManager.", false );
@@ -131,7 +140,7 @@ namespace SharpGfxTest
 				for( int i = 0; i < 3; i++ )
 					anim.Add( new Frame( new FloatRect( i * 512, 0, 512, 512 ) ) );
 
-				a1.Sprite.Animator.AnimationSet.Add( anim );
+				a1.Sprite.Animator.Animations.Add( anim );
 			}
 
 			if( !BinarySerializable.ToFile( a1, AnimatedImagePath, true ) )
@@ -151,8 +160,17 @@ namespace SharpGfxTest
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimatedImage has incorrect values.", false );
 
+			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			AnimatedImage x = XmlLoadable.FromXml<AnimatedImage>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load AnimatedImage from xml.", false );
+			if( !x.Equals( a1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded AnimatedImage has incorrect values.", false );
+
 			a1.Dispose();
 			a2.Dispose();
+			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
@@ -173,11 +191,11 @@ namespace SharpGfxTest
 				for( int i = 0; i < 3; i++ )
 					anim.Add( new Frame( new FloatRect( i * 512, 0, 512, 512 ) ) );
 
-				animg.Sprite.Animator.AnimationSet.Add( anim );
+				animg.Sprite.Animator.Animations.Add( anim );
 			}
 
 			animg.Transform.Center = window.GetView().Center;
-			animg.Transform.LocalSize = new Vector2f( 200, 200 );
+			animg.Transform.Size = new Vector2f( 200, 200 );
 
 			animg.Sprite.Animator.Loop = true;
 			animg.Sprite.Animator.Play( "test_anim" );
@@ -238,8 +256,17 @@ namespace SharpGfxTest
 			if( !l2.Equals( l1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Label has incorrect values.", false );
 
+			string xml = XmlLoadable.XmlHeader + "\r\n" + l1.ToString();
+			Label x = XmlLoadable.FromXml<Label>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Label from xml.", false );
+			if( !x.Equals( l1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Label has incorrect values.", false );
+
 			l1.Dispose();
 			l2.Dispose();
+			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
@@ -310,8 +337,23 @@ namespace SharpGfxTest
 			if( !b2.Equals( b1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Button has incorrect values.", false );
 
+			b1.Update( 1.0f );
+
+			string xml = XmlLoadable.XmlHeader + "\r\n" + b1.ToString();
+			Button x = XmlLoadable.FromXml<Button>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load Button from xml.", false );
+
+			b1.Update( 1.0f );
+			x.Update( 1.0f );
+
+			if( !x.Equals( b1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Button has incorrect values.", false );
+
 			b1.Dispose();
 			b2.Dispose();
+			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
@@ -384,8 +426,17 @@ namespace SharpGfxTest
 			if( !c2.Equals( c1 ) )
 				return Logger.LogReturn( "Failed: Deserialized CheckBox has incorrect values.", false );
 
+			string xml = XmlLoadable.XmlHeader + "\r\n" + c1.ToString();
+			CheckBox x = XmlLoadable.FromXml<CheckBox>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
+			if( !x.Equals( c1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
+
 			c1.Dispose();
 			c2.Dispose();
+			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
@@ -457,8 +508,17 @@ namespace SharpGfxTest
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextBox has incorrect values.", false );
 
+			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			TextBox x = XmlLoadable.FromXml<TextBox>( xml );
+
+			if( x == null )
+				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
+			if( !x.Equals( t1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
+
 			t1.Dispose();
 			t2.Dispose();
+			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
@@ -503,80 +563,6 @@ namespace SharpGfxTest
 			return Logger.LogReturn( "Success!", true );
 		}
 	}
-	public class SliderTest : VisualTestModule
-	{
-		const string SliderPath = "slider.bin";
-
-		protected override bool OnTest()
-		{
-			Logger.Log( "Running Slider Tests..." );
-
-			// TODO: Change to Slider.Default when implemented.
-			Slider s1 = new Slider( "slider_test" );
-
-			if( !BinarySerializable.ToFile( s1, SliderPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize Slider to file.", false );
-
-			Slider s2 = BinarySerializable.FromFile<Slider>( SliderPath );
-
-			try
-			{
-				File.Delete( SliderPath );
-			}
-			catch
-			{ }
-
-			if( s2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Slider from file.", false );
-			if( !s2.Equals( s1 ) )
-				return Logger.LogReturn( "Failed: Deserialized Slider has incorrect values.", false );
-
-			s1.Dispose();
-			s2.Dispose();
-			return Logger.LogReturn( "Success!", true );
-		}
-		protected override bool OnVisualTest( RenderWindow window )
-		{
-			Logger.Log( "Running Slider Visual Tests..." );
-
-			if( window == null || !window.IsOpen )
-				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
-			if( Test.Manager == null )
-				return Logger.LogReturn( "Failed: Test UIManager is null.", false );
-
-			// TODO: Change to Slider.Default when implemented.
-			Slider img = new Slider( "slider_test" );
-			img.Transform.Center = window.GetView().Center;
-
-			if( !Test.Manager.Add( img ) )
-				return Logger.LogReturn( "Failed: Unable to add Slider to UIManager.", false );
-
-			Logger.Log( "Is slider displayed on window? (y/n) [Not implemented, will display nothing!]" );
-			bool? inp = null;
-
-			while( window.IsOpen && inp == null )
-			{
-				window.DispatchEvents();
-
-				Input.Manager.Update();
-				Test.Manager.Update( 1.0f );
-
-				if( Input.Manager.Keyboard.JustPressed( "Y" ) )
-					inp = true;
-				else if( Input.Manager.Keyboard.JustPressed( "N" ) )
-					inp = false;
-
-				window.Clear();
-				window.Draw( Test.Manager );
-				window.Display();
-			}
-
-			if( inp == null || !inp.Value )
-				return Logger.LogReturn( "Failed: Slider did not display correctly (user input).", false );
-
-			return Logger.LogReturn( "Success!", true );
-		}
-	}
 
 	partial class Test
 	{
@@ -609,10 +595,6 @@ namespace SharpGfxTest
 				Manager.RemoveAll();
 
 				if( !new CheckBoxTest().RunTest( window ) )
-					result = false;
-				Manager.RemoveAll();
-
-				if( !new SliderTest().RunTest( window ) )
 					result = false;
 				Manager.RemoveAll();
 

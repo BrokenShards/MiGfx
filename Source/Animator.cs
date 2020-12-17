@@ -41,13 +41,13 @@ namespace SharpGfx
 		/// </summary>
 		public Animator()
 		{
-			AnimationSet = new AnimationSet();
-			Playing      = false;
-			Loop         = true;
-			Multiplier   = 1.0f;
-			m_selected   = string.Empty;
-			FrameIndex   = 0;
-			m_timer      = new Clock();
+			Animations = new AnimationSet();
+			Playing    = false;
+			Loop       = true;
+			Multiplier = 1.0f;
+			m_selected = string.Empty;
+			FrameIndex = 0;
+			m_timer    = new Clock();
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -59,19 +59,19 @@ namespace SharpGfx
 			if( a == null )
 				throw new ArgumentNullException();
 			 
-			AnimationSet = new AnimationSet( a.AnimationSet );
-			Playing      = a.Playing;
-			Loop         = a.Loop;
-			Multiplier   = a.Multiplier;
-			m_selected   = a.m_selected;
-			FrameIndex   = a.FrameIndex;
-			m_timer      = new Clock();
+			Animations = new AnimationSet( a.Animations );
+			Playing    = a.Playing;
+			Loop       = a.Loop;
+			Multiplier = a.Multiplier;
+			m_selected = a.m_selected;
+			FrameIndex = a.FrameIndex;
+			m_timer    = new Clock();
 		}
 
 		/// <summary>
 		///   The animation set.
 		/// </summary>
-		public AnimationSet AnimationSet { get; set; }
+		public AnimationSet Animations { get; set; }
 
 		/// <summary>
 		///   If the animator is playing.
@@ -111,7 +111,7 @@ namespace SharpGfx
 			get { return m_selected; }
 			set
 			{
-				if( AnimationSet != null && AnimationSet.Contains( value ) )
+				if( Animations != null && Animations.Contains( value ) )
 					m_selected = value.ToLower();
 
 				FrameIndex = 0;
@@ -133,19 +133,19 @@ namespace SharpGfx
 		{
 			get
 			{
-				if( AnimationSet.Empty )
+				if( Animations.Empty )
 					return null;
 
-				if( !AnimationSet.Contains( Selected ) )
+				if( !Animations.Contains( Selected ) )
 				{
-					var e = AnimationSet.GetEnumerator();
+					var e = Animations.GetEnumerator();
 					e.MoveNext();
 
 					Selected = e.Current.Key;
 					FrameIndex = 0;
 				}
 
-				return AnimationSet[ Selected ];
+				return Animations[ Selected ];
 			}
 		}
 		/// <summary>
@@ -155,7 +155,7 @@ namespace SharpGfx
 		{
 			get
 			{
-				if( AnimationSet.Empty )
+				if( Animations.Empty )
 					return null;
 
 				Frame f = null;
@@ -220,7 +220,7 @@ namespace SharpGfx
 		/// </param>
 		public void Update( float dt )
 		{
-			if( AnimationSet.Empty )
+			if( Animations.Empty )
 				return;
 
 			if( Playing && Multiplier > 0.0f )
@@ -273,7 +273,7 @@ namespace SharpGfx
 				return Logger.LogReturn( "Unable to load Animator from stream: " + e.Message, false, LogType.Error );
 			}
 
-			if( !AnimationSet.LoadFromStream( br ) )
+			if( !Animations.LoadFromStream( br ) )
 				return Logger.LogReturn( "Unable to load Animator from stream: Failed loading AnimationSet.", false, LogType.Error );
 
 			FrameIndex = 0;
@@ -306,7 +306,7 @@ namespace SharpGfx
 				return Logger.LogReturn( "Unable to save Animator to stream: " + e.Message, false, LogType.Error );
 			}
 
-			if( !AnimationSet.SaveToStream( bw ) )
+			if( !Animations.SaveToStream( bw ) )
 				return Logger.LogReturn( "Unable to save Animator to stream: Failed saving AnimationSet.", false, LogType.Error );
 
 			return true;
@@ -326,25 +326,43 @@ namespace SharpGfx
 			if( element == null )
 				return Logger.LogReturn( "Cannot load Animator from a null XmlElement.", false, LogType.Error );
 
-			XmlElement aset = element[ "animation_set" ];
+			Animations = new AnimationSet();
+			Loop       = false;
+			Multiplier = 1.0f;
+			Selected   = null;
+
+			XmlElement aset = element[ nameof( AnimationSet ) ];
 
 			if( aset == null )
-				return Logger.LogReturn( "Failed loading Animator: No animation_set element.", false, LogType.Error );
-
-			AnimationSet = new AnimationSet();
-
-			if( !AnimationSet.LoadFromXml( aset ) )
+				return Logger.LogReturn( "Failed loading Animator: No AnimationSet xml element.", false, LogType.Error );
+			if( !Animations.LoadFromXml( aset ) )
 				return Logger.LogReturn( "Failed loading Animator: Loading AnimationSet failed.", false, LogType.Error );
 
 			try
 			{
-				Loop       = bool.Parse( element.GetAttribute( "loop" ) );
-				Multiplier = float.Parse( element.GetAttribute( "multiplier" ) );
-				Selected   = element.GetAttribute( "selected" );
+				string loop = element.GetAttribute( nameof( Loop ) ),
+					   mult = element.GetAttribute( nameof( Multiplier ) ),
+					   sele = element.GetAttribute( nameof( Selected ) );
+
+				if( !string.IsNullOrWhiteSpace( loop ) )
+					Loop = bool.Parse( loop );
+				if( !string.IsNullOrWhiteSpace( mult ) )
+					Multiplier = float.Parse( mult );
+				
+				Selected = string.IsNullOrWhiteSpace( sele ) ? null : sele;
+
+				if( Selected == null )
+				{
+					foreach( var s in Animations )
+					{
+						Selected = s.Key;
+						break;
+					}
+				}
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading AnimationSet: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Animator: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -360,21 +378,26 @@ namespace SharpGfx
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.Append( "<animator loop=\"" );
+			sb.Append( "<" );
+			sb.Append( nameof( Animator ) );
+			sb.Append( " " + nameof( Loop ) + "=\"" );
 			sb.Append( Loop );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          multiplier=\"" );
+			sb.Append( "          " + nameof( Multiplier ) + "=\"" );
 			sb.Append( Multiplier );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          selected=\"" );
+			sb.Append( "          " + nameof( Selected ) + "=\"" );
 			sb.Append( Selected ?? string.Empty );
 			sb.AppendLine( "\">" );
 
-			sb.AppendLine( XmlLoadable.ToString( AnimationSet, 1 ) );
+			sb.AppendLine( XmlLoadable.ToString( Animations, 1 ) );
 
-			sb.Append( "</animator>" );
+			sb.Append( "</" );
+			sb.Append( nameof( Animator ) );
+			sb.AppendLine( ">" );
+
 			return sb.ToString();
 		}
 
@@ -389,7 +412,7 @@ namespace SharpGfx
 		/// </returns>
 		public bool Equals( Animator other )
 		{
-			return other      != null && AnimationSet.Equals( other.AnimationSet ) &&
+			return other      != null && Animations.Equals( other.Animations ) &&
 			       Loop       == other.Loop &&
 			       Multiplier == other.Multiplier &&
 				   m_selected == other.m_selected;

@@ -16,11 +16,20 @@ release as an artifact from merging SharpUI into SharpGfx.
 Also SharpTest is only required for the test project, SharpGfx itself does not depend on it.
 
 ## TODO
-- Write IXmlLoadable tests.
-- Finish `UI.Slider`.
 - Implement UI containers/grouping/layouting.
 
 ## Changelog
+
+### Version 0.7.0
+- All `IXmlLoadable` classes now have tests, properly check for existing attributes and return 
+  errors when suitable and now use `nameof( Var )` for attribute and element names. Unimportant xml
+  attributes and elements can now also be ommitted, for example `Transform.LoadFromXml(XmlElement)`
+  no longer requires the `Scale` element to exist.
+- Fixed issue where `Sprite.LoadFromXml(XmlElement)` was failing loading the `Transform`.
+- Added `Xml` helper class for loading and saving common objects to and from xml strings.
+- Removed `Slider` UI element for now.
+- Updated SFInput to version 0.7.0.
+- Updated SharpSerial to version 0.6.0.
 
 ### Version 0.6.0
 - `TextBox` now implements the missing `LoadFromStream(BinaryReader)`, `SaveToStream(BinaryWriter)`
