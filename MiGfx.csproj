@@ -7,8 +7,8 @@
     <ProjectGuid>{12DDFD76-8249-43E8-A4D0-AF314D0C6647}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SharpGfx</RootNamespace>
-    <AssemblyName>SharpGfx</AssemblyName>
+    <RootNamespace>MiGfx</RootNamespace>
+    <AssemblyName>MiGfx</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\SharpGfx.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\MiGfx.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,11 +32,14 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\SharpGfx.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\MiGfx.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SFInput">
-      <HintPath>Dependencies\SFInput.dll</HintPath>
+    <Reference Include="MiCore">
+      <HintPath>Dependencies\MiCore.dll</HintPath>
+    </Reference>
+    <Reference Include="MiInput">
+      <HintPath>Dependencies\MiInput.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-audio-2, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Graphnode.SFML.Net.2.4\lib\sfmlnet-audio-2.dll</HintPath>
@@ -49,18 +52,6 @@
     </Reference>
     <Reference Include="sfmlnet-window-2, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Graphnode.SFML.Net.2.4\lib\sfmlnet-window-2.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpID, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\SharpID.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLogger, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\SharpLogger.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpSerial, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\SharpSerial.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -100,7 +91,6 @@
     <Compile Include="Source\UI\Label.cs" />
     <Compile Include="Source\UI\UIManager.cs" />
     <Compile Include="Source\UI\TextBox.cs" />
-    <Compile Include="Source\Xml.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

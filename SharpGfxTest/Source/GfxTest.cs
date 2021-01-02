@@ -2,7 +2,7 @@
 // GfxTest.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
+// MiGfx - A basic graphics library for use with SFML.Net.
 // Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
@@ -20,20 +20,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
 using System.IO;
 using SFML.Graphics;
 using SFML.System;
 
-using SharpGfx;
-using SharpLogger;
-using SharpSerial;
-using SharpTest;
+using MiCore;
+using MiGfx;
 
-using Sprite    = SharpGfx.Sprite;
-using Transform = SharpGfx.Transform;
+using Sprite    = MiGfx.Sprite;
+using Transform = MiGfx.Transform;
 
-namespace SharpGfxTest
+namespace MiGfxTest
 {
 	public class FrameTest : TestModule
 	{
@@ -67,7 +64,7 @@ namespace SharpGfxTest
 			if( !f2.Equals( f1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Frame has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + f1.ToString();
+			string xml = Xml.Header + "\r\n" + f1.ToString();
 			Frame x = XmlLoadable.FromXml<Frame>( xml );
 
 			if( x == null )
@@ -116,7 +113,7 @@ namespace SharpGfxTest
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Animation has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			string xml = Xml.Header + "\r\n" + a1.ToString();
 			Animation x = XmlLoadable.FromXml<Animation>( xml );
 
 			if( x == null )
@@ -168,7 +165,7 @@ namespace SharpGfxTest
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimationSet has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			string xml = Xml.Header + "\r\n" + a1.ToString();
 			AnimationSet x = XmlLoadable.FromXml<AnimationSet>( xml );
 
 			if( x == null )
@@ -209,7 +206,7 @@ namespace SharpGfxTest
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Animator has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			string xml = Xml.Header + "\r\n" + a1.ToString();
 			Animator x = XmlLoadable.FromXml<Animator>( xml );
 
 			if( x == null )
@@ -247,7 +244,7 @@ namespace SharpGfxTest
 			if( !i2.Equals( i1 ) )
 				return Logger.LogReturn( "Failed: Deserialized ImageInfo has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + i1.ToString();
+			string xml = Xml.Header + "\r\n" + i1.ToString();
 			ImageInfo x = XmlLoadable.FromXml<ImageInfo>( xml );
 
 			if( x == null )
@@ -289,7 +286,7 @@ namespace SharpGfxTest
 			if( !s2.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Sprite has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + s1.ToString();
+			string xml = Xml.Header + "\r\n" + s1.ToString();
 			Sprite x = XmlLoadable.FromXml<Sprite>( xml );
 
 			if( x == null )
@@ -333,7 +330,7 @@ namespace SharpGfxTest
 			if( !s2.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimatedSprite has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + s1.ToString();
+			string xml = Xml.Header + "\r\n" + s1.ToString();
 			AnimatedSprite x = XmlLoadable.FromXml<AnimatedSprite>( xml );
 
 			if( x == null )
@@ -372,7 +369,7 @@ namespace SharpGfxTest
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			string xml = Xml.Header + "\r\n" + t1.ToString();
 			TextStyle x = XmlLoadable.FromXml<TextStyle>( xml );
 
 			if( x == null )
@@ -413,7 +410,7 @@ namespace SharpGfxTest
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Tileset has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			string xml = Xml.Header + "\r\n" + t1.ToString();
 			Tileset x = XmlLoadable.FromXml<Tileset>( xml );
 
 			if( x == null )
@@ -463,7 +460,7 @@ namespace SharpGfxTest
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			string xml = Xml.Header + "\r\n" + t1.ToString();
 			Transform x = XmlLoadable.FromXml<Transform>( xml );
 
 			if( x == null )

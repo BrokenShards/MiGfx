@@ -2,8 +2,8 @@
 // Button.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -21,18 +21,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.IO;
+using System.Text;
+using System.Xml;
+
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
-using SFInput;
-using System.IO;
-using SharpLogger;
-using SharpSerial;
-using System.Text;
-using System.Xml;
+using MiCore;
+using MiInput;
 
-namespace SharpGfx
+namespace MiGfx
 {
 	public static partial class FilePaths
 	{
@@ -43,7 +43,7 @@ namespace SharpGfx
 	}
 }
 
-namespace SharpGfx.UI
+namespace MiGfx.UI
 {	
 	/// <summary>
 	///   Possible button state.

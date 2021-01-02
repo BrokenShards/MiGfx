@@ -2,8 +2,8 @@
 // Test.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -23,27 +23,27 @@
 using System;
 using SFML.Graphics;
 using SFML.Window;
-using SharpLogger;
+using MiCore;
 
-namespace SharpGfxTest
+namespace MiGfxTest
 {
 	partial class Test
 	{
-		public static readonly string TexturePath = SharpGfx.FolderPaths.Textures + "test.png";
+		public static readonly string TexturePath = MiGfx.FolderPaths.Textures + "test.png";
 
 		static void Main( string[] args )
 		{
 			Logger.LogToConsole = true;
 			Logger.LogToFile    = false;
 
-			Logger.Log( "Running SharpGfx Tests..." );
+			Logger.Log( "Running MiGfx Tests..." );
 
 			bool result = true;
 
 			if( !AssetTests() )
 				result = false;
 
-			using( RenderWindow window = new RenderWindow( new VideoMode( 800, 600, 32 ), "SharpGfx Test", Styles.Close ) )
+			using( RenderWindow window = new RenderWindow( new VideoMode( 800, 600, 32 ), "MiGfx Test", Styles.Close ) )
 			{
 				if( !GraphicsTests( window ) )
 					result = false;

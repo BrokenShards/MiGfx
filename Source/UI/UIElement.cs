@@ -2,8 +2,8 @@
 // UIElement.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -22,16 +22,13 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Xml;
 using SFML.Graphics;
 using SFML.Window;
 
-using SharpID;
-using SharpLogger;
-using SharpSerial;
+using MiCore;
 
-namespace SharpGfx.UI
+namespace MiGfx.UI
 {
 	/// <summary>
 	///   Base class for GUI elements.
@@ -317,7 +314,7 @@ namespace SharpGfx.UI
 			Enabled   = true;
 			Visible   = true;
 
-			XmlElement trn = element[ nameof( SharpGfx.Transform ) ];
+			XmlElement trn = element[ nameof( MiGfx.Transform ) ];
 
 			if( trn == null )
 				return Logger.LogReturn( "Failed loading UIElement: No Transform xml element.", false, LogType.Error );

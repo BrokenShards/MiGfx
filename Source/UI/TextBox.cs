@@ -2,8 +2,8 @@
 // TextBox.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -21,18 +21,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.IO;
+using System.Text;
+using System.Xml;
+
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
-using SFInput;
-using SharpSerial;
-using System.IO;
-using SharpLogger;
-using System.Xml;
-using System.Text;
+using MiCore;
+using MiInput;
 
-namespace SharpGfx
+namespace MiGfx
 {
 	public static partial class FilePaths
 	{
@@ -42,7 +42,7 @@ namespace SharpGfx
 		public static readonly string TextBoxTexture = FolderPaths.UI + "TextBox.png";
 	}
 }
-namespace SharpGfx.UI
+namespace MiGfx.UI
 { 
 	/// <summary>
 	///   Textbox state info.

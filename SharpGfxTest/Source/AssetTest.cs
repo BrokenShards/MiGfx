@@ -2,8 +2,8 @@
 // AssetTest.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -23,11 +23,10 @@
 using SFML.Audio;
 using SFML.Graphics;
 
-using SharpGfx;
-using SharpLogger;
-using SharpTest;
+using MiCore;
+using MiGfx;
 
-namespace SharpGfxTest
+namespace MiGfxTest
 {
 	public class FontManagerTest : TestModule
 	{

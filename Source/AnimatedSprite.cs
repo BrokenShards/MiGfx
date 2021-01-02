@@ -2,8 +2,8 @@
 // Sprite.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -24,12 +24,10 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
-using SFML.Graphics;
 
-using SharpLogger;
-using SharpSerial;
+using MiCore;
 
-namespace SharpGfx
+namespace MiGfx
 {
 	/// <summary>
 	///   An animated sprite.
@@ -156,7 +154,7 @@ namespace SharpGfx
 
 			Animator = new Animator();
 
-			XmlElement anim = element[ nameof( SharpGfx.Animator ) ];
+			XmlElement anim = element[ nameof( MiGfx.Animator ) ];
 
 			if( anim == null )
 				return Logger.LogReturn( "Failed loading AnimatedSprite: No Animator xml element.", false, LogType.Error );

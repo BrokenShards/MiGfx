@@ -1,9 +1,9 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// GfxTest.cs 
+// UITest.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -21,20 +21,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System.IO;
-using SFInput;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
-using SharpGfx;
-using SharpGfx.UI;
-using SharpLogger;
-using SharpSerial;
-using SharpTest;
+using MiCore;
+using MiInput;
+using MiGfx;
+using MiGfx.UI;
 
-using Image = SharpGfx.UI.Image;
+using Image = MiGfx.UI.Image;
 
-namespace SharpGfxTest
+namespace MiGfxTest
 {
 	public class ImageTest : VisualTestModule
 	{
@@ -65,7 +63,7 @@ namespace SharpGfxTest
 			if( !i2.Equals( i1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Image has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + i1.ToString();
+			string xml = Xml.Header + "\r\n" + i1.ToString();
 			Image x = XmlLoadable.FromXml<Image>( xml );
 
 			if( x == null )
@@ -160,7 +158,7 @@ namespace SharpGfxTest
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimatedImage has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + a1.ToString();
+			string xml = Xml.Header + "\r\n" + a1.ToString();
 			AnimatedImage x = XmlLoadable.FromXml<AnimatedImage>( xml );
 
 			if( x == null )
@@ -256,7 +254,7 @@ namespace SharpGfxTest
 			if( !l2.Equals( l1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Label has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + l1.ToString();
+			string xml = Xml.Header + "\r\n" + l1.ToString();
 			Label x = XmlLoadable.FromXml<Label>( xml );
 
 			if( x == null )
@@ -339,7 +337,7 @@ namespace SharpGfxTest
 
 			b1.Update( 1.0f );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + b1.ToString();
+			string xml = Xml.Header + "\r\n" + b1.ToString();
 			Button x = XmlLoadable.FromXml<Button>( xml );
 
 			if( x == null )
@@ -426,7 +424,7 @@ namespace SharpGfxTest
 			if( !c2.Equals( c1 ) )
 				return Logger.LogReturn( "Failed: Deserialized CheckBox has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + c1.ToString();
+			string xml = Xml.Header + "\r\n" + c1.ToString();
 			CheckBox x = XmlLoadable.FromXml<CheckBox>( xml );
 
 			if( x == null )
@@ -508,7 +506,7 @@ namespace SharpGfxTest
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextBox has incorrect values.", false );
 
-			string xml = XmlLoadable.XmlHeader + "\r\n" + t1.ToString();
+			string xml = Xml.Header + "\r\n" + t1.ToString();
 			TextBox x = XmlLoadable.FromXml<TextBox>( xml );
 
 			if( x == null )

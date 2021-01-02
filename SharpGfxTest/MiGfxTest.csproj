@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0123893B-7F02-4462-9BE1-051B4D2F4C07}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SharpGfxTest</RootNamespace>
-    <AssemblyName>SharpGfxTest</AssemblyName>
+    <RootNamespace>MiGfxTest</RootNamespace>
+    <AssemblyName>MiGfxTest</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -35,8 +35,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SFInput">
-      <HintPath>..\Dependencies\SFInput.dll</HintPath>
+    <Reference Include="MiCore">
+      <HintPath>..\Dependencies\MiCore.dll</HintPath>
+    </Reference>
+    <Reference Include="MiInput">
+      <HintPath>..\Dependencies\MiInput.dll</HintPath>
     </Reference>
     <Reference Include="sfmlnet-audio-2, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Graphnode.SFML.Net.2.4\lib\sfmlnet-audio-2.dll</HintPath>
@@ -49,20 +52,6 @@
     </Reference>
     <Reference Include="sfmlnet-window-2, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Graphnode.SFML.Net.2.4\lib\sfmlnet-window-2.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpID, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\SharpID.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpLogger">
-      <HintPath>..\Dependencies\SharpLogger.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpSerial, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\SharpSerial.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpTest">
-      <HintPath>..\Dependencies\SharpTest.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -88,9 +77,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharpGfx.csproj">
+    <ProjectReference Include="..\MiGfx.csproj">
       <Project>{12ddfd76-8249-43e8-a4d0-af314d0c6647}</Project>
-      <Name>SharpGfx</Name>
+      <Name>MiGfx</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

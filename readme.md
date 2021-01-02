@@ -1,24 +1,19 @@
-﻿# SharpGfx
+﻿# MiGfx
 A basic C# graphics library for use with SFML.Net.
 
 ## Dependencies
 - SFML.Net `https://github.com/graphnode/SFML.Net.git`
-- SFInput `https://github.com/BrokenShards/SFInput.git`
-- SharpID `https://github.com/BrokenShards/SharpID.git`
-- SharpLogger `https://github.com/BrokenShards/SharpLogger.git`
-- SharpSerial `https://github.com/BrokenShards/SharpSerial.git`
-- SharpTest `https://github.com/BrokenShards/SharpTest.git`
+- MiCore `https://github.com/BrokenShards/MiCore.git`
+- MiInput `https://github.com/BrokenShards/MiInput.git`
 - XInputDotNetPure `https://github.com/speps/XInputDotNet.git`
-
-## NOTE
-Please note `UI.Slider` is incomplete and not in a usable state, it is only included in the current 
-release as an artifact from merging SharpUI into SharpGfx.
-Also SharpTest is only required for the test project, SharpGfx itself does not depend on it.
 
 ## TODO
 - Implement UI containers/grouping/layouting.
 
 ## Changelog
+
+### Version 0.8.0
+- Renamed to `MiGfx` and updated to use `MiCore` and `MiInput` libraries.
 
 ### Version 0.7.0
 - All `IXmlLoadable` classes now have tests, properly check for existing attributes and return 

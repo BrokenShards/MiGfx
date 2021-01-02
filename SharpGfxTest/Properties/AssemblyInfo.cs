@@ -2,8 +2,8 @@
 // AssemblyInfo.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -26,11 +26,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "SharpGfx Test" )]
-[assembly: AssemblyDescription( "A sanity test project for SharpGfx." )]
+[assembly: AssemblyTitle( "MiGfx Test" )]
+[assembly: AssemblyDescription( "A sanity test project for MiGfx." )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "Michael Furlong" )]
-[assembly: AssemblyProduct( "SharpGfx Test" )]
+[assembly: AssemblyProduct( "MiGfxTest" )]
 [assembly: AssemblyCopyright( "Copyright © Michael Furlong 2020" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

@@ -2,8 +2,8 @@
 // AssemblyInfo.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -26,12 +26,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "SharpGfx" )]
+[assembly: AssemblyTitle( "MiGfx" )]
 [assembly: AssemblyDescription( "A basic graphics library for use with SFML.Net." )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "Michael Furlong" )]
-[assembly: AssemblyProduct( "SharpGfx" )]
-[assembly: AssemblyCopyright( "Copyright © Michael Furlong 2020" )]
+[assembly: AssemblyProduct( "MiGfx" )]
+[assembly: AssemblyCopyright( "Copyright © Michael Furlong 2021" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -53,5 +53,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "0.7.0.0" )]
-[assembly: AssemblyFileVersion( "0.7.0.0" )]
+[assembly: AssemblyVersion( "0.8.0.0" )]
+[assembly: AssemblyFileVersion( "0.8.0.0" )]

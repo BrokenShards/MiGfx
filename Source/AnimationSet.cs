@@ -2,8 +2,8 @@
 // AnimationSet.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -21,16 +21,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-
-using SharpSerial;
+using System.IO;
 using System.Xml;
 using System.Text;
-using SharpLogger;
 
-namespace SharpGfx
+using MiCore;
+
+namespace MiGfx
 {
 	/// <summary>
 	///   A set of string indexed animations.

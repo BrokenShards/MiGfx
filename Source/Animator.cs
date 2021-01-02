@@ -2,8 +2,8 @@
 // Animator.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// SharpGfx - A basic graphics library for use with SFML.Net.
-// Copyright (C) 2020 Michael Furlong <michaeljfurlong@outlook.com>
+// MiGfx - A basic graphics library for use with SFML.Net.
+// Copyright (C) 2021 Michael Furlong <michaeljfurlong@outlook.com>
 //
 // This program is free software: you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -24,11 +24,11 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
-using SFML.System;
-using SharpLogger;
-using SharpSerial;
 
-namespace SharpGfx
+using SFML.System;
+using MiCore;
+
+namespace MiGfx
 {
 	/// <summary>
 	///   Runs and manages animations and animation sets.
