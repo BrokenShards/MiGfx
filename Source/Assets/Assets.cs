@@ -32,9 +32,10 @@ namespace MiGfx
 	{
 		private Assets()
 		{
-			Font    = new FontManager();
-			Sound   = new SoundManager();
-			Texture = new TextureManager();
+			Font     = new FontManager();
+			Sound    = new SoundManager();
+			Texture  = new TextureManager();
+			Disposed = false;
 		}
 
 		/// <summary>
@@ -71,6 +72,14 @@ namespace MiGfx
 		///   Texture manager.
 		/// </summary>
 		public TextureManager Texture { get; private set; }
+
+		/// <summary>
+		///   If the asset managers have been disposed.
+		/// </summary>
+		public bool Disposed
+		{
+			get; private set;
+		}
 
 		/// <summary>
 		///   If an asset has been loaded from the path.
@@ -134,23 +143,35 @@ namespace MiGfx
 		public void Unload<T>() where T : class, IDisposable
 		{
 			if( typeof( T ) == typeof( SFML.Graphics.Font ) )
-				Font.UnloadAll();
+				Font.Clear();
 			else if( typeof( T ) == typeof( SFML.Audio.SoundBuffer ) )
-				Sound.UnloadAll();
+				Sound.Clear();
 			else if( typeof( T ) == typeof( SFML.Graphics.Texture ) )
-				Texture.UnloadAll();
+				Texture.Clear();
 		}
-
 		/// <summary>
 		///   Unloads all assets of all types.
 		/// </summary>
-		public void UnloadAll()
+		public void Clear()
 		{
-			Font?.UnloadAll();
-			Sound?.UnloadAll();
-			Texture?.UnloadAll();
+			Font?.Clear();
+			Sound?.Clear();
+			Texture?.Clear();
 		}
 
+		/// <summary>
+		///   Recreates the asset managers after being disposed so they can be used again.
+		/// </summary>
+		public void Recreate()
+		{
+			if( Disposed )
+			{
+				Font = new FontManager();
+				Sound = new SoundManager();
+				Texture = new TextureManager();
+				Disposed = false;
+			}
+		}
 		/// <summary>
 		///   Disposes of asset managers.
 		/// </summary>
@@ -171,6 +192,8 @@ namespace MiGfx
 				Texture.Dispose();
 				Texture = null;
 			}
+
+			Disposed = true;
 		}
 
 		private static volatile Assets _instance;

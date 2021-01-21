@@ -44,6 +44,7 @@ namespace MiGfx
 		{
 			Rect   = new FloatRect();
 			Length = Time.Zero;
+			Color  = new Color( 255, 255, 255, 255 );
 		}
 		/// <summary>
 		///   Constructor assigning the texture rect and frame length.
@@ -54,10 +55,14 @@ namespace MiGfx
 		/// <param name="len">
 		///   The length of time the frame lasts; defaults to 1.0 if null.
 		/// </param>
-		public Frame( FloatRect rect, Time? len = null )
+		/// <param name="col">
+		///   The texture modifier color.
+		/// </param>
+		public Frame( FloatRect rect, Time? len = null, Color? col = null )
 		{
 			Rect   = rect;
 			Length = len ?? Time.FromSeconds( 1.0f );
+			Color  = col ?? new Color( 255, 255, 255, 255 );
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -72,6 +77,7 @@ namespace MiGfx
 
 			Rect   = f.Rect;
 			Length = f.Length;
+			Color  = f.Color;
 		}
 
 		/// <summary>
@@ -82,6 +88,10 @@ namespace MiGfx
 		///   The length of time the frame is displayed.
 		/// </summary>
 		public Time Length { get; set; }
+		/// <summary>
+		///   The texture color modifier.
+		/// </summary>
+		public Color Color { get; set; }
 
 		/// <summary>
 		///   Loads the object from the stream.
@@ -100,7 +110,8 @@ namespace MiGfx
 			try
 			{
 				Rect   = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
-				Length = Time.FromMicroseconds( br.ReadInt64() ); 
+				Length = Time.FromMicroseconds( br.ReadInt64() );
+				Color  = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
 			}
 			catch( Exception e )
 			{
@@ -127,6 +138,7 @@ namespace MiGfx
 			{
 				bw.Write( Rect.Left ); bw.Write( Rect.Top ); bw.Write( Rect.Width ); bw.Write( Rect.Height );
 				bw.Write( Length.AsMicroseconds() );
+				bw.Write( Color.R ); bw.Write( Color.G ); bw.Write( Color.B ); bw.Write( Color.A );
 			}
 			catch( Exception e )
 			{
@@ -149,14 +161,14 @@ namespace MiGfx
 		{
 			if( element == null )
 				return Logger.LogReturn( "Cannot load Frame from a null XmlElement.", false, LogType.Error );
+			if( !element.HasAttribute( nameof( Length ) ) )
+				return Logger.LogReturn( "Failed loading Frame: missing Length attribute.", false, LogType.Error );
 
-			XmlElement rect = element[ nameof( Rect ) ];
-			string l = element.GetAttribute( nameof( Length ) );
+			XmlElement rect = element[ nameof( Rect ) ],
+			           col  = element[ nameof( Color ) ];
 
 			if( rect == null )
 				return Logger.LogReturn( "Failed loading Frame: No Rect element.", false, LogType.Error );
-			if( string.IsNullOrWhiteSpace( l ) )
-				return Logger.LogReturn( "Failed loading Frame: missing Length attribute.", false, LogType.Error );
 
 			FloatRect? r = Xml.ToFRect( rect );
 
@@ -165,9 +177,19 @@ namespace MiGfx
 
 			Rect = r.Value;
 
+			if( col != null )
+			{
+				Color? c = Xml.ToColor( col );
+
+				if( !c.HasValue )
+					return Logger.LogReturn( "Failed loading Frame: Unable to parse Color element.", false, LogType.Error );
+
+				Color = c.Value;
+			}
+
 			try
 			{
-				Length = Time.FromSeconds( float.Parse( l ) );
+				Length = Time.FromSeconds( float.Parse( element.GetAttribute( nameof( Length ) ) ) );
 			}
 			catch( Exception e )
 			{
@@ -193,7 +215,8 @@ namespace MiGfx
 			sb.Append( Length.AsSeconds() );
 			sb.AppendLine( "\">" );
 
-			sb.AppendLine( Xml.ToString( Rect, nameof( Rect ), 1 ) );
+			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ),  1 ) );
+			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
 
 			sb.Append( "</" );
 			sb.Append( nameof( Frame ) );
@@ -214,8 +237,9 @@ namespace MiGfx
 		public bool Equals( Frame other )
 		{
 			return other  != null &&
-			       Rect   == other.Rect &&
-			       Length == other.Length;
+			       Rect.Equals( other.Rect ) &&
+			       Length.Equals( other.Length ) &&
+				   Color.Equals( other.Color );
 		}
 	}
 }

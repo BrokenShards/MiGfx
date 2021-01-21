@@ -41,17 +41,17 @@ namespace MiGfx
 		/// </summary>
 		Up,
 		/// <summary>
+		///   Right direction.
+		/// </summary>
+		Right,
+		/// <summary>
 		///   Down direction.
 		/// </summary>
 		Down,
 		/// <summary>
 		///   Left direction.
 		/// </summary>
-		Left,
-		/// <summary>
-		///   Right direction.
-		/// </summary>
-		Right
+		Left
 	}
 
 	/// <summary>
@@ -113,17 +113,6 @@ namespace MiGfx
 		}
 
 		/// <summary>
-		///   If a valid texture exists at <see cref="Path"/>.
-		/// </summary>
-		public bool IsTextureValid
-		{
-			get
-			{
-				return Assets.Manager.Texture.Get( Path ) != null;
-			}
-		}
-
-		/// <summary>
 		///   Texture path.
 		/// </summary>
 		public string Path { get; set; }
@@ -141,6 +130,24 @@ namespace MiGfx
 		public Direction Orientation
 		{
 			get; set;
+		}
+
+		/// <summary>
+		///   If a valid texture exists at <see cref="Path"/>.
+		/// </summary>
+		public bool IsTextureValid
+		{
+			get
+			{
+				return Assets.Manager.Texture.Get( Path ) != null;
+			}
+		}
+		/// <summary>
+		///   Gets the size of the texture if valid.
+		/// </summary>
+		public Vector2u TextureSize
+		{
+			get { return IsTextureValid ? Assets.Manager.Texture.Get( Path ).Size : default; }
 		}
 
 		/// <summary>

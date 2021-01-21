@@ -2,7 +2,7 @@
 A basic C# graphics library for use with SFML.Net.
 
 ## Dependencies
-- SFML.Net `https://github.com/graphnode/SFML.Net.git`
+- SFML.Net `https://github.com/SFML/SFML.Net.git`
 - MiCore `https://github.com/BrokenShards/MiCore.git`
 - MiInput `https://github.com/BrokenShards/MiInput.git`
 - XInputDotNetPure `https://github.com/speps/XInputDotNet.git`
@@ -12,12 +12,34 @@ A basic C# graphics library for use with SFML.Net.
 
 ## Changelog
 
+### Version 0.9.0
+- Changed SFML source to latest official SFML.Net repository.
+- Removed `UIElement` and `UIManager` in favour of `MiComponent` and `MiEntity`. Now all `UIElement`
+  classes inherit from `MiComponent` and are used in `MiEntity` objects.
+- Added `FillBar` component that provides a bar that can be filled to show progress.
+- Added `Clickable` component that responds to mouse hovering and mouse clicks within an entities
+  `Transform`.
+- Added `Selectable` component that allows entities to be selected along with the `Selector`
+  component that allows an entity to manage which component is selected within its children.
+- Added `TextListener` component that listens for text entered events and keeps track of them in
+  `TextListener.EnteredText`.
+- Replaced `Label.Center` with `Label.Allign` to give more text allignment options.
+- `Button` and `CheckBox` now rely on `Sprite.Image` and calculate the texture rect for each state 
+  from it every frame, because of this, they just hold a texure modifier color rather than an
+  `ImageInfo` object.
+- Added property `Assets.Disposed` to check if the internal asset managers have been disposed of and 
+  `Assets.Recreate()` to recreate them if they have so they can be used agai.
+- `AssetManager.RemoveAll()` and `Assets.RemoveAll()` have been renamed to `AssetManager.Clear()`
+  and `Assets.Clear()` for consistency.
+- Updated MiCore to version 0.5.0.
+- Updated MiInput to version 0.9.0.
+
 ### Version 0.8.0
 - Renamed to `MiGfx` and updated to use `MiCore` and `MiInput` libraries.
 
 ### Version 0.7.0
 - All `IXmlLoadable` classes now have tests, properly check for existing attributes and return 
-  errors when suitable and now use `nameof( Var )` for attribute and element names. Unimportant xml
+  errors when suitable and now use `nameof( Class )` for attribute and element names. Unimportant xml
   attributes and elements can now also be ommitted, for example `Transform.LoadFromXml(XmlElement)`
   no longer requires the `Scale` element to exist.
 - Fixed issue where `Sprite.LoadFromXml(XmlElement)` was failing loading the `Transform`.

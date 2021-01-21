@@ -164,7 +164,7 @@ namespace MiGfx
 		/// <summary>
 		///   Unloads all assets.
 		/// </summary>
-		public void UnloadAll()
+		public void Clear()
 		{
 			var keys = m_assets.Keys;
 
@@ -180,7 +180,7 @@ namespace MiGfx
 		/// </summary>
 		public virtual void Dispose()
 		{
-			UnloadAll();
+			Clear();
 		}
 
 		/// <summary>

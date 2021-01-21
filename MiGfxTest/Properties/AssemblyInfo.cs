@@ -30,8 +30,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription( "A sanity test project for MiGfx." )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "Michael Furlong" )]
-[assembly: AssemblyProduct( "MiGfxTest" )]
-[assembly: AssemblyCopyright( "Copyright © Michael Furlong 2020" )]
+[assembly: AssemblyProduct( "MiGfx Test" )]
+[assembly: AssemblyCopyright( "Copyright © Michael Furlong 2021" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

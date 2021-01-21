@@ -184,7 +184,7 @@ namespace MiGfx
 			}
 			catch( PathTooLongException )
 			{
-				return Logger.LogReturn( "Folder structure path too long. Try relocating game closer to root?", false, LogType.Error );
+				return Logger.LogReturn( "Folder structure path too long. Try relocating program closer to root?", false, LogType.Error );
 			}
 			catch( Exception e )
 			{

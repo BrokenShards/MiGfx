@@ -42,7 +42,7 @@ namespace MiGfx
 		public TextStyle()
 		:	base()
 		{
-			FontPath     = string.Empty;
+			FontPath     = FilePaths.DefaultFont;
 			Size         = 24;
 			Style        = 0;
 			Outline      = 0.0f;
@@ -96,7 +96,7 @@ namespace MiGfx
 		public TextStyle( string font, uint size = 24, uint style = 0, Color? fill = null, float line = 0.0f, Color? outline = null )
 		:	base()
 		{
-			FontPath     = font ?? string.Empty;
+			FontPath     = font ?? FilePaths.DefaultFont;
 			Size         = size == 0 ? 24 : size;
 			Style        = style;
 			Outline      = line < 0.0f ? 0.0f : line;
@@ -109,10 +109,7 @@ namespace MiGfx
 		/// </summary>
 		public bool IsFontValid
 		{
-			get
-			{
-				return Assets.Manager.Font.Get( FontPath ) != null;
-			}
+			get { return Assets.Manager.Font.Get( FontPath ) != null; }
 		}
 
 		/// <summary>
@@ -207,7 +204,7 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load TextInfo from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Unable to load TextStyle from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -220,7 +217,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load TextInfo from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Unable to load TextStyle from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -270,25 +267,24 @@ namespace MiGfx
 		public bool LoadFromXml( XmlElement element )
 		{
 			if( element == null )
-				return Logger.LogReturn( "Cannot load TextStyle from a null XmlElement.", false, LogType.Error );
+				return Logger.LogReturn( "Unable to load TextStyle from null xml element.", false, LogType.Error );
 
-			string font  = element.GetAttribute( nameof( FontPath ) ),
-				   size  = element.GetAttribute( nameof( Size ) ),
-				   style = element.GetAttribute( nameof( Style ) ),
-				   outln = element.GetAttribute( nameof( Outline ) );
+			if( !element.HasAttribute( nameof( FontPath ) ) )
+				return Logger.LogReturn( "Failed loading TextStyle: No FontPath attribute.", false, LogType.Error );
+			if( !element.HasAttribute( nameof( Size ) ) )
+				return Logger.LogReturn( "Failed loading TextStyle: No Size attribute.", false, LogType.Error );
 
-			XmlElement fcol = element[ nameof( FillColor ) ],
-					   ocol = element[ nameof( OutlineColor ) ];
+			XmlElement ocol = element[ nameof( OutlineColor ) ];
 
-			Color? f = Xml.ToColor( fcol ),
+			Color? f = Xml.ToColor( element[ nameof( FillColor ) ] ),
 				   o = ocol != null ? Xml.ToColor( ocol ) : null;
 
-			if( string.IsNullOrWhiteSpace( font ) )
-				return Logger.LogReturn( "Failed loading TextStyle: No FontPath attribute.", false, LogType.Error );
-			if( fcol == null )
-				return Logger.LogReturn( "Failed loading TextStyle: No FillColor element.", false, LogType.Error );
 			if( !f.HasValue )
-				return Logger.LogReturn( "Failed loading TextStyle: Unable to parse FillColor xml element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextStyle: FillColor xml element missing or invalid.", false, LogType.Error );
+
+			FontPath  = element.GetAttribute( nameof( FontPath ) );
+			FillColor = f.Value;
+
 			if( ocol != null )
 			{
 				if( !o.HasValue )
@@ -297,17 +293,14 @@ namespace MiGfx
 				OutlineColor = o.Value;
 			}
 
-			FontPath  = font;
-			FillColor = f.Value;
-
 			try
 			{
-				if( !string.IsNullOrWhiteSpace( size ) )
-					Size = uint.Parse( size );
-				if( !string.IsNullOrWhiteSpace( style ) )
-					Style = uint.Parse( style );
-				if( !string.IsNullOrWhiteSpace( outln ) )
-					Outline = float.Parse( outln );
+				Size = uint.Parse( element.GetAttribute( nameof( Size ) ) );
+
+				if( element.HasAttribute( nameof( Style ) ) )
+					Style = uint.Parse( element.GetAttribute( nameof( Style ) ) );
+				if( element.HasAttribute( nameof( Outline ) ) )
+					Outline = float.Parse( element.GetAttribute( nameof( Outline ) ) );
 			}
 			catch( Exception e )
 			{
