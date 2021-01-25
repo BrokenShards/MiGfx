@@ -113,13 +113,13 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader sr )
 		{
 			if( sr == null )
-				return Logger.LogReturn( "Unable to load ButtonData from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load ButtonData from null stream.", false, LogType.Error );
 
 			if( Text == null )
 				Text = new TextStyle();
 
 			if( !Text.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Unable to load ButtonData Text from stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading ButtonData's Text from stream.", false, LogType.Error );
 
 			try
 			{
@@ -128,7 +128,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load ButtonData from stream: " + e.Message + ".", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading ButtonData from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -145,13 +145,13 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter sw )
 		{
 			if( sw == null )
-				return Logger.LogReturn( "Unable to save ButtonData to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save ButtonData to null stream.", false, LogType.Error );
 
 			if( Text == null )
 				Text = new TextStyle();
 
 			if( !Text.SaveToStream( sw ) )
-				return Logger.LogReturn( "Unable to save ButtonData Text to stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving ButtonData's TextStyle to stream.", false, LogType.Error );
 
 			try
 			{
@@ -162,7 +162,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save ButtonData to stream: " + e.Message + ".", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving ButtonData to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -273,7 +273,7 @@ namespace MiGfx
 			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
 			                                        nameof( Clickable ), nameof( Sprite ) };
 			IncompatibleComponents = new string[] { nameof( SpriteAnimator ), nameof( CheckBox ),
-			                                        nameof( TextBox ) };
+													nameof( SpriteArray ),    nameof( TextBox ) };
 		}
 		/// <summary>
 		///  Copy constructor.
@@ -295,7 +295,7 @@ namespace MiGfx
 			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
 			                                        nameof( Clickable ), nameof( Sprite ) };
 			IncompatibleComponents = new string[] { nameof( SpriteAnimator ), nameof( CheckBox ),
-			                                        nameof( TextBox ) };
+													nameof( SpriteArray ),    nameof( TextBox ) };
 		}
 
 		/// <summary>
@@ -344,12 +344,6 @@ namespace MiGfx
 
 			if( Stack.Contains<Label>() )
 			{
-				int bindex = Stack.IndexOf<Button>();
-
-				// If label will be drawn under button, move label on top of it.
-				if( Stack.IndexOf<Label>() < bindex )
-					Stack.Insert( bindex + 1, Stack.Release<Label>() );
-
 				Label lab = Stack.Get<Label>();
 
 				lab.Text   = Data[ s ].Text;
@@ -373,7 +367,7 @@ namespace MiGfx
 
 			foreach( ButtonData bd in Data )
 				if( !bd.LoadFromStream( sr ) )
-					return Logger.LogReturn( "Unable to load Button data from stream.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading Button's ButtonData from stream.", false, LogType.Error );
 
 			return true;
 		}
@@ -393,7 +387,7 @@ namespace MiGfx
 
 			foreach( ButtonData bd in Data )
 				if( !bd.SaveToStream( sw ) )
-					return Logger.LogReturn( "Unable to save UIButton data to stream.", false, LogType.Error );
+					return Logger.LogReturn( "Failed saving Button's ButtonData to stream.", false, LogType.Error );
 
 			return true;
 		}
@@ -415,14 +409,14 @@ namespace MiGfx
 			XmlNodeList data = element.SelectNodes( nameof( ButtonData ) );
 
 			if( data.Count != Data.Length )
-				return Logger.LogReturn( "Failed loading Button: Incorrect amount of ButtonData xml elements.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Button: Incorrect amount of ButtonData elements.", false, LogType.Error );
 
 			for( int i = 0; i < Data.Length; i++ )
 			{
 				Data[ i ] = new ButtonData();
 				
 				if( !Data[ i ].LoadFromXml( (XmlElement)data[ i ] ) )
-					return Logger.LogReturn( "Failed loading Button: Loading ButtonData failed.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading Button's ButtonData from xml.", false, LogType.Error );
 			}
 
 			return true;

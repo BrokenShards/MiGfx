@@ -150,7 +150,7 @@ namespace MiGfx
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "        " );
+			sb.Append( "            " );
 			sb.Append( nameof( Visible ) );
 			sb.Append( "=\"" );
 			sb.Append( Visible );

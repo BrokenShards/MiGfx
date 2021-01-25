@@ -23,6 +23,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace MiGfx
 {
@@ -32,7 +33,7 @@ namespace MiGfx
 	/// <typeparam name="T">
 	///   The managed asset type.
 	/// </typeparam>
-	public abstract class AssetManager<T> : IDisposable where T : class, IDisposable
+	public abstract class AssetManager<T> : IDisposable, IEnumerable<KeyValuePair<string, T>> where T : class, IDisposable
 	{
 		/// <summary>
 		///   Constructor.
@@ -181,6 +182,21 @@ namespace MiGfx
 		public virtual void Dispose()
 		{
 			Clear();
+		}
+
+		/// <summary>
+		///   Gets an enumerator that can be used to iterate through the loaded assets.
+		/// </summary>
+		/// <returns>
+		///   An enumerator that can be used to iterate through the loaded assets.
+		/// </returns>
+		public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
+		{
+			return ( (IEnumerable<KeyValuePair<string, T>>)m_assets ).GetEnumerator();
+		}
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ( (IEnumerable)m_assets ).GetEnumerator();
 		}
 
 		/// <summary>

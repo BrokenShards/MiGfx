@@ -83,7 +83,9 @@ namespace MiGfx
 
 			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
 			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( Button ), nameof( TextBox ) };
+			IncompatibleComponents = new string[] { nameof( Button ),         nameof( SpriteArray ),
+													nameof( SpriteAnimator ), nameof( TextBox ),
+			                                        nameof( FillBar ) };
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -103,7 +105,9 @@ namespace MiGfx
 
 			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
 			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( Button ), nameof( TextBox ) };
+			IncompatibleComponents = new string[] { nameof( Button ),         nameof( SpriteArray ),
+													nameof( SpriteAnimator ), nameof( TextBox ),
+			                                        nameof( FillBar ) };
 		}
 		/// <summary>
 		///   Constructor setting the initial checked value.
@@ -123,7 +127,9 @@ namespace MiGfx
 
 			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
 			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( Button ), nameof( TextBox ) };
+			IncompatibleComponents = new string[] { nameof( Button ),         nameof( SpriteArray ),
+													nameof( SpriteAnimator ), nameof( TextBox ),
+			                                        nameof( FillBar ) };
 		}
 
 		/// <summary>
@@ -215,7 +221,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load UICheckbox: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Checkbox: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -248,7 +254,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save UICheckbox: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Checkbox: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -271,14 +277,14 @@ namespace MiGfx
 			XmlNodeList data = element.SelectNodes( nameof( Color ) );
 
 			if( data.Count != Colors.Length )
-				return Logger.LogReturn( "Failed loading CheckBox: Incorrect amount of CheckBoxData xml elements.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading CheckBox: Incorrect amount of Color xml elements.", false, LogType.Error );
 
 			for( int i = 0; i < Colors.Length; i++ )
 			{
 				Color? c = Xml.ToColor( (XmlElement)data[ i ] );
 				
 				if( !c.HasValue )
-					return Logger.LogReturn( "Failed loading CheckBox: Loading Color failed.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading CheckBox's Color.", false, LogType.Error );
 
 				Colors[ i ] = c.Value;
 			}
@@ -312,15 +318,22 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( TypeName );
-			sb.Append( " " + nameof( Enabled ) + "=\"" );
+
+			sb.Append( " " );
+			sb.Append( nameof( Enabled ) );
+			sb.Append( "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          " + nameof( Visible ) + "=\"" );
+			sb.Append( "          " );
+			sb.Append( nameof( Visible ) );
+			sb.Append( "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "          " + nameof( Checked ) + "=\"" );
+			sb.Append( "          " );
+			sb.Append( nameof( Checked ) );
+			sb.Append( "=\"" );
 			sb.Append( Checked );
 			sb.AppendLine( "\">" );
 

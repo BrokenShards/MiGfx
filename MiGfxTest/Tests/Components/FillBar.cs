@@ -78,24 +78,14 @@ namespace MiGfx.Test
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			using( MiEntity ent = new MiEntity( "tester", window ) )
+			MiEntity ent = FillBar.Create( "tester", window, 0, 0, 4000, Color.Blue, FillBar.LabelType.ValueMax );
+
+			if( ent == null )
+				return Logger.LogReturn( "Failed: Unable to create FillBar entity.", false );
+
+			using( ent )
 			{
-				if( !ent.Components.AddNew<FillBar>() )
-					return Logger.LogReturn( "Failed: Unable to add FillBar.", false );
-				if( !ent.Components.AddNew<Label>() )
-					return Logger.LogReturn( "Failed: Unable to add FillBar Label.", false );
-
-				ent.Components.Get<FillBar>().Fill.Color = Color.Blue;
-
-				Label lab = ent.Components.Get<Label>();
-				lab.Text.FillColor = Color.White;
-				lab.Allign = Allignment.MiddleRight;
-				lab.Offset = new Vector2f( 0, -8.0f );
-
-				Transform trn = ent.Components.Get<Transform>();
-
-				trn.Size = new Vector2f( 640, 64 );
-				trn.Center = window.GetView().Center;				
+				ent.Components.Get<Transform>().Center = window.GetView().Center;				
 
 				Logger.Log( "Is FillBar displayed on window? (y/n)" );
 				bool? inp = null;
@@ -108,9 +98,9 @@ namespace MiGfx.Test
 					ent.Update( 1.0f );
 
 					if( Input.Manager.Keyboard.JustPressed( "Right" ) )
-						ent.Components.Get<FillBar>().Progress += 0.1f;
+						ent.Components.Get<FillBar>().Value += 250;
 					else if( Input.Manager.Keyboard.JustPressed( "Left" ) )
-						ent.Components.Get<FillBar>().Progress -= 0.1f;
+						ent.Components.Get<FillBar>().Value -= 250;
 
 					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
 						inp = true;

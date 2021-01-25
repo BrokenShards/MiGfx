@@ -34,7 +34,6 @@ namespace MiGfx
 	/// <summary>
 	///   Contains tileset information.
 	/// </summary>
-	[Serializable]
 	public class Tileset : BinarySerializable, IXmlLoadable, IIdentifiable<string>, IEquatable<Tileset>
 	{
 		/// <summary>
@@ -91,9 +90,6 @@ namespace MiGfx
 		/// <param name="pad">
 		///   Cell padding.
 		/// </param>
-		/// <exception cref="ArgumentException">
-		///   If a texture path is provided but loading the texture fails.
-		/// </exception>
 		public Tileset( string id, string path = null, Vector2u? size = null, Vector2u? off = null, Vector2u? pad = null )
 		{
 			ID = id;
@@ -101,7 +97,7 @@ namespace MiGfx
 			if( path != null )
 			{
 				if( !LoadTexture( path, size, off, pad ) )
-					throw Logger.LogReturn( "Tileset construction failed: Unable to load texture from \"" + path + "\".", new ArgumentException(), LogType.Error );
+					Texture = string.Empty;
 			}
 			else
 			{
@@ -137,24 +133,14 @@ namespace MiGfx
 			set
 			{
 				if( value.X == 0 )
-				{
-					Logger.Log( "Tileset cell width must be greater than zero and has been adjusted", LogType.Warning );
 					m_cellsize.X = 1;
-				}
 				else
-				{
 					m_cellsize.X = value.X;
-				}
 
 				if( value.Y == 0 )
-				{
-					Logger.Log( "Tileset cell height must be greater than zero and has been adjusted", LogType.Warning );
 					m_cellsize.Y = 1;
-				}
 				else
-				{
 					m_cellsize.Y = value.Y;
-				}
 			}
 		}
 		/// <summary>
@@ -165,9 +151,9 @@ namespace MiGfx
 			get
 			{
 				if( !TextureValid )
-					return default( Vector2u );
+					return default;
 
-				Vector2u count = new Vector2u();
+				Vector2u count;
 				Vector2u texsize = Assets.Manager.Texture.Get( Texture ).Size;
 				Vector2u size = Offset + CellSize + Padding;
 
@@ -308,7 +294,7 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load Tileset from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load Tileset from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -320,7 +306,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load Tileset from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Tileset from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -337,7 +323,7 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save Tileset to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save Tileset to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -349,7 +335,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save Tileset to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Tileset to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;

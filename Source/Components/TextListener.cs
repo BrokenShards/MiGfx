@@ -228,7 +228,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load TextListener: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextListener: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -260,7 +260,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save TextListener: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextListener: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -331,39 +331,58 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( TypeName );
-			sb.Append( " " + nameof( Enabled ) + "=\"" );
+
+			sb.Append( " " );
+			sb.Append( nameof( Enabled ) );
+			sb.Append( "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( Visible ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( Visible ) );
+			sb.Append( "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( AllowLetters ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( AllowLetters ) );
+			sb.Append( "=\"" );
 			sb.Append( AllowLetters );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( AllowNumbers ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( AllowNumbers ) );
+			sb.Append( "=\"" );
 			sb.Append( AllowNumbers );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( AllowSymbols ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( AllowSymbols ) );
+			sb.Append( "=\"" );
 			sb.Append( AllowSymbols );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( AllowPunctuation ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( AllowPunctuation ) );
+			sb.Append( "=\"" );
 			sb.Append( AllowPunctuation );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( AllowSpace ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( AllowSpace ) );
+			sb.Append( "=\"" );
 			sb.Append( AllowSpace );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( AllowNewline ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( AllowNewline ) );
+			sb.Append( "=\"" );
 			sb.Append( AllowNewline );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "              " + nameof( Listen ) + "=\"" );
+			sb.Append( "              " );
+			sb.Append( nameof( Listen ) );
+			sb.Append( "=\"" );
 			sb.Append( Listen );
 			sb.AppendLine( "\">" );
 
@@ -400,7 +419,7 @@ namespace MiGfx
 				   AllowPunctuation == other.AllowPunctuation &&
 				   AllowSpace       == other.AllowSpace &&
 				   AllowNewline     == other.AllowNewline && 
-				   Listen == other.Listen;
+				   Listen           == other.Listen;
 		}
 
 		/// <summary>

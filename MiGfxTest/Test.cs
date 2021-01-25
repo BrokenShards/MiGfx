@@ -71,6 +71,8 @@ namespace MiGfx.Test
 
 					if( !new SpriteTest().RunTest( window ) )
 						result = false;
+					if( !new SpriteArrayTest().RunTest( window ) )
+						result = false;
 					if( !new SpriteAnimatorTest().RunTest( window ) )
 						result = false;
 					if( !new LabelTest().RunTest( window ) )

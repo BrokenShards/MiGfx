@@ -34,7 +34,6 @@ namespace MiGfx
 	/// <summary>
 	///   A set of string indexed animations.
 	/// </summary>
-	[Serializable]
 	public class AnimationSet : BinarySerializable, IXmlLoadable, IEnumerable<KeyValuePair<string, Animation>>, IEquatable<AnimationSet>
 	{
 		/// <summary>
@@ -233,7 +232,7 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load AnimationSet from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load AnimationSet from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -244,14 +243,14 @@ namespace MiGfx
 					Animation anim = new Animation();
 
 					if( !anim.LoadFromStream( br ) )
-						return Logger.LogReturn( "Unable to load AnimationSet from stream: Animation loading failed.", false, LogType.Error );
+						return Logger.LogReturn( "Failed loading AnimationSet's Animation from stream.", false, LogType.Error );
 					if( !Add( anim ) )
-						return Logger.LogReturn( "Unable to load AnimationSet from stream: Failed adding Animation.", false, LogType.Error );
+						return Logger.LogReturn( "Failed adding Animation to AnimationSet loaded from stream.", false, LogType.Error );
 				}
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load AnimationSet from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading AnimationSet from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -268,7 +267,7 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save AnimationSet to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save AnimationSet to null stream.", false, LogType.Error );
 
 			RemoveAll();
 
@@ -278,11 +277,11 @@ namespace MiGfx
 
 				foreach( var v in m_animap )
 					if( !v.Value.SaveToStream( bw ) )
-						return Logger.LogReturn( "Unable to save AnimationSet to stream: Animation saving failed.", false, LogType.Error );
+						return Logger.LogReturn( "Failed saving AnimationSet's Animation to stream.", false, LogType.Error );
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save AnimationSet to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving AnimationSet to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -313,9 +312,9 @@ namespace MiGfx
 					Animation a = new Animation();
 
 					if( !a.LoadFromXml( (XmlElement)f ) )
-						return Logger.LogReturn( "Cannot load AnimationSet: Loading Animation failed.", false, LogType.Error );
+						return Logger.LogReturn( "Failed loading AnimationSet's Animation from xml.", false, LogType.Error );
 					if( !Add( a, true ) )
-						return Logger.LogReturn( "Cannot load AnimationSet: Adding Animation failed.", false, LogType.Error );
+						return Logger.LogReturn( "Failed adding Animation to AnimationSet loaded from xml.", false, LogType.Error );
 				}
 			}
 			catch( Exception e )

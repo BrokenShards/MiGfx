@@ -57,7 +57,6 @@ namespace MiGfx
 	/// <summary>
 	///   Image display information.
 	/// </summary>
-	[Serializable]
 	public class ImageInfo : BinarySerializable, IXmlLoadable, IEquatable<ImageInfo>
 	{
 		/// <summary>
@@ -65,10 +64,12 @@ namespace MiGfx
 		/// </summary>
 		public ImageInfo()
 		{
-			Path        = string.Empty;
-			Rect        = new FloatRect();
-			Orientation = Direction.Up;
-			Color       = new Color( 255, 255, 255, 255 );
+			Path           = string.Empty;
+			Rect           = new FloatRect();
+			Color          = Color.White;
+			Orientation    = Direction.Up;
+			FlipHorizontal = false;
+			FlipVertical   = false;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -84,13 +85,15 @@ namespace MiGfx
 			if( i == null )
 				throw new ArgumentNullException();
 
-			Path        = new string( i.Path.ToCharArray() );
-			Rect        = i.Rect;
-			Orientation = i.Orientation;
-			Color       = i.Color;
+			Path           = new string( i.Path.ToCharArray() );
+			Rect           = i.Rect;
+			Color          = i.Color;
+			Orientation    = i.Orientation;
+			FlipHorizontal = i.FlipHorizontal;
+			FlipVertical   = i.FlipVertical;
 		}
 		/// <summary>
-		///   Constructor that assigns texture path along with optional rect, orientation and color.
+		///   Constructor that assigns texture path.
 		/// </summary>
 		/// <param name="path">
 		///   Texture path.
@@ -104,12 +107,21 @@ namespace MiGfx
 		/// <param name="col">
 		///   Texture color modifier.
 		/// </param>
-		public ImageInfo( string path, FloatRect? rect = null, Direction? dir = null, Color? col = null )
+		/// <param name="hflip">
+		///   Horizontal flip.
+		/// </param>
+		/// <param name="vflip">
+		///   Vertical flip..
+		/// </param>
+		public ImageInfo( string path, FloatRect rect = default, Color? col = null, 
+		                  Direction dir = 0, bool hflip = false, bool vflip = false )
 		{
-			Path        = path ?? string.Empty;
-			Rect        = rect ?? new FloatRect();
-			Orientation = dir  ?? Direction.Up;
-			Color       = col  ?? new Color( 255, 255, 255, 255 );
+			Path           = path ?? string.Empty;
+			Rect           = rect;
+			Color          = col  ?? new Color( 255, 255, 255, 255 );
+			Orientation    = dir;
+			FlipHorizontal = hflip;
+			FlipVertical   = vflip;
 		}
 
 		/// <summary>
@@ -131,6 +143,14 @@ namespace MiGfx
 		{
 			get; set;
 		}
+		/// <summary>
+		///   If image should be flipped horizontally on the x-axis.
+		/// </summary>
+		public bool FlipHorizontal { get; set; }
+		/// <summary>
+		///   If image should be flipped vertically on the y-axis.
+		/// </summary>
+		public bool FlipVertical { get; set; }
 
 		/// <summary>
 		///   If a valid texture exists at <see cref="Path"/>.
@@ -207,15 +227,38 @@ namespace MiGfx
 
 			uint texindex = index;
 
+			if( FlipHorizontal )
+			{
+				if( index == 0 )
+					index = 1;
+				else if( index == 1 )
+					index = 0;
+				else if( index == 2 )
+					index = 3;
+				else if( index == 3 )
+					index = 2;
+			}
+			if( FlipVertical )
+			{
+				if( index == 0 )
+					index = 3;
+				else if( index == 1 )
+					index = 2;
+				else if( index == 2 )
+					index = 1;
+				else if( index == 3 )
+					index = 0;
+			}
+
 			switch( Orientation )
 			{
-				case Direction.Right:
+				case Direction.Left:
 					texindex++;
 					break;
 				case Direction.Down:
 					texindex += 2;
 					break;
-				case Direction.Left:
+				case Direction.Right:
 					texindex += 3;
 					break;
 			}
@@ -245,18 +288,20 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load ImageInfo from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load ImageInfo from null stream.", false, LogType.Error );
 
 			try
 			{
-				Path        = br.ReadString();
-				Rect        = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
-				Color       = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
-				Orientation = (Direction)br.ReadInt32();
+				Path           = br.ReadString();
+				Rect           = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
+				Color          = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
+				Orientation    = (Direction)br.ReadInt32();
+				FlipHorizontal = br.ReadBoolean();
+				FlipVertical   = br.ReadBoolean();
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load ImageInfo from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading ImageInfo from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -273,7 +318,7 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save ImageInfo to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save ImageInfo to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -281,10 +326,11 @@ namespace MiGfx
 				bw.Write( Rect.Left ); bw.Write( Rect.Top ); bw.Write( Rect.Width ); bw.Write( Rect.Height );
 				bw.Write( Color.R ); bw.Write( Color.G ); bw.Write( Color.B ); bw.Write( Color.A );
 				bw.Write( (int)Orientation );
+				bw.Write( FlipHorizontal ); bw.Write( FlipVertical );
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save ImageInfo to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving ImageInfo to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -303,7 +349,9 @@ namespace MiGfx
 		{
 			if( element == null )
 				return Logger.LogReturn( "Cannot load ImageInfo from a null XmlElement.", false, LogType.Error );
-
+			if( !element.HasAttribute( nameof( Path ) ) )
+				return Logger.LogReturn( "Failed loading ImageInfo: No Path attribute.", false, LogType.Error );
+			
 			XmlElement rect   = element[ nameof( Rect ) ],
 					   color  = element[ nameof( Color ) ];
 
@@ -315,28 +363,41 @@ namespace MiGfx
 
 			if( !rec.HasValue )
 				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Rect element.", false, LogType.Error );
+
 			if( color != null && !col.HasValue )
 				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Color element.", false, LogType.Error );
 			else if( color == null )
-				col = new Color( 255, 255, 255, 255 );
+				col = Color.White;
 
 			Rect  = rec.Value;
 			Color = col.Value;
 
-			try
+			Path = element.GetAttribute( nameof( Path ) );
+
+			Orientation    = Direction.Up;
+			FlipHorizontal = false;
+			FlipVertical   = false;
+
+			if( element.HasAttribute( nameof( Orientation ) ) )
 			{
-				Path = element.GetAttribute( nameof( Path ) );
+				if( !Enum.TryParse( element.GetAttribute( nameof( Orientation ) ), out Direction o ) )
+					return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Orientation attribute.", false, LogType.Error );
 
-				string or = element.GetAttribute( nameof( Orientation ) );
-
-				if( !string.IsNullOrWhiteSpace( or ) )
-					Orientation = (Direction)Enum.Parse( typeof( Direction ), or );
-				else
-					Orientation = Direction.Up;
+				Orientation = o;
 			}
-			catch( Exception e )
+			if( element.HasAttribute( nameof( FlipHorizontal ) ) )
 			{
-				return Logger.LogReturn( "Failed loading ImageInfo: " + e.Message, false, LogType.Error );
+				if( !bool.TryParse( element.GetAttribute( nameof( FlipHorizontal ) ), out bool f ) )
+					return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse FlipHorizontal attribute.", false, LogType.Error );
+
+				FlipHorizontal = f;
+			}
+			if( element.HasAttribute( nameof( FlipVertical ) ) )
+			{
+				if( !bool.TryParse( element.GetAttribute( nameof( FlipVertical ) ), out bool f ) )
+					return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse FlipVertical attribute.", false, LogType.Error );
+
+				FlipVertical = f;
 			}
 
 			return true;
@@ -354,8 +415,30 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( nameof( ImageInfo ) );
-			sb.AppendLine( " " + nameof( Path ) + "=\"" + Path + "\"" );
-			sb.AppendLine( " " + nameof( Orientation ) + "=\"" + Orientation.ToString() + "\">" );
+
+			sb.Append( " " );
+			sb.Append( nameof( Path ) );
+			sb.Append( "=\"" );
+			sb.Append( Path );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "           " );
+			sb.Append( nameof( Orientation ) );
+			sb.Append( "=\"" );
+			sb.Append( Orientation.ToString() );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "           " );
+			sb.Append( nameof( FlipHorizontal ) );
+			sb.Append( "=\"" );
+			sb.Append( FlipHorizontal );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "           " );
+			sb.Append( nameof( FlipVertical ) );
+			sb.Append( "=\"" );
+			sb.Append( FlipVertical );
+			sb.AppendLine( "\">" );
 
 			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ), 1 ) );
 			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
@@ -380,9 +463,11 @@ namespace MiGfx
 		{
 			return other != null &&
 			       Path?.Trim()?.ToLower() == other.Path?.Trim()?.ToLower() &&
-				   Rect  == other.Rect &&
-				   Orientation == other.Orientation &&
-				   Color == other.Color;
+				   Rect.Equals( other.Rect ) &&
+				   Color.Equals( other.Color ) &&
+				   Orientation    == other.Orientation &&
+				   FlipHorizontal == other.FlipHorizontal &&
+				   FlipVertical   == other.FlipVertical;
 		}
 	}
 }

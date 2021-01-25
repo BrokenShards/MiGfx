@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MiGfx.xml</DocumentationFile>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -80,6 +81,7 @@
     <Compile Include="Source\Assets\SoundManager.cs" />
     <Compile Include="Source\Assets\TextureManager.cs" />
     <Compile Include="Source\Components.cs" />
+    <Compile Include="Source\Components\SpriteArray.cs" />
     <Compile Include="Source\Components\TextListener.cs" />
     <Compile Include="Source\Frame.cs" />
     <Compile Include="Source\ImageInfo.cs" />

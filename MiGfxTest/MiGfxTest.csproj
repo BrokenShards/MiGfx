@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -80,6 +81,7 @@
     <Compile Include="Tests\Components\Label.cs" />
     <Compile Include="Tests\Components\Sprite.cs" />
     <Compile Include="Tests\Components\SpriteAnimator.cs" />
+    <Compile Include="Tests\Components\SpriteArray.cs" />
     <Compile Include="Tests\Components\Transform.cs" />
     <Compile Include="Tests\Frame.cs" />
     <Compile Include="Tests\Components\TextBox.cs" />

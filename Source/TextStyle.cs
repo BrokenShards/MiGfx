@@ -33,7 +33,6 @@ namespace MiGfx
 	/// <summary>
 	///   Text style information.
 	/// </summary>
-	[Serializable]
 	public class TextStyle : BinarySerializable, IXmlLoadable, IEquatable<TextStyle>
 	{
 		/// <summary>
@@ -204,7 +203,7 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load TextStyle from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load TextStyle from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -217,7 +216,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load TextStyle from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextStyle from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -234,7 +233,7 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save TextStyle to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save TextStyle to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -249,7 +248,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save TextStyle to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextStyle to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -267,7 +266,7 @@ namespace MiGfx
 		public bool LoadFromXml( XmlElement element )
 		{
 			if( element == null )
-				return Logger.LogReturn( "Unable to load TextStyle from null xml element.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load TextStyle from null xml element.", false, LogType.Error );
 
 			if( !element.HasAttribute( nameof( FontPath ) ) )
 				return Logger.LogReturn( "Failed loading TextStyle: No FontPath attribute.", false, LogType.Error );
@@ -280,7 +279,7 @@ namespace MiGfx
 				   o = ocol != null ? Xml.ToColor( ocol ) : null;
 
 			if( !f.HasValue )
-				return Logger.LogReturn( "Failed loading TextStyle: FillColor xml element missing or invalid.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextStyle: FillColor element missing or invalid.", false, LogType.Error );
 
 			FontPath  = element.GetAttribute( nameof( FontPath ) );
 			FillColor = f.Value;
@@ -288,7 +287,7 @@ namespace MiGfx
 			if( ocol != null )
 			{
 				if( !o.HasValue )
-					return Logger.LogReturn( "Failed loading TextStyle: Unable to parse OutlineColor xml element.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading TextStyle: Unable to parse OutlineColor element.", false, LogType.Error );
 
 				OutlineColor = o.Value;
 			}

@@ -308,7 +308,7 @@ namespace MiGfx
 			if( !base.LoadFromStream( sr ) )
 				return false;
 			if( !Text.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Unable to load Label TextStyle from stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loadding Label's TextStyle from stream.", false, LogType.Error );
 
 			try
 			{
@@ -318,7 +318,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load Label from stream: " + e.Message + ".", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Label from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -337,7 +337,7 @@ namespace MiGfx
 			if( !base.SaveToStream( sw ) )
 				return false;
 			if( !Text.SaveToStream( sw ) )
-				return Logger.LogReturn( "Unable to save Labels' TextStyle to stream", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Label's TextStyle to stream", false, LogType.Error );
 
 			try
 			{
@@ -347,7 +347,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save Label to stream: " + e.Message + ".", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Label to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;

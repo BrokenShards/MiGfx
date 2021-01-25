@@ -291,8 +291,9 @@ namespace MiGfx
 			if( Parent != null && current != null )
 			{
 				Sprite spr = Parent.Components.Get<Sprite>();
-				spr.Image.Rect  = current.Rect;
-				spr.Image.Color = current.Color;
+				ImageInfo i = spr.Image;
+				current.Apply( ref i );
+				spr.Image = i;
 			}
 		}
 
@@ -318,11 +319,11 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load Animator from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteAnimator from stream: " + e.Message, false, LogType.Error );
 			}
 
 			if( !Animations.LoadFromStream( br ) )
-				return Logger.LogReturn( "Unable to load Animator from stream: Failed loading AnimationSet.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteAnimator's AnimationSet from stream.", false, LogType.Error );
 
 			FrameIndex = 0;
 			m_timer.Restart();
@@ -351,11 +352,11 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save Animator to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving SpriteAnimator to stream: " + e.Message, false, LogType.Error );
 			}
 
 			if( !Animations.SaveToStream( bw ) )
-				return Logger.LogReturn( "Unable to save Animator to stream: Failed saving AnimationSet.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving SpriteAnimator's AnimationSet to stream.", false, LogType.Error );
 
 			return true;
 		}
@@ -381,9 +382,9 @@ namespace MiGfx
 			XmlElement aset = element[ nameof( AnimationSet ) ];
 
 			if( aset == null )
-				return Logger.LogReturn( "Failed loading Animator: No AnimationSet xml element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteAnimator: No AnimationSet element.", false, LogType.Error );
 			if( !Animations.LoadFromXml( aset ) )
-				return Logger.LogReturn( "Failed loading Animator: Loading AnimationSet failed.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteAnimator: Loading AnimationSet failed.", false, LogType.Error );
 
 			try
 			{
@@ -409,7 +410,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Animator: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteAnimator: " + e.Message, false, LogType.Error );
 			}
 
 			return true;

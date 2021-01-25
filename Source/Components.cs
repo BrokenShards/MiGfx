@@ -46,6 +46,7 @@ namespace MiGfx
 				   ComponentRegister.Manager.Register<Selector>() &&
 				   ComponentRegister.Manager.Register<Sprite>() &&
 				   ComponentRegister.Manager.Register<SpriteAnimator>() &&
+				   ComponentRegister.Manager.Register<SpriteArray>() &&
 				   ComponentRegister.Manager.Register<TextBox>() &&
 				   ComponentRegister.Manager.Register<TextListener>() &&
 				   ComponentRegister.Manager.Register<Transform>();

@@ -27,6 +27,7 @@ using SFML.Window;
 
 using MiCore;
 using MiInput;
+using System.Text;
 
 namespace MiGfx
 {
@@ -112,7 +113,7 @@ namespace MiGfx
 			get
 			{
 				return( Hovering && Input.Manager.Mouse.JustPressed( Mouse.Button.Left ) ) ||
-					  ( Parent.Components.Get<Selectable>().Selected && Input.Manager.Keyboard.JustPressed( Keyboard.Key.Return ) );
+					  ( Parent.Components.Get<Selectable>().Selected && Input.Manager.Keyboard.JustPressed( Keyboard.Key.Enter ) );
 			}
 		}
 
@@ -138,6 +139,9 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader sr )
 		{
+			if( !base.LoadFromStream( sr ) )
+				return false;
+
 			ClickState = ClickableState.Idle;
 			return true;
 		}
@@ -152,7 +156,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter sw )
 		{
-			return true;
+			return base.SaveToStream( sw );
 		}
 
 		/// <summary>
@@ -166,6 +170,9 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromXml( XmlElement element )
 		{
+			if( !base.LoadFromXml( element ) )
+				return false;
+
 			ClickState = ClickableState.Idle;
 			return true;
 		}
@@ -178,7 +185,24 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			return "<" + TypeName + "/>";
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append( "<" );
+			sb.Append( TypeName );
+
+			sb.Append( " " );
+			sb.Append( nameof( Enabled ) );
+			sb.Append( "=\"" );
+			sb.Append( Enabled );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "           " );
+			sb.Append( nameof( Visible ) );
+			sb.Append( "=\"" );
+			sb.Append( Visible );
+			sb.AppendLine( "\"/>" );
+
+			return sb.ToString();
 		}
 
 		/// <summary>

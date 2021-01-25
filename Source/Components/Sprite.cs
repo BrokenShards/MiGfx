@@ -102,21 +102,13 @@ namespace MiGfx
 		/// <param name="dt">
 		///   Delta time.
 		/// </param>
-		/// <exception cref="ArgumentNullException">
-		///   If <see cref="Image"/> is null.
-		/// </exception>
 		protected override void OnUpdate( float dt )
 		{
-			if( Image == null )
-				throw new ArgumentNullException( nameof( Image ), "Trying to update a sprite with a null image." );
+			Transform t = Stack?.Get<Transform>();
 
-			Transform t = Parent?.Components?.Get<Transform>();
-
-			if( t == null )
-				throw new InvalidOperationException( "Trying to update a sprite without a transform component." );
-
-			for( uint i = 0; i < m_verts.VertexCount; i++ )
-				m_verts[ i ] = Image.GetVertex( i, t );
+			if( Image != null && t != null )
+				for( uint i = 0; i < m_verts.VertexCount; i++ )
+					m_verts[ i ] = Image.GetVertex( i, t );
 		}
 		/// <summary>
 		///   Draws the sprite to the render target.
@@ -129,23 +121,23 @@ namespace MiGfx
 		/// </param>
 		protected override void OnDraw( RenderTarget target, RenderStates states )
 		{
-			if( Image == null )
-				throw new ArgumentNullException( nameof( Image ), "Trying to draw a sprite with a null image." );
-
-			Texture tex = Assets.Manager.Texture.Get( Image.Path );
-
-			if( tex != null )
+			if( Image != null )
 			{
-				states.Texture = tex;
+				Texture tex = Assets.Manager.Texture.Get( Image.Path );
 
-				FloatRect rect = Image.Rect;
+				if( tex != null )
+				{
+					states.Texture = tex;
 
-				if( rect.Width == 0 )
-					rect.Width = states.Texture.Size.X;
-				if( rect.Height == 0 )
-					rect.Height = states.Texture.Size.Y;
+					FloatRect rect = Image.Rect;
 
-				Image.Rect = rect;
+					if( rect.Width == 0 )
+						rect.Width = states.Texture.Size.X - rect.Left;
+					if( rect.Height == 0 )
+						rect.Height = states.Texture.Size.Y - rect.Top;
+
+					Image.Rect = rect;
+				}
 			}
 
 			m_verts.Draw( target, states );
@@ -166,7 +158,7 @@ namespace MiGfx
 				return false;
 
 			if( !Image.LoadFromStream( br ) )
-				return Logger.LogReturn( "Unable to load Sprite from stream: Failed loading Image.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Sprite's ImageInfo from stream.", false, LogType.Error );
 
 			return true;
 		}
@@ -188,7 +180,7 @@ namespace MiGfx
 				Image = new ImageInfo();
 
 			if( !Image.SaveToStream( bw ) )
-				return Logger.LogReturn( "Unable to save sprite image to stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Sprite's ImageInfo to stream.", false, LogType.Error );
 
 			return true;
 		}
@@ -211,9 +203,9 @@ namespace MiGfx
 			XmlElement info = element[ nameof( ImageInfo ) ];
 
 			if( info == null )
-				return Logger.LogReturn( "Failed loading Sprite: No ImageInfo xml element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Sprite: No ImageInfo element.", false, LogType.Error );
 			if( !Image.LoadFromXml( info ) )
-				return Logger.LogReturn( "Failed loading Sprite: Loading ImageInfo failed.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Sprite: Parsing ImageInfo failed.", false, LogType.Error );
 
 			return true;
 		}
@@ -230,11 +222,13 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( TypeName );
+
 			sb.Append( " " );
 			sb.Append( nameof( Enabled ) );
 			sb.Append( "=\"" );
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
+
 			sb.Append( "        " );
 			sb.Append( nameof( Visible ) );
 			sb.Append( "=\"" );

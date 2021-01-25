@@ -262,13 +262,13 @@ namespace MiGfx
 			sb.Append( Enabled );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "        " );
+			sb.Append( "          " );
 			sb.Append( nameof( Visible ) );
 			sb.Append( "=\"" );
 			sb.Append( Visible );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "        " );
+			sb.Append( "          " );
 			sb.Append( nameof( SelectedChild ) );
 			sb.Append( "=\"" );
 			sb.Append( SelectedChild );

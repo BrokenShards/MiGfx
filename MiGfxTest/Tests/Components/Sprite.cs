@@ -25,6 +25,7 @@ using MiInput;
 using System.IO;
 using SFML.Graphics;
 using SFML.System;
+using System;
 
 namespace MiGfx.Test
 {
@@ -88,7 +89,8 @@ namespace MiGfx.Test
 				if( !ent.Components.AddNew<Sprite>() )
 					return Logger.LogReturn( "Failed: Unable to add Sprite to test entity.", false );
 
-				ent.Components.Get<Sprite>().Image = new ImageInfo( Test.SpriteTexturePath );
+				Sprite spr = ent.Components.Get<Sprite>();				
+				spr.Image = new ImageInfo( Test.SpriteTexturePath );
 
 				Transform trn = ent.Components.Get<Transform>();
 
@@ -104,6 +106,40 @@ namespace MiGfx.Test
 
 					Input.Manager.Update();
 					ent.Update( 1.0f );
+
+					if( Input.Manager.Keyboard.JustPressed( "Right" ) )
+					{
+						int o = (int)spr.Image.Orientation;
+						o++;
+
+						if( o >= Enum.GetNames( typeof( Direction ) ).Length )
+							o = 0;
+
+						spr.Image.Orientation = (Direction)o;
+						Logger.Log( "Sprite Orientation: " + spr.Image.Orientation.ToString() );
+					}
+					else if( Input.Manager.Keyboard.JustPressed( "Left" ) )
+					{
+						int o = (int)spr.Image.Orientation;
+						o--;
+
+						if( o < 0 )
+							o = Enum.GetNames( typeof( Direction ) ).Length - 1;
+
+						spr.Image.Orientation = (Direction)o;
+						Logger.Log( "Sprite Orientation: " + spr.Image.Orientation.ToString() );
+					}
+
+					if( Input.Manager.Keyboard.JustPressed( "H" ) )
+					{
+						spr.Image.FlipHorizontal = !spr.Image.FlipHorizontal;
+						Logger.Log( "Sprite FlipHorizontal: " + spr.Image.FlipHorizontal.ToString() );
+					}
+					else if( Input.Manager.Keyboard.JustPressed( "V" ) )
+					{
+						spr.Image.FlipVertical = !spr.Image.FlipVertical;
+						Logger.Log( "Sprite FlipVertical: " + spr.Image.FlipVertical.ToString() );
+					}
 
 					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
 						inp = true;

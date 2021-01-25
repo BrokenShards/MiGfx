@@ -34,7 +34,6 @@ namespace MiGfx
 	/// <summary>
 	///   A sprite-based animation frame.
 	/// </summary>
-	[Serializable]
 	public class Frame : BinarySerializable, IXmlLoadable, IEquatable<Frame>
 	{
 		/// <summary>
@@ -44,7 +43,11 @@ namespace MiGfx
 		{
 			Rect   = new FloatRect();
 			Length = Time.Zero;
-			Color  = new Color( 255, 255, 255, 255 );
+			Color  = Color.White;
+
+			Orientation    = Direction.Up;
+			FlipHorizontal = false;
+			FlipVertical   = false;
 		}
 		/// <summary>
 		///   Constructor assigning the texture rect and frame length.
@@ -58,11 +61,24 @@ namespace MiGfx
 		/// <param name="col">
 		///   The texture modifier color.
 		/// </param>
-		public Frame( FloatRect rect, Time? len = null, Color? col = null )
+		/// <param name="dir">
+		///   Orientation direction.
+		/// </param>
+		/// <param name="hflip">
+		///   If texture rect should be flipped horizontally.
+		/// </param>
+		/// <param name="vflip">
+		///   If texture rect should be flipped vertically.
+		/// </param>
+		public Frame( FloatRect rect, Time? len = null, Color? col = null, Direction dir = 0, bool hflip = false, bool vflip = false )
 		{
 			Rect   = rect;
 			Length = len ?? Time.FromSeconds( 1.0f );
-			Color  = col ?? new Color( 255, 255, 255, 255 );
+			Color  = col ?? Color.White;
+			
+			Orientation    = dir;
+			FlipHorizontal = hflip;
+			FlipVertical   = vflip;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -78,6 +94,10 @@ namespace MiGfx
 			Rect   = f.Rect;
 			Length = f.Length;
 			Color  = f.Color;
+			
+			Orientation    = f.Orientation;
+			FlipHorizontal = f.FlipHorizontal;
+			FlipVertical   = f.FlipVertical;
 		}
 
 		/// <summary>
@@ -92,6 +112,36 @@ namespace MiGfx
 		///   The texture color modifier.
 		/// </summary>
 		public Color Color { get; set; }
+		/// <summary>
+		///   Texture orientation modifier.
+		/// </summary>
+		public Direction Orientation { get; set; }
+		/// <summary>
+		///   If texture rect should be flipped horizontally.
+		/// </summary>
+		public bool FlipHorizontal { get; set; }
+		/// <summary>
+		///   If texture rect should be flipped vertically.
+		/// </summary>
+		public bool FlipVertical { get; set; }
+
+		/// <summary>
+		///   Applies the frames' properties to an image info.
+		/// </summary>
+		/// <param name="i">
+		///   The image info to apply values to.
+		/// </param>
+		public void Apply( ref ImageInfo i )
+		{
+			if( i == null )
+				return;
+
+			i.Rect           = Rect;
+			i.Color          = Color;
+			i.Orientation    = Orientation;
+			i.FlipHorizontal = FlipHorizontal;
+			i.FlipVertical   = FlipVertical;
+		}
 
 		/// <summary>
 		///   Loads the object from the stream.
@@ -105,17 +155,20 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load Frame from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load Frame from null stream.", false, LogType.Error );
 
 			try
 			{
 				Rect   = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
 				Length = Time.FromMicroseconds( br.ReadInt64() );
 				Color  = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
+				Orientation    = (Direction)br.ReadInt32();
+				FlipHorizontal = br.ReadBoolean();
+				FlipVertical   = br.ReadBoolean();
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load Frame from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Frame from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -132,17 +185,20 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save Frame to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save Frame to null stream.", false, LogType.Error );
 
 			try
 			{
 				bw.Write( Rect.Left ); bw.Write( Rect.Top ); bw.Write( Rect.Width ); bw.Write( Rect.Height );
 				bw.Write( Length.AsMicroseconds() );
 				bw.Write( Color.R ); bw.Write( Color.G ); bw.Write( Color.B ); bw.Write( Color.A );
+				bw.Write( (int)Orientation );
+				bw.Write( FlipHorizontal );
+				bw.Write( FlipVertical );
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save Frame to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Frame to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -162,7 +218,11 @@ namespace MiGfx
 			if( element == null )
 				return Logger.LogReturn( "Cannot load Frame from a null XmlElement.", false, LogType.Error );
 			if( !element.HasAttribute( nameof( Length ) ) )
-				return Logger.LogReturn( "Failed loading Frame: missing Length attribute.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Frame: Missing Length attribute.", false, LogType.Error );
+
+			Orientation    = Direction.Up;
+			FlipHorizontal = false;
+			FlipVertical   = false;
 
 			XmlElement rect = element[ nameof( Rect ) ],
 			           col  = element[ nameof( Color ) ];
@@ -174,6 +234,28 @@ namespace MiGfx
 
 			if( !r.HasValue )
 				return Logger.LogReturn( "Failed loading Frame: Unable to parse Rect element.", false, LogType.Error );
+
+			if( element.HasAttribute( nameof( Orientation ) ) )
+			{
+				if( !Enum.TryParse( element.GetAttribute( nameof( Orientation ) ), out Direction o ) )
+					return Logger.LogReturn( "Failed loading Frame: Unable to parse Orientation attribute.", false, LogType.Error );
+
+				Orientation = o;
+			}
+			if( element.HasAttribute( nameof( FlipHorizontal ) ) )
+			{
+				if( !bool.TryParse( element.GetAttribute( nameof( FlipHorizontal ) ), out bool h ) )
+					return Logger.LogReturn( "Failed loading Frame: Unable to parse FlipHorizontal attribute.", false, LogType.Error );
+
+				FlipHorizontal = h;
+			}
+			if( element.HasAttribute( nameof( FlipVertical ) ) )
+			{
+				if( !bool.TryParse( element.GetAttribute( nameof( FlipVertical ) ), out bool v ) )
+					return Logger.LogReturn( "Failed loading Frame: Unable to parse FlipVertical attribute.", false, LogType.Error );
+
+				FlipVertical = v;
+			}
 
 			Rect = r.Value;
 
@@ -211,8 +293,28 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( nameof( Frame ) );
-			sb.Append( " " + nameof( Length ) + "=\"" );
+			sb.Append( " " );
+			sb.Append( nameof( Length ) );
+			sb.Append( "=\"" );
 			sb.Append( Length.AsSeconds() );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       " );
+			sb.Append( nameof( Orientation ) );
+			sb.Append( "=\"" );
+			sb.Append( Orientation.ToString() );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       " );
+			sb.Append( nameof( FlipHorizontal ) );
+			sb.Append( "=\"" );
+			sb.Append( FlipHorizontal );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "       " );
+			sb.Append( nameof( FlipVertical ) );
+			sb.Append( "=\"" );
+			sb.Append( FlipVertical );
 			sb.AppendLine( "\">" );
 
 			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ),  1 ) );
@@ -239,7 +341,10 @@ namespace MiGfx
 			return other  != null &&
 			       Rect.Equals( other.Rect ) &&
 			       Length.Equals( other.Length ) &&
-				   Color.Equals( other.Color );
+				   Color.Equals( other.Color ) &&
+				   Orientation    == other.Orientation &&
+				   FlipHorizontal == other.FlipHorizontal &&
+				   FlipVertical   == other.FlipVertical;
 		}
 	}
 }

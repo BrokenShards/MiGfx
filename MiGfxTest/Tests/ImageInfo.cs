@@ -35,7 +35,7 @@ namespace MiGfx.Test
 			Logger.Log( "Running ImageInfo Tests..." );
 
 			// Create image info with a texture, rect, orientation and color.
-			ImageInfo i1 = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), null, Color.Blue );
+			ImageInfo i1 = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), Color.Blue );
 
 			// Write object to a binary file.
 			if( !BinarySerializable.ToFile( i1, ImageInfoPath, true ) )

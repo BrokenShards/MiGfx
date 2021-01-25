@@ -34,7 +34,6 @@ namespace MiGfx
 	/// <summary>
 	///   A sprite-based animation.
 	/// </summary>
-	[Serializable]
 	public class Animation : BinarySerializable, IXmlLoadable, IIdentifiable<string>, IEquatable<Animation>
 	{
 		/// <summary>
@@ -68,9 +67,20 @@ namespace MiGfx
 		/// <param name="id">
 		///   The animation ID.
 		/// </param>
+		/// <exception cref="ArgumentException">
+		///   If id is not a valid ID <see cref="ID"/>.
+		/// </exception>
 		public Animation( string id )
 		{
-			ID       = id;
+			try
+			{
+				ID = id;
+			}
+			catch
+			{
+				throw;
+			}
+
 			m_frames = new List<Frame>();
 		}
 		/// <summary>
@@ -124,7 +134,20 @@ namespace MiGfx
 		/// <summary>
 		///   ID accessor.
 		/// </summary>
-		public string ID { get; private set; }
+		/// <exception cref="ArgumentException">
+		///   If attempting to set to an invalid ID. <see cref="Identifiable.IsValid(string)"/>.
+		/// </exception>
+		public string ID 
+		{
+			get { return m_id; }
+			private set
+			{
+				if( !Identifiable.IsValid( value ) )
+					throw new ArgumentException( "Trying to set invalid Animation ID." );
+
+				m_id = value;
+			}
+		}
 
 		/// <summary>
 		///   Frame accessor.
@@ -284,7 +307,7 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Unable to load Animation from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load Animation from null stream.", false, LogType.Error );
 
 			try
 			{
@@ -298,14 +321,14 @@ namespace MiGfx
 					Frame f = new Frame();
 
 					if( !f.LoadFromStream( br ) )
-						return Logger.LogReturn( "Unable to load Animation frame from stream.", false, LogType.Error );
+						return Logger.LogReturn( "Failed loading Animation's Frame from stream.", false, LogType.Error );
 
 					m_frames.Add( f );
 				}
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load Animation from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading Animation from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -322,7 +345,7 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Unable to save Animation to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save Animation to null stream.", false, LogType.Error );
 
 			try
 			{
@@ -331,11 +354,11 @@ namespace MiGfx
 
 				for( int i = 0; i < Count; i++ )
 					if( !m_frames[ i ].SaveToStream( bw ) )
-						return Logger.LogReturn( "Unable to save Animation to stream.", false, LogType.Error );
+						return Logger.LogReturn( "Failed saving Animation's Frame to stream.", false, LogType.Error );
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save Animation to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving Animation to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -357,12 +380,11 @@ namespace MiGfx
 
 			RemoveAll();
 
-			string id = element.GetAttribute( nameof( ID ) );
-
-			ID = string.IsNullOrWhiteSpace( id ) ? Identifiable.NewStringID( nameof( Animation ) ) : id;
-
 			try
 			{
+				string id = element.GetAttribute( nameof( ID ) );
+				ID = string.IsNullOrWhiteSpace( id ) ? Identifiable.NewStringID( nameof( Animation ) ) : id;
+
 				XmlNodeList frames = element.SelectNodes( nameof( Frame ) );
 
 				foreach( XmlNode f in frames )
@@ -370,7 +392,7 @@ namespace MiGfx
 					Frame frame = new Frame();
 
 					if( !frame.LoadFromXml( (XmlElement)f ) )
-						return Logger.LogReturn( "Cannot load Animation: Loading Frame failed.", false, LogType.Error );
+						return Logger.LogReturn( "Failed loading Animation's Frame from xml.", false, LogType.Error );
 
 					Add( frame );
 				}
@@ -395,7 +417,9 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( nameof( Animation ) );
-			sb.Append( " " + nameof( ID ) + "=\"" );
+			sb.Append( " " );
+			sb.Append( nameof( ID ) );
+			sb.Append( "=\"" );
 			sb.Append( ID );
 			sb.AppendLine( "\">" );
 
@@ -430,7 +454,8 @@ namespace MiGfx
 			return true;
 		}
 
-		private List<Frame> m_frames;
+		string m_id;
+		List<Frame> m_frames;
 	}
 
 }

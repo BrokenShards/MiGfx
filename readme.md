@@ -9,8 +9,29 @@ A basic C# graphics library for use with SFML.Net.
 
 ## TODO
 - Implement UI containers/grouping/layouting.
+- Create `Slider` component from `FillBar`.
+- Create `Tilemap` component that uses a `SpriteArray` to draw tiles from a `Tileset`.
 
 ## Changelog
+
+### Version 0.10.0
+- `AssetManager<T>` now implements `IEnumerable<KeyValuePair<string, T>>` so loaded assets can be
+  iterated through.
+- Added `SpriteArray` component for drawing multiple sprites from the same texture.
+- `FillBar` now contains a minimum value, maximum value and a current value rather than just one
+  property for progress, because of this `FillBar.Progress` now uses these values to calculate the
+  current progress.
+- `FillBar` now uses the entities `SpriteArray` for drawing.
+- Added `FillBar.LabelType` and `FillBar.Labeling` to more easily customise how the label displays
+  the fill bar value.
+- Added `FillBar.Create(string, RenderWindow, long, long, long, Color?, LabelType)` for easily
+  constructing FillBar entities.
+- Fixed issue where `ImageInfo` was flipping horizontal texture coordinates unintentionally.
+- Added `ImageInfo.FlipHorizontal` and `ImageInfo.FlipVertical` that will flip the texture 
+  coordinates of the vertex returned by `ImageInfo.GetVertex(uint, Transform)`.
+- Added `Frame.Orientation`, `Frame.FlipHorizontal` and `Frame.FlipVertical` to allow animation of
+  those properties.
+- Error logs are now more consistant and concise.
 
 ### Version 0.9.0
 - Changed SFML source to latest official SFML.Net repository.

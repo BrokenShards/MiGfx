@@ -110,7 +110,7 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader sr )
 		{
 			if( sr == null )
-				return Logger.LogReturn( "Unable to load ButtonData from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot load TextBoxData from null stream.", false, LogType.Error );
 
 			if( Image == null )
 				Image = new ImageInfo();
@@ -118,9 +118,9 @@ namespace MiGfx
 				Text = new TextStyle();
 
 			if( !Image.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Unable to load ButtonData Image from stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBoxData's Image from stream.", false, LogType.Error );
 			if( !Text.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Unable to load ButtonData Text from stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBoxData's Text from stream.", false, LogType.Error );
 
 			try
 			{
@@ -128,7 +128,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load ButtonData from stream: " + e.Message + ".", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBoxData from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -145,7 +145,7 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter sw )
 		{
 			if( sw == null )
-				return Logger.LogReturn( "Unable to save ButtonData to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Cannot save TextBoxData to null stream.", false, LogType.Error );
 
 			if( Image == null )
 				Image = new ImageInfo();
@@ -153,9 +153,9 @@ namespace MiGfx
 				Text = new TextStyle();
 
 			if( !Image.SaveToStream( sw ) )
-				return Logger.LogReturn( "Unable to save ButtonData Image to stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextBoxData's Image to stream.", false, LogType.Error );
 			if( !Text.SaveToStream( sw ) )
-				return Logger.LogReturn( "Unable to save ButtonData Text to stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextBoxData's Text to stream.", false, LogType.Error );
 
 			try
 			{
@@ -163,7 +163,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save ButtonData to stream: " + e.Message + ".", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextBoxData to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -267,7 +267,7 @@ namespace MiGfx
 			                                        nameof( Label ),      nameof( TextListener ),
 			                                        nameof( Selectable ), nameof( Clickable ) };
 			IncompatibleComponents = new string[] { nameof( Button ),     nameof( SpriteAnimator ),
-													nameof( CheckBox ) };
+													nameof( CheckBox ),   nameof( FillBar ) };
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -353,15 +353,13 @@ namespace MiGfx
 			if( Stack == null )
 				return;
 
-			Sprite       spr    = Stack.Get<Sprite>();
-			Label        lab    = Stack.Get<Label>();			
-			TextListener listen = Stack.Get<TextListener>();
-
+			Label       lab  = Stack.Get<Label>();
 			TextBoxData data = Stack.Get<Selectable>().Selected ? SelectedData : DeselectedData;
-			spr.Image  = data.Image;
-			lab.Text   = data.Text;
-			lab.Offset = data.TextOffset;
-			lab.String = listen.EnteredText;
+
+			Stack.Get<Sprite>().Image = data.Image;
+			lab.Text                  = data.Text;
+			lab.Offset                = data.TextOffset;
+			lab.String                = Stack.Get<TextListener>().EnteredText;
 		}
 
 		/// <summary>
@@ -382,9 +380,9 @@ namespace MiGfx
 			DeselectedData = new TextBoxData();
 
 			if( !SelectedData.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Failed loading TextBox SelectedData from stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBox's SelectedData from stream.", false, LogType.Error );
 			if( !DeselectedData.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Failed loading TextBox DeselectedData from stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading TextBox's DeselectedData from stream.", false, LogType.Error );
 
 			return true;
 		}
@@ -403,9 +401,9 @@ namespace MiGfx
 				return false;
 
 			if( !SelectedData.SaveToStream( sw ) )
-				return Logger.LogReturn( "Failed saving TextBox SelectedData to stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextBox's SelectedData to stream.", false, LogType.Error );
 			if( !DeselectedData.SaveToStream( sw ) )
-				return Logger.LogReturn( "Failed saving TextBox DeselectedData to stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving TextBox's DeselectedData to stream.", false, LogType.Error );
 
 			return true;
 		}

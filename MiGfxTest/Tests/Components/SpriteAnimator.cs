@@ -103,8 +103,8 @@ namespace MiGfx.Test
 				{
 					Animation a = new Animation( "test",
 						new Frame( new FloatRect( 0,                       0, texsize.X / 3.0f, texsize.Y ), Time.FromSeconds( 0.5f ) ),
-						new Frame( new FloatRect( texsize.X / 3.0f,        0, texsize.X / 3.0f, texsize.Y ), Time.FromSeconds( 0.5f ) ),
-						new Frame( new FloatRect( texsize.X / 3.0f * 2.0f, 0, texsize.X / 3.0f, texsize.Y ), Time.FromSeconds( 0.5f ) ) );
+						new Frame( new FloatRect( texsize.X / 3.0f,        0, texsize.X / 3.0f, texsize.Y ), Time.FromSeconds( 0.5f ), null, Direction.Right ),
+						new Frame( new FloatRect( texsize.X / 3.0f * 2.0f, 0, texsize.X / 3.0f, texsize.Y ), Time.FromSeconds( 0.5f ), null, Direction.Left ) );
 
 					if( !anim.Animations.Add( a ) )
 						return Logger.LogReturn( "Failed: Unable to add animation.", false );
