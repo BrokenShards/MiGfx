@@ -27,28 +27,54 @@ using SFML.System;
 
 namespace MiGfx.Test
 {
-	public class AnimationSetTest : TestModule
+	public static class TestDB
 	{
-		const string AnimationSetPath = "animation_set.bin";
-
-		protected override bool OnTest()
+		public static bool CreateAnimations()
 		{
-			Logger.Log( "Running AnimationSet Tests..." );
+			AnimationDB db = DatabaseManager.Instance.Get<AnimationDB, Animation>();
 
-			// Create animation set.
-			AnimationSet a1 = new AnimationSet();
+			if( db == null )
+				return Logger.LogReturn( "Unable to get AnimationDB.", false );
 
 			// Create and add animations.
 			for( int i = 0; i < 10; i++ )
 			{
 				Animation anim = new Animation( "as" + i.ToString() );
 
-				for( int f = 0; f < 10; f++ )
-					anim.Add( new Frame( new FloatRect( 0, 0, 30, 30 ), Time.FromSeconds( 1.0f ) ) );
+				for( int f = 0; f < 3; f++ )
+					anim.Add( new Frame( new FloatRect( f * 512, 0, 512, 512 ), Time.FromSeconds( 1.0f ) ) );
 
 				// Add animation to set.
-				if( !a1.Add( anim ) )
-					return Logger.LogReturn( "Failed: Unable to add Animation to AnimationSet.", false );
+				if( !db.Add( anim.ID, anim, true ) )
+					return Logger.LogReturn( "Failed adding test animations to AnimationDB.", false );
+			}
+
+			return true;
+		}
+	}
+
+	public class AnimationSetTest : TestModule
+	{
+		const string AnimationSetPath = "animation_set.bin";
+
+		protected override bool OnTest()
+		{
+			if( !TestDB.CreateAnimations() )
+				return Logger.LogReturn( "Failed creating test animations, skipping AnimationSet Tests...", false );
+
+			Logger.Log( "Running AnimationSet Tests..." );
+
+			AnimationDB db = DatabaseManager.Instance.Get<AnimationDB, Animation>();
+
+			// Create animation set.
+			AnimationSet a1 = new AnimationSet();
+
+			// Create and add animations.
+			foreach( var v in db )
+			{
+				// Add animation to set.
+				if( !a1.Add( v.Key ) )
+					return Logger.LogReturn( "Failed: Unable to add Animation ID to AnimationSet.", false );
 			}
 
 			// Ensure all animations were actually added.

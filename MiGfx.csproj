@@ -36,7 +36,8 @@
     <DocumentationFile>bin\Release\MiGfx.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MiCore">
+    <Reference Include="MiCore, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Dependencies\MiCore.dll</HintPath>
     </Reference>
     <Reference Include="MiInput">
@@ -70,9 +71,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\Animation.cs" />
     <Compile Include="Source\AnimationSet.cs" />
+    <Compile Include="Source\Components\BoxCollider.cs" />
+    <Compile Include="Source\Components\CircleCollider.cs" />
+    <Compile Include="Source\Components\Collider.cs" />
+    <Compile Include="Source\Components\UI\UIClickable.cs" />
     <Compile Include="Source\Components\Clickable.cs" />
-    <Compile Include="Source\Components\FillBar.cs" />
+    <Compile Include="Source\Components\UI\UISpriteArray.cs" />
+    <Compile Include="Source\Databases\TextStyleDB.cs" />
+    <Compile Include="Source\Physics.cs" />
+    <Compile Include="Source\SpriteInfo.cs" />
+    <Compile Include="Source\Components\UI\FillBar.cs" />
+    <Compile Include="Source\Components\UI\UISpriteAnimator.cs" />
+    <Compile Include="Source\Components\UI\UILabel.cs" />
     <Compile Include="Source\Components\Selector.cs" />
+    <Compile Include="Source\Components\UI\UISprite.cs" />
     <Compile Include="Source\Components\SpriteAnimator.cs" />
     <Compile Include="Source\Assets\AssetManager.cs" />
     <Compile Include="Source\Assets\Assets.cs" />
@@ -83,17 +95,20 @@
     <Compile Include="Source\Components.cs" />
     <Compile Include="Source\Components\SpriteArray.cs" />
     <Compile Include="Source\Components\TextListener.cs" />
+    <Compile Include="Source\Components\UI\UITransform.cs" />
+    <Compile Include="Source\Databases\TilesetDB.cs" />
+    <Compile Include="Source\Databases\AnimationDB.cs" />
     <Compile Include="Source\Frame.cs" />
     <Compile Include="Source\ImageInfo.cs" />
     <Compile Include="Source\Components\Sprite.cs" />
     <Compile Include="Source\TextStyle.cs" />
     <Compile Include="Source\Tileset.cs" />
     <Compile Include="Source\Components\Transform.cs" />
-    <Compile Include="Source\Components\Button.cs" />
-    <Compile Include="Source\Components\CheckBox.cs" />
+    <Compile Include="Source\Components\UI\Button.cs" />
+    <Compile Include="Source\Components\UI\CheckBox.cs" />
     <Compile Include="Source\Components\Selectable.cs" />
     <Compile Include="Source\Components\Label.cs" />
-    <Compile Include="Source\Components\TextBox.cs" />
+    <Compile Include="Source\Components\UI\TextBox.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
@@ -107,6 +122,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\UI\Button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\ButtonShort.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\ButtonSquare.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\ButtonThick.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\CheckBox.png">

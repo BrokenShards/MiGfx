@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// ImageInfo.cs 
+// SpriteInfo.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -27,44 +27,23 @@ using System.Xml;
 
 using SFML.Graphics;
 using SFML.System;
+
 using MiCore;
 
 namespace MiGfx
 {
 	/// <summary>
-	///   Possible directions.
+	///   Sprite display information.
 	/// </summary>
-	public enum Direction
-	{
-		/// <summary>
-		///   Up direction.
-		/// </summary>
-		Up,
-		/// <summary>
-		///   Right direction.
-		/// </summary>
-		Right,
-		/// <summary>
-		///   Down direction.
-		/// </summary>
-		Down,
-		/// <summary>
-		///   Left direction.
-		/// </summary>
-		Left
-	}
-
-	/// <summary>
-	///   Image display information.
-	/// </summary>
-	public class ImageInfo : BinarySerializable, IXmlLoadable, IEquatable<ImageInfo>
+	public class SpriteInfo : BinarySerializable, IXmlLoadable, IEquatable<SpriteInfo>
 	{
 		/// <summary>
 		///   Constructor.
 		/// </summary>
-		public ImageInfo()
+		public SpriteInfo()
 		{
-			Path           = string.Empty;
+			Offset         = new Vector2f();
+			Size           = new Vector2f( 1.0f, 1.0f );
 			Rect           = new FloatRect();
 			Color          = Color.White;
 			Orientation    = Direction.Up;
@@ -75,17 +54,18 @@ namespace MiGfx
 		///   Copy constructor.
 		/// </summary>
 		/// <param name="i">
-		///   The image info to copy from.
+		///   The sprite info to copy from.
 		/// </param>
 		/// <exception cref="ArgumentNullException">
 		///   If <paramref name="i"/> is null.
 		/// </exception>
-		public ImageInfo( ImageInfo i )
+		public SpriteInfo( SpriteInfo i )
 		{
 			if( i == null )
 				throw new ArgumentNullException();
-
-			Path           = new string( i.Path.ToCharArray() );
+			
+			Offset         = i.Offset;
+			Size           = i.Size;
 			Rect           = i.Rect;
 			Color          = i.Color;
 			Orientation    = i.Orientation;
@@ -93,13 +73,16 @@ namespace MiGfx
 			FlipVertical   = i.FlipVertical;
 		}
 		/// <summary>
-		///   Constructor that assigns texture path.
+		///   Constructor that assigns texture rect, orientation and color.
 		/// </summary>
-		/// <param name="path">
-		///   Texture path.
-		/// </param>
 		/// <param name="rect">
-		///   Texture display rect.
+		///   Texture rect to be displayed.
+		/// </param>
+		/// <param name="off">
+		///   Sprite offset.
+		/// </param>
+		/// <param name="size">
+		///   Sprite size.
 		/// </param>
 		/// <param name="dir">
 		///   Orientation direction.
@@ -113,21 +96,40 @@ namespace MiGfx
 		/// <param name="vflip">
 		///   Vertical flip..
 		/// </param>
-		public ImageInfo( string path, FloatRect rect = default, Color? col = null, 
-		                  Direction dir = 0, bool hflip = false, bool vflip = false )
+		public SpriteInfo( FloatRect rect, Color? col = null, Vector2f? off = null, Vector2f? size = null, Direction dir = 0, bool hflip = false, bool vflip = false )
 		{
-			Path           = path ?? string.Empty;
+			Offset         = off  ?? new Vector2f();
+			Size           = size ?? new Vector2f( rect.Width, rect.Height );
 			Rect           = rect;
-			Color          = col  ?? new Color( 255, 255, 255, 255 );
+			Color          = col  ?? Color.White;
 			Orientation    = dir;
 			FlipHorizontal = hflip;
 			FlipVertical   = vflip;
 		}
 
 		/// <summary>
-		///   Texture path.
+		///  The sprite offset.
 		/// </summary>
-		public string Path { get; set; }
+		public Vector2f Offset
+		{
+			get; set;
+		}
+		/// <summary>
+		///  The sprite size.
+		/// </summary>
+		public Vector2f Size
+		{
+			get { return m_size; }
+			set
+			{
+				m_size = value;
+
+				if( m_size.X <= 0.0f )
+					m_size.X = 1.0f;
+				if( m_size.Y <= 0.0f )
+					m_size.Y = 1.0f;
+			}
+		}
 		/// <summary>
 		///   Texture display rect.
 		/// </summary>
@@ -153,37 +155,6 @@ namespace MiGfx
 		public bool FlipVertical { get; set; }
 
 		/// <summary>
-		///   If a valid texture exists at <see cref="Path"/>.
-		/// </summary>
-		public bool IsTextureValid
-		{
-			get
-			{
-				return Assets.Manager.Texture.Get( Path ) != null;
-			}
-		}
-		/// <summary>
-		///   Gets the size of the texture if valid.
-		/// </summary>
-		public Vector2u TextureSize
-		{
-			get { return IsTextureValid ? Assets.Manager.Texture.Get( Path ).Size : default; }
-		}
-
-		/// <summary>
-		///   Sets the texture display rect to the full texture.
-		/// </summary>
-		public void SetFullRect()
-		{
-			Texture tex = Assets.Manager.Texture.Get( Path );
-
-			if( tex == null )
-				Rect = Logger.LogReturn( "SetFullRect failed because of invalid texture path; Rect has been reset.", new FloatRect(), LogType.Warning );
-			else
-				Rect = new FloatRect( 0.0f, 0.0f, tex.Size.X, tex.Size.Y );
-		}
-
-		/// <summary>
 		///   Calculates and returns the vertex at the given index from top-left to bottom-left.
 		/// </summary>
 		/// <param name="index">
@@ -192,31 +163,26 @@ namespace MiGfx
 		/// <param name="bounds">
 		///   Display image bounds.
 		/// </param>
+		/// <param name="scl">
+		///   Sprite scale.
+		/// </param>
 		/// <returns>
 		///   The vertex at the given index to display the image.
 		/// </returns>
 		/// <exception cref="ArgumentOutOfRangeException">
 		///   If index is out of range (greater than 3).
 		/// </exception>
-		public Vertex GetVertex( uint index, FloatRect bounds )
+		public Vertex GetVertex( uint index, FloatRect bounds, Vector2f? scl = null )
 		{
 			if( index > 3 )
 				throw new ArgumentOutOfRangeException( nameof( index ), "Vertex index is out of range." );
 
-			FloatRect rect = Rect;
+			Vector2f scale = scl ?? new Vector2f( 1.0f, 1.0f );
 
-			if( rect.Width <= 0.0f || rect.Height <= 0.0f )
-			{
-				if( IsTextureValid )
-				{
-					Vector2u ts = Assets.Manager.Get<Texture>( Path ).Size;
-					rect = new FloatRect( 0, 0, ts.X, ts.Y );
-				}
-				else
-				{
-					rect = new FloatRect( 0, 0, bounds.Width, bounds.Height );
-				}
-			}
+			bounds.Width  = Size.X * scale.X;
+			bounds.Height = Size.Y * scale.Y;
+			bounds.Left  += Offset.X * scale.X;
+			bounds.Top   += Offset.Y * scale.Y;
 
 			uint texindex = index;
 
@@ -261,11 +227,11 @@ namespace MiGfx
 
 			return new Vertex
 			{
-				Position = new Vector2f( index > 0 && index < 3 ? bounds.Left + bounds.Width : bounds.Left,
-				                         index > 1 ? bounds.Top + bounds.Height : bounds.Top ),
-				Color = Color,
-				TexCoords = new Vector2f( texindex > 0 && texindex < 3 ? rect.Left + rect.Width : rect.Left,
-										  texindex > 1 ? rect.Top + rect.Height : rect.Top )
+				Position  = new Vector2f( index > 0 && index < 3 ? bounds.Left + bounds.Width : bounds.Left,
+				                          index > 1 ? bounds.Top + bounds.Height : bounds.Top ),
+				Color     = Color,
+				TexCoords = new Vector2f( texindex > 0 && texindex < 3 ? Rect.Left + Rect.Width : Rect.Left,
+										  texindex > 1 ? Rect.Top + Rect.Height : Rect.Top )
 			};
 		}
 
@@ -281,11 +247,12 @@ namespace MiGfx
 		public override bool LoadFromStream( BinaryReader br )
 		{
 			if( br == null )
-				return Logger.LogReturn( "Cannot load ImageInfo from null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteInfo from null stream.", false, LogType.Error );
 
 			try
 			{
-				Path           = br.ReadString();
+				Offset         = new Vector2f( br.ReadSingle(), br.ReadSingle() );
+				Size           = new Vector2f( br.ReadSingle(), br.ReadSingle() );
 				Rect           = new FloatRect( br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() );
 				Color          = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
 				Orientation    = (Direction)br.ReadInt32();
@@ -294,7 +261,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading ImageInfo from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteInfo from stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -311,11 +278,12 @@ namespace MiGfx
 		public override bool SaveToStream( BinaryWriter bw )
 		{
 			if( bw == null )
-				return Logger.LogReturn( "Cannot save ImageInfo to null stream.", false, LogType.Error );
+				return Logger.LogReturn( "Failed saving SpriteInfo to null stream.", false, LogType.Error );
 
 			try
 			{
-				bw.Write( Path );
+				bw.Write( Offset.X ); bw.Write( Offset.Y );
+				bw.Write( Size.X ); bw.Write( Size.Y );
 				bw.Write( Rect.Left ); bw.Write( Rect.Top ); bw.Write( Rect.Width ); bw.Write( Rect.Height );
 				bw.Write( Color.R ); bw.Write( Color.G ); bw.Write( Color.B ); bw.Write( Color.A );
 				bw.Write( (int)Orientation );
@@ -323,7 +291,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving ImageInfo to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( "Failed saving SpriteInfo to stream: " + e.Message, false, LogType.Error );
 			}
 
 			return true;
@@ -341,31 +309,44 @@ namespace MiGfx
 		public bool LoadFromXml( XmlElement element )
 		{
 			if( element == null )
-				return Logger.LogReturn( "Cannot load ImageInfo from a null XmlElement.", false, LogType.Error );
-			if( !element.HasAttribute( nameof( Path ) ) )
-				return Logger.LogReturn( "Failed loading ImageInfo: No Path attribute.", false, LogType.Error );
-			
-			XmlElement rect   = element[ nameof( Rect ) ],
+				return Logger.LogReturn( "Cannot load SpriteInfo from a null XmlElement.", false, LogType.Error );
+
+			Offset = default;
+
+			XmlElement offset = element[ nameof( Offset ) ],
+			           size   = element[ nameof( Size ) ],
+					   rect   = element[ nameof( Rect ) ],
 					   color  = element[ nameof( Color ) ];
 
+			if( size == null )
+				return Logger.LogReturn( "Failed loading SpriteInfo: No Size element.", false, LogType.Error );
 			if( rect == null )
-				return Logger.LogReturn( "Failed loading ImageInfo: No Rect element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteInfo: No Rect element.", false, LogType.Error );
 
+			Vector2f?  off = offset != null ? Xml.ToVec2f( offset ) : null;
+			Vector2f?  siz = Xml.ToVec2f( size );
 			FloatRect? rec = Xml.ToFRect( rect );
 			Color?     col = color != null ? Xml.ToColor( color ) : null;
 
+			if( offset != null && !off.HasValue )
+				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Offset element.", false, LogType.Error );
+			else if( offset == null )
+				off = new Vector2f();
+
+			if( !siz.HasValue )
+				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Size element.", false, LogType.Error );
 			if( !rec.HasValue )
-				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Rect element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Rect element.", false, LogType.Error );
 
 			if( color != null && !col.HasValue )
-				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Color element.", false, LogType.Error );
+				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Color element.", false, LogType.Error );
 			else if( color == null )
 				col = Color.White;
 
-			Rect  = rec.Value;
-			Color = col.Value;
-
-			Path = element.GetAttribute( nameof( Path ) );
+			Offset = off.Value;
+			Size   = siz.Value;
+			Rect   = rec.Value;
+			Color  = col.Value;
 
 			Orientation    = Direction.Up;
 			FlipHorizontal = false;
@@ -374,21 +355,21 @@ namespace MiGfx
 			if( element.HasAttribute( nameof( Orientation ) ) )
 			{
 				if( !Enum.TryParse( element.GetAttribute( nameof( Orientation ) ), out Direction o ) )
-					return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Orientation attribute.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Orientation attribute.", false, LogType.Error );
 
 				Orientation = o;
 			}
 			if( element.HasAttribute( nameof( FlipHorizontal ) ) )
 			{
 				if( !bool.TryParse( element.GetAttribute( nameof( FlipHorizontal ) ), out bool f ) )
-					return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse FlipHorizontal attribute.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse FlipHorizontal attribute.", false, LogType.Error );
 
 				FlipHorizontal = f;
 			}
 			if( element.HasAttribute( nameof( FlipVertical ) ) )
 			{
 				if( !bool.TryParse( element.GetAttribute( nameof( FlipVertical ) ), out bool f ) )
-					return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse FlipVertical attribute.", false, LogType.Error );
+					return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse FlipVertical attribute.", false, LogType.Error );
 
 				FlipVertical = f;
 			}
@@ -407,37 +388,33 @@ namespace MiGfx
 			StringBuilder sb = new StringBuilder();
 
 			sb.Append( "<" );
-			sb.Append( nameof( ImageInfo ) );
+			sb.Append( nameof( SpriteInfo ) );
 
 			sb.Append( " " );
-			sb.Append( nameof( Path ) );
-			sb.Append( "=\"" );
-			sb.Append( Path );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
 			sb.Append( nameof( Orientation ) );
 			sb.Append( "=\"" );
-			sb.Append( Orientation.ToString() );
+			sb.Append( Orientation );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "           " );
+			sb.Append( "            " );
 			sb.Append( nameof( FlipHorizontal ) );
 			sb.Append( "=\"" );
 			sb.Append( FlipHorizontal );
 			sb.AppendLine( "\"" );
 
-			sb.Append( "           " );
+			sb.Append( "            " );
 			sb.Append( nameof( FlipVertical ) );
 			sb.Append( "=\"" );
 			sb.Append( FlipVertical );
 			sb.AppendLine( "\">" );
 
-			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ), 1 ) );
-			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
+			sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
+			sb.AppendLine( Xml.ToString( Size,   nameof( Size ),   1 ) );
+			sb.AppendLine( Xml.ToString( Rect,   nameof( Rect ),   1 ) );
+			sb.AppendLine( Xml.ToString( Color,  nameof( Color ),  1 ) );
 
 			sb.Append( "</" );
-			sb.Append( nameof( ImageInfo ) );
+			sb.Append( nameof( SpriteInfo ) );
 			sb.AppendLine( ">" );
 
 			return sb.ToString();
@@ -452,15 +429,18 @@ namespace MiGfx
 		/// <returns>
 		///   True if both objects are concidered equal and false if they are not.
 		/// </returns>
-		public bool Equals( ImageInfo other )
+		public bool Equals( SpriteInfo other )
 		{
 			return other != null &&
-			       Path?.Trim()?.ToLower() == other.Path?.Trim()?.ToLower() &&
+			       Offset.Equals( other.Offset ) &&
+				   Size.Equals( other.Size ) &&
 				   Rect.Equals( other.Rect ) &&
 				   Color.Equals( other.Color ) &&
 				   Orientation    == other.Orientation &&
 				   FlipHorizontal == other.FlipHorizontal &&
 				   FlipVertical   == other.FlipVertical;
 		}
+
+		Vector2f m_size;
 	}
 }

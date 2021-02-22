@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// Sprite.cs 
+// UISprite.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -29,48 +29,48 @@ using System;
 
 namespace MiGfx.Test
 {
-	public class SpriteTest : VisualTestModule
+	public class UISpriteTest : VisualTestModule
 	{
-		const string SpritePath = "sprite.bin";
+		const string UISpritePath = "uisprite.bin";
 
 		protected override bool OnTest()
 		{
-			Logger.Log( "Running Sprite Tests..." );
+			Logger.Log( "Running UISprite Tests..." );
 
 			// Sprite is a simple component that draws an image at the position and size of the
 			// parent entities Transform.
 
 			// Create a new Sprite with an ImageInfo that tells it which texture to draw.
-			Sprite s1 = new Sprite( new ImageInfo( Test.SpriteTexturePath ) );
+			UISprite s1 = new UISprite( new ImageInfo( Test.SpriteTexturePath ) );
 
 			// Write object to a binary file.
-			if( !BinarySerializable.ToFile( s1, SpritePath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize Sprite to file.", false );
+			if( !BinarySerializable.ToFile( s1, UISpritePath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize UISprite to file.", false );
 
 			// Read the object from a binary file.
-			Sprite s2 = BinarySerializable.FromFile<Sprite>( SpritePath );
+			UISprite s2 = BinarySerializable.FromFile<UISprite>( UISpritePath );
 
 			try
 			{
 				// Delete temp file.
-				File.Delete( SpritePath );
+				File.Delete( UISpritePath );
 			}
 			catch
 			{ }
 
 			// Ensure object loaded and is the same.
 			if( s2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Sprite from file.", false );
+				return Logger.LogReturn( "Failed: Unable to deserialize UISprite from file.", false );
 			if( !s2.Equals( s1 ) )
-				return Logger.LogReturn( "Failed: Deserialized Sprite has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Deserialized UISprite has incorrect values.", false );
 
 			string xml = Xml.Header + "\r\n" + s1.ToString();
-			Sprite x = XmlLoadable.FromXml<Sprite>( xml );
+			UISprite x = XmlLoadable.FromXml<UISprite>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load Sprite from xml.", false );
+				return Logger.LogReturn( "Failed: Unable to load UISprite from xml.", false );
 			if( !x.Equals( s1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded Sprite has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Xml loaded UISprite has incorrect values.", false );
 
 			s1.Dispose();
 			s2.Dispose();
@@ -79,27 +79,26 @@ namespace MiGfx.Test
 		}
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running Sprite Visual Tests..." );
+			Logger.Log( "Running UISprite Visual Tests..." );
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
 			using( MiEntity ent = new MiEntity( "tester", window ) )
 			{
-				if( !ent.AddNewComponent<Sprite>() )
-					return Logger.LogReturn( "Failed: Unable to add Sprite to test entity.", false );
+				if( !ent.AddNewComponent<UISprite>() )
+					return Logger.LogReturn( "Failed: Unable to add UISprite to test entity.", false );
 
-				Sprite spr = ent.GetComponent<Sprite>();				
+				UISprite spr = ent.GetComponent<UISprite>();				
 				spr.Image = new ImageInfo( Test.SpriteTexturePath );
 
-				Transform trn = ent.GetComponent<Transform>();
+				UITransform trn = ent.GetComponent<UITransform>();
 
-				trn.Origin = Allignment.Middle;
-				trn.Size = new Vector2f( 200, 200 );
-				trn.Position = window.GetView().Center;
-				
+				trn.Origin   = Allignment.Middle;
+				trn.Size     = new Vector2f( 0.2f, 0.2f );
+				trn.Position = new Vector2f( 0.5f, 0.5f );
 
-				Logger.Log( "Is yellow square displayed on window? (y/n)" );
+				Logger.Log( "Is yellow quad displayed on window? (y/n)" );
 				bool? inp = null;
 
 				while( window.IsOpen && inp == null )
@@ -154,7 +153,7 @@ namespace MiGfx.Test
 				}
 
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Sprite did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: UISprite did not display correctly (user input).", false );
 			}
 
 			return Logger.LogReturn( "Success!", true );

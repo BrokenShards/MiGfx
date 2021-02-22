@@ -27,7 +27,7 @@ namespace MiGfx
 	/// <summary>
 	///   Manages fonts.
 	/// </summary>
-	public class FontManager: AssetManager<Font>
+	public class FontManager : DisposableAssetManager<Font>
 	{
 		/// <summary>
 		///   Constructor.

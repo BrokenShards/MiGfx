@@ -38,6 +38,18 @@ namespace MiGfx
 		///   Default button texture.
 		/// </summary>
 		public static readonly string ButtonTexture = FolderPaths.UI + "Button.png";
+		/// <summary>
+		///   Short button texture.
+		/// </summary>
+		public static readonly string ButtonShort   = FolderPaths.UI + "ButtonShort.png";
+		/// <summary>
+		///   Square button texture.
+		/// </summary>
+		public static readonly string ButtonSquare  = FolderPaths.UI + "ButtonShort.png";
+		/// <summary>
+		///   Thick button texture.
+		/// </summary>
+		public static readonly string ButtonThick   = FolderPaths.UI + "ButtonShort.png";
 	}
 
 	/// <summary>
@@ -269,11 +281,6 @@ namespace MiGfx
 
 			for( int i = 0; i < Data.Length; i++ )
 				Data[ i ] = new ButtonData();
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
-			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( SpriteAnimator ), nameof( CheckBox ),
-													nameof( SpriteArray ),    nameof( TextBox ) };
 		}
 		/// <summary>
 		///  Copy constructor.
@@ -291,11 +298,6 @@ namespace MiGfx
 
 			for( int i = 0; i < Data.Length; i++ )
 				Data[ i ] = new ButtonData( b.Data[ i ] );
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
-			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( SpriteAnimator ), nameof( CheckBox ),
-													nameof( SpriteArray ),    nameof( TextBox ) };
 		}
 
 		/// <summary>
@@ -319,13 +321,13 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Stack == null )
+			if( Parent == null )
 				return;
 
-			Sprite spr = Stack.Get<Sprite>();
-			Texture tex = Assets.Manager.Texture.Get( spr.Image.Path );
+			UISprite spr = Parent.GetComponent<UISprite>();
+			Texture  tex = Assets.Manager.Texture.Get( spr.Image.Path );
 
-			ClickableState state = Stack.Get<Clickable>().ClickState;
+			ClickableState state = Parent.GetComponent<UIClickable>().ClickState;
 			int s = (int)state;
 
 			if( tex != null )
@@ -342,13 +344,32 @@ namespace MiGfx
 
 			spr.Image.Color = Data[ s ].Color;
 
-			if( Stack.Contains<Label>() )
-			{
-				Label lab = Stack.Get<Label>();
+			UILabel lab = Parent.GetComponent<UILabel>();
+			lab.Text    = Data[ s ].Text;
+			lab.Offset  = Data[ s ].TextOffset;
+		}
 
-				lab.Text   = Data[ s ].Text;
-				lab.Offset = Data[ s ].TextOffset;
-			}
+		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( UITransform ), nameof( Selectable ),
+			                      nameof( UIClickable ), nameof( UISprite ), nameof( UILabel ) };
+		}
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( CheckBox ), nameof( FillBar ), nameof( TextBox ),
+								  nameof( UISpriteAnimator ), nameof( UISpriteArray ) };
 		}
 
 		/// <summary>
@@ -508,13 +529,13 @@ namespace MiGfx
 		{
 			MiEntity ent = new MiEntity( id, window );
 
-			if( !ent.Components.AddNew<Button>( true ) )
+			if( !ent.AddComponent( new Button(), true ) )
 			{
 				ent.Dispose();
 				return Logger.LogReturn<MiEntity>( "Failed creating Button entity: Adding Button failed.", null, LogType.Error );
 			}
 
-			Sprite spr = ent.Components.Get<Sprite>();
+			UISprite spr = ent.GetComponent<UISprite>();
 			spr.Image = new ImageInfo( FilePaths.ButtonTexture );
 
 			if( !spr.Image.IsTextureValid )
@@ -523,27 +544,26 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating Button entity: Loading Texture failed.", null, LogType.Error );
 			}
 
-			Vector2u tsize = spr.Image.TextureSize;
-			ent.Components.Get<Transform>().Size = new Vector2f( tsize.X, tsize.Y / 3.0f );
-			ent.Components.Get<Transform>().LockSize = true;
+			if( window != null )
+			{
+				View view = window.GetView();
 
-			foreach( var b in ent.Components.Get<Button>().Data )
+				Vector2u size = spr.Image.TextureSize;
+				size.Y /= 3;
+
+				ent.GetComponent<UITransform>().Size = new Vector2f( size.X / view.Size.X, size.Y / view.Size.Y );
+			}
+
+			foreach( var b in ent.GetComponent<Button>().Data )
 			{
 				b.Text.FillColor = Color.White;
 				b.TextOffset = new Vector2f( 0, -8.0f );
 			}
-			
-			if( !string.IsNullOrEmpty( str ) )
-			{
-				if( !ent.Components.AddNew<Label>() )
-				{
-					ent.Dispose();
-					return Logger.LogReturn<MiEntity>( "Failed creating Button entity: Adding Label failed.", null, LogType.Error );
-				}
 
-				ent.Components.Get<Label>().String = str;
-				ent.Components.Get<Label>().Allign = Allignment.Middle;
-			}
+			UILabel lab = ent.GetComponent<UILabel>();
+
+			lab.String = string.IsNullOrEmpty( str ) ? string.Empty : str;
+			lab.Allign = Allignment.Middle;
 
 			return ent;
 		}

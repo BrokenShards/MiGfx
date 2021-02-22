@@ -50,7 +50,7 @@ namespace MiGfx
 		/// </summary>
 		public TextBoxData()
 		{
-			Image      = new ImageInfo();
+			Color      = Color.White;
 			Text       = new TextStyle();
 			TextOffset = new Vector2f();
 		}
@@ -62,15 +62,15 @@ namespace MiGfx
 		/// </param>
 		public TextBoxData( TextBoxData t )
 		{
-			Image      = new ImageInfo( t.Image );
+			Color      = t.Color;
 			Text       = new TextStyle( t.Text );
 			TextOffset = t.TextOffset;
 		}
 		/// <summary>
-		///   Constructor setting image, text style and text offset.
+		///   Constructor setting image data, text style and text offset.
 		/// </summary>
-		/// <param name="img">
-		///   The image.
+		/// <param name="col">
+		///   The texture color modifier.
 		/// </param>
 		/// <param name="txt">
 		///   The text style.
@@ -78,17 +78,17 @@ namespace MiGfx
 		/// <param name="off">
 		///   The text offset.
 		/// </param>
-		public TextBoxData( ImageInfo img, TextStyle txt = null, Vector2f? off = null )
+		public TextBoxData( Color col, TextStyle txt = null, Vector2f? off = null )
 		{
-			Image      = img ?? new ImageInfo();
+			Color      = col;
 			Text       = txt ?? new TextStyle();
 			TextOffset = off ?? new Vector2f();
 		}
 
 		/// <summary>
-		///   Background image.
+		///   Texture color modifier.
 		/// </summary>
-		public ImageInfo Image { get; set; }
+		public Color Color { get; set; }
 		/// <summary>
 		///   Text style.
 		/// </summary>
@@ -101,30 +101,26 @@ namespace MiGfx
 		/// <summary>
 		///   Attempts to deserialize the object from the stream.
 		/// </summary>
-		/// <param name="sr">
+		/// <param name="br">
 		///   Stream reader.
 		/// </param>
 		/// <returns>
 		///   True if deserialization succeeded and false otherwise.
 		/// </returns>
-		public override bool LoadFromStream( BinaryReader sr )
+		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( sr == null )
+			if( br == null )
 				return Logger.LogReturn( "Cannot load TextBoxData from null stream.", false, LogType.Error );
 
-			if( Image == null )
-				Image = new ImageInfo();
 			if( Text == null )
 				Text = new TextStyle();
-
-			if( !Image.LoadFromStream( sr ) )
-				return Logger.LogReturn( "Failed loading TextBoxData's Image from stream.", false, LogType.Error );
-			if( !Text.LoadFromStream( sr ) )
+			if( !Text.LoadFromStream( br ) )
 				return Logger.LogReturn( "Failed loading TextBoxData's Text from stream.", false, LogType.Error );
 
 			try
 			{
-				TextOffset = new Vector2f( sr.ReadSingle(), sr.ReadSingle() );
+				Color      = new Color( br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() );
+				TextOffset = new Vector2f( br.ReadSingle(), br.ReadSingle() );
 			}
 			catch( Exception e )
 			{
@@ -136,30 +132,26 @@ namespace MiGfx
 		/// <summary>
 		///   Attempts to serialize the object to the stream.
 		/// </summary>
-		/// <param name="sw">
+		/// <param name="bw">
 		///   Stream writer.
 		/// </param>
 		/// <returns>
 		///   True if serialization succeeded and false otherwise.
 		/// </returns>
-		public override bool SaveToStream( BinaryWriter sw )
+		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( sw == null )
+			if( bw == null )
 				return Logger.LogReturn( "Cannot save TextBoxData to null stream.", false, LogType.Error );
 
-			if( Image == null )
-				Image = new ImageInfo();
 			if( Text == null )
 				Text = new TextStyle();
-
-			if( !Image.SaveToStream( sw ) )
-				return Logger.LogReturn( "Failed saving TextBoxData's Image to stream.", false, LogType.Error );
-			if( !Text.SaveToStream( sw ) )
+			if( !Text.SaveToStream( bw ) )
 				return Logger.LogReturn( "Failed saving TextBoxData's Text to stream.", false, LogType.Error );
 
 			try
 			{
-				sw.Write( TextOffset.X ); sw.Write( TextOffset.Y );
+				bw.Write( Color.R ); bw.Write( Color.G ); bw.Write( Color.B ); bw.Write( Color.A );
+				bw.Write( TextOffset.X ); bw.Write( TextOffset.Y );
 			}
 			catch( Exception e )
 			{
@@ -168,7 +160,6 @@ namespace MiGfx
 
 			return true;
 		}
-
 		/// <summary>
 		///   Attempts to load the object from the xml element.
 		/// </summary>
@@ -183,24 +174,27 @@ namespace MiGfx
 			if( element == null )
 				return Logger.LogReturn( "Cannot load TextBoxData from a null xml element.", false, LogType.Error );
 
-			XmlElement img = element[ nameof( ImageInfo ) ],
-					   txt = element[ nameof( TextStyle ) ],
-					   off = element[ nameof( TextOffset ) ];
+			XmlElement color = element[ nameof( Color ) ],
+					   txt   = element[ nameof( TextStyle ) ],
+					   off   = element[ nameof( TextOffset ) ];
 
-			if( img == null )
-				return Logger.LogReturn( "Failed loading TextBoxData: No ImageInfo xml element.", false, LogType.Error );
 			if( txt == null )
 				return Logger.LogReturn( "Failed loading TextBoxData: No TextStyle xml element.", false, LogType.Error );
 			if( off == null )
 				return Logger.LogReturn( "Failed loading TextBoxData: No TextOffset xml element.", false, LogType.Error );
 
-			Image = new ImageInfo();
+			Color? col = color != null ? Xml.ToColor( color ) : null;
+
+			if( color != null && !col.HasValue )
+				return Logger.LogReturn( "Failed loading TextBoxData: Unable to parse Color element.", false, LogType.Error );
+			else if( color == null )
+				col = Color.White;
+
+			Color = col.Value;
 			Text  = new TextStyle();
 
 			Vector2f? o = Xml.ToVec2f( off );
 
-			if( !Image.LoadFromXml( img ) )
-				return Logger.LogReturn( "Failed loading TextBoxData: Loading ImageInfo failed.", false, LogType.Error );
 			if( !Text.LoadFromXml( txt ) )
 				return Logger.LogReturn( "Failed loading TextBoxData: Loading TextStyle failed.", false, LogType.Error );
 			if( !o.HasValue )
@@ -221,13 +215,17 @@ namespace MiGfx
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendLine( "<" + nameof( TextBoxData ) + ">" );
+			sb.Append( "<" );
+			sb.Append( nameof( TextBoxData ) );
+			sb.AppendLine( ">" );
 
-			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
+			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
 			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
 			sb.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) );
 
-			sb.AppendLine( "</" + nameof( TextBoxData ) + ">" );
+			sb.Append( "</" );
+			sb.Append( nameof( TextBoxData ) );
+			sb.AppendLine( ">" );
 
 			return sb.ToString();
 		}
@@ -244,7 +242,7 @@ namespace MiGfx
 		public bool Equals( TextBoxData other )
 		{
 			return other != null &&
-				   Image.Equals( other.Image ) &&
+				   Color.Equals( other.Color ) &&
 				   Text.Equals( other.Text ) &&
 				   TextOffset.Equals( other.TextOffset );
 		}
@@ -262,12 +260,6 @@ namespace MiGfx
 		{
 			SelectedData   = new TextBoxData();
 			DeselectedData = new TextBoxData();
-
-			RequiredComponents     = new string[] { nameof( Transform ),  nameof( Sprite ),
-			                                        nameof( Label ),      nameof( TextListener ),
-			                                        nameof( Selectable ), nameof( Clickable ) };
-			IncompatibleComponents = new string[] { nameof( Button ),     nameof( SpriteAnimator ),
-													nameof( CheckBox ),   nameof( FillBar ) };
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -280,12 +272,6 @@ namespace MiGfx
 		{
 			SelectedData   = new TextBoxData( b.SelectedData );
 			DeselectedData = new TextBoxData( b.DeselectedData );
-
-			RequiredComponents     = new string[] { nameof( Transform ),  nameof( Sprite ),
-			                                        nameof( Label ),      nameof( TextListener ),
-			                                        nameof( Selectable ), nameof( Clickable ) };
-			IncompatibleComponents = new string[] { nameof( Button ),     nameof( SpriteAnimator ),
-													nameof( CheckBox ) };
 		}
 		/// <summary>
 		///   Constructs a text box with selected and/or deselected data.
@@ -300,12 +286,6 @@ namespace MiGfx
 		{
 			SelectedData   = s ?? new TextBoxData();
 			DeselectedData = d ?? new TextBoxData( SelectedData );
-
-			RequiredComponents     = new string[] { nameof( Transform ),  nameof( Sprite ),
-			                                        nameof( Label ),      nameof( TextListener ),
-			                                        nameof( Selectable ), nameof( Clickable ) };
-			IncompatibleComponents = new string[] { nameof( Button ),     nameof( SpriteAnimator ),
-													nameof( CheckBox ) };
 		}
 
 		/// <summary>
@@ -333,11 +313,34 @@ namespace MiGfx
 		/// </param>
 		public void SetString( string str )
 		{
-			if( Stack == null )
+			if( Parent == null )
 				return;
 
-			Stack.Get<Label>().String             = new string( str.ToCharArray() );
-			Stack.Get<TextListener>().EnteredText = new string( str.ToCharArray() );
+			Parent.GetComponent<UILabel>().String           = new string( str.ToCharArray() );
+			Parent.GetComponent<TextListener>().EnteredText = new string( str.ToCharArray() );
+		}
+
+		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( UITransform ), nameof( Selectable ), nameof( UIClickable ),
+			                      nameof( TextListener ), nameof( UISprite ), nameof( UILabel ) };
+		}
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( Button ), nameof( UISpriteAnimator ), nameof( CheckBox ),
+			                      nameof( FillBar ), nameof( UISpriteArray ), };
 		}
 
 		/// <summary>
@@ -350,16 +353,34 @@ namespace MiGfx
 		{
 			CorrectData();
 
-			if( Stack == null )
+			if( Parent == null )
 				return;
 
-			Label       lab  = Stack.Get<Label>();
-			TextBoxData data = Stack.Get<Selectable>().Selected ? SelectedData : DeselectedData;
+			bool selected = Parent.GetComponent<Selectable>().Selected;
 
-			Stack.Get<Sprite>().Image = data.Image;
-			lab.Text                  = data.Text;
-			lab.Offset                = data.TextOffset;
-			lab.String                = Stack.Get<TextListener>().EnteredText;
+			UISprite    spr  = Parent.GetComponent<UISprite>();
+			UILabel     lab  = Parent.GetComponent<UILabel>();
+			TextBoxData data = selected ? SelectedData : DeselectedData;
+
+			spr.Image.Color = data.Color;
+			lab.Text        = data.Text;
+			lab.Offset      = data.TextOffset;
+			lab.String      = Parent.GetComponent<TextListener>().EnteredText;
+
+			Texture tex = Assets.Manager.Texture.Get( spr.Image.Path );
+
+			if( tex != null )
+			{
+				Vector2u size = tex.Size;
+				bool newline = Parent.GetComponent<TextListener>().AllowNewline;
+
+				FloatRect idle = newline ? new FloatRect( 0, size.Y / 3u,     size.X, size.Y / 3u )
+				                         : new FloatRect( 0, 0,               size.X, size.Y / 6u ),
+						  sele = newline ? new FloatRect( 0, size.Y / 3u * 2, size.X, size.Y / 3u )
+						                 : new FloatRect( 0, size.Y / 6u,     size.X, size.Y / 6u );
+
+				spr.Image.Rect = selected ? sele : idle;
+			}
 		}
 
 		/// <summary>
@@ -510,8 +531,6 @@ namespace MiGfx
 				SelectedData = new TextBoxData();
 			else
 			{
-				if( SelectedData.Image == null )
-					SelectedData.Image = new ImageInfo();
 				if( SelectedData.Text == null )
 					SelectedData.Text = new TextStyle();
 			}
@@ -519,8 +538,6 @@ namespace MiGfx
 				DeselectedData = new TextBoxData( SelectedData );
 			else
 			{
-				if( DeselectedData.Image == null )
-					DeselectedData.Image = new ImageInfo( SelectedData.Image );
 				if( DeselectedData.Text == null )
 					DeselectedData.Text = new TextStyle( SelectedData.Text );
 			}
@@ -545,33 +562,69 @@ namespace MiGfx
 		public static MiEntity Create( string id, RenderWindow window = null, Allignment allign = default, bool multi = false )
 		{
 			MiEntity ent = new MiEntity( id, window );
-			ent.Components.AddNew<TextBox>();	
-
-			Texture tex = Assets.Manager.Texture.Get( FilePaths.TextBoxTexture );
-
-			if( tex == null )
-				return null;
-
-			ent.Components.Get<Label>().Allign = allign;
-			ent.Components.Get<TextListener>().AllowNewline = multi;
-
-			Vector2u size = tex.Size;
-
-			ent.Components.Get<Transform>().Size = new Vector2f( size.X, multi ? size.Y / 3u : size.Y / 6u );
 			
-			ImageInfo si = new ImageInfo( FilePaths.TextBoxTexture, new FloatRect( 0, 0,               size.X, size.Y / 6u ) );
-			ImageInfo ss = new ImageInfo( FilePaths.TextBoxTexture, new FloatRect( 0, size.Y / 6u,     size.X, size.Y / 6u ) );
-			ImageInfo mi = new ImageInfo( FilePaths.TextBoxTexture, new FloatRect( 0, size.Y / 3u,     size.X, size.Y / 3u ) );
-			ImageInfo ms = new ImageInfo( FilePaths.TextBoxTexture, new FloatRect( 0, size.Y / 3u * 2, size.X, size.Y / 3u ) );
+			if( !ent.AddNewComponent<TextBox>() )
+			{
+				ent.Dispose();
+				return Logger.LogReturn<MiEntity>( "Failed creating TextBox entity: Adding TextBox failed.", null, LogType.Error );
+			}
 
-			TextStyle t = new TextStyle( FilePaths.DefaultFont, 36, 0, Color.White );
+			UISprite spr = ent.GetComponent<UISprite>();
+			spr.Image = new ImageInfo( FilePaths.TextBoxTexture );
 
-			Vector2f off = new Vector2f( 0, -8.0f );
+			if( !spr.Image.IsTextureValid )
+			{
+				ent.Dispose();
+				return Logger.LogReturn<MiEntity>( "Failed creating TextBox entity: Loading Texture failed.", null, LogType.Error );
+			}
 
-			TextBox box = ent.Components.Get<TextBox>();
+			ent.GetComponent<UILabel>().Allign = allign;
+			ent.GetComponent<TextListener>().AllowNewline = multi;
 
-			box.SelectedData   = new TextBoxData( multi ? ms : ss, new TextStyle( t ), off );
-			box.DeselectedData = new TextBoxData( multi ? mi : si, new TextStyle( t ), off );
+			Vector2u size = spr.Image.TextureSize;
+			View view = window.GetView();
+
+			ent.GetComponent<UITransform>().Size = new Vector2f( size.X / view.Size.X, ( multi ? size.Y / 3u : size.Y / 6u ) / view.Size.Y );
+
+			Vector2f off = new Vector2f();
+
+			switch( allign )
+			{
+				case Allignment.TopLeft:
+					off = new Vector2f(  12,  8 );
+					break;
+				case Allignment.Top:
+					off = new Vector2f(   0,  8 );
+					break;
+				case Allignment.TopRight:
+					off = new Vector2f( -12,  8 );
+					break;
+
+				case Allignment.Left:
+					off = new Vector2f(  12,  0 );
+					break;
+				case Allignment.Middle:
+					off = new Vector2f();
+					break;
+				case Allignment.Right:
+					off = new Vector2f( -12,  0 );
+					break;
+
+				case Allignment.BottomLeft:
+					off = new Vector2f(  12, -8 );
+					break;
+				case Allignment.Bottom:
+					off = new Vector2f(   0, -8 );
+					break;
+				case Allignment.BottomRight:
+					off = new Vector2f( -12, -8 );
+					break;
+			}
+
+			TextBox box = ent.GetComponent<TextBox>();
+
+			box.SelectedData   = new TextBoxData( Color.White, new TextStyle( FilePaths.DefaultFont, 36, 0, Color.White ), off );
+			box.DeselectedData = new TextBoxData( Color.White, new TextStyle( FilePaths.DefaultFont, 36, 0, Color.White ), off );
 
 			return ent;
 		}

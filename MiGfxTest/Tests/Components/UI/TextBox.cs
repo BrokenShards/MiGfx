@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// Button.cs 
+// TextBox.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -29,64 +29,75 @@ using MiInput;
 
 namespace MiGfx.Test
 {
-	public class ButtonTest : VisualTestModule
+	public class TextBoxTest : VisualTestModule
 	{
-		const string ButtonPath = "button.bin";
+		const string TextBoxPath = "text_box.bin";
 
 		protected override bool OnTest()
 		{
-			Logger.Log( "Running Button Tests..." );
+			Logger.Log( "Running TextBox Tests..." );
 
-			Button b1 = new Button();
+			TextBox t1 = new TextBox( new TextBoxData() );
 
-			if( !BinarySerializable.ToFile( b1, ButtonPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize Button to file.", false );
+			if( !BinarySerializable.ToFile( t1, TextBoxPath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize TextBox to file.", false );
 
-			Button b2 = BinarySerializable.FromFile<Button>( ButtonPath );
+			TextBox t2 = BinarySerializable.FromFile<TextBox>( TextBoxPath );
 
 			try
 			{
-				File.Delete( ButtonPath );
+				File.Delete( TextBoxPath );
 			}
 			catch
 			{ }
 
-			if( b2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Button from file.", false );
-			if( !b2.Equals( b1 ) )
-				return Logger.LogReturn( "Failed: Deserialized Button has incorrect values.", false );
+			if( t2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize TextBox from file.", false );
+			if( !t2.Equals( t1 ) )
+				return Logger.LogReturn( "Failed: Deserialized TextBox has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + b1.ToString();
-			Button x = XmlLoadable.FromXml<Button>( xml );
+			string xml = Xml.Header + "\r\n" + t1.ToString();
+			TextBox x = XmlLoadable.FromXml<TextBox>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load Button from xml.", false );
+				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
+			if( !x.Equals( t1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
 
-			if( !x.Equals( b1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded Button has incorrect values.", false );
-
-			b1.Dispose();
-			b2.Dispose();
+			t1.Dispose();
+			t2.Dispose();
 			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running Button Visual Tests..." );
+			Logger.Log( "Running TextBox Visual Tests..." );
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = Button.Create( "tester", window, "Test Button" );
+			MiEntity ent = TextBox.Create( "tester", window, Allignment.Middle, false );
 
 			if( ent == null )
-				return Logger.LogReturn( "Failed: Unable to create button.", false );
+				return Logger.LogReturn( "Failed: Unable to create TextBox.", false );
 
 			using( ent )
 			{
-				ent.Components.Get<Transform>().Center = window.GetView().Center;
+				void OnTextEntered( object sender, SFML.Window.TextEventArgs e )
+				{
+					ent?.TextEntered( e );
+				}
 
-				Logger.Log( "Is button displayed on window? (y/n)" );
+				window.TextEntered += OnTextEntered;
+
+				View view = window.GetView();
+				UITransform trn = ent.GetComponent<UITransform>();
+
+				trn.Origin   = Allignment.Middle;
+				trn.Position = new Vector2f( 0.5f, 0.5f );
+				ent.GetComponent<TextBox>().SetString( "Testing text box." );
+
+				Logger.Log( "Is textbox displayed on window? (y/n)" );
 				bool? inp = null;
 
 				while( window.IsOpen && inp == null )
@@ -106,8 +117,10 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
+				window.TextEntered -= OnTextEntered;
+
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Button did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: TextBox did not display correctly (user input).", false );
 			}
 
 			return Logger.LogReturn( "Success!", true );

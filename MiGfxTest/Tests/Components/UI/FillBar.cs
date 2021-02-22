@@ -85,7 +85,10 @@ namespace MiGfx.Test
 
 			using( ent )
 			{
-				ent.Components.Get<Transform>().Center = window.GetView().Center;				
+				UITransform tran = ent.GetComponent<UITransform>();
+
+				tran.Origin   = Allignment.Middle; 
+				tran.Position = new Vector2f( 0.5f, 0.5f );
 
 				Logger.Log( "Is FillBar displayed on window? (y/n)" );
 				bool? inp = null;
@@ -98,9 +101,9 @@ namespace MiGfx.Test
 					ent.Update( 1.0f );
 
 					if( Input.Manager.Keyboard.JustPressed( "Right" ) )
-						ent.Components.Get<FillBar>().Value += 250;
+						ent.GetComponent<FillBar>().Value += 250;
 					else if( Input.Manager.Keyboard.JustPressed( "Left" ) )
-						ent.Components.Get<FillBar>().Value -= 250;
+						ent.GetComponent<FillBar>().Value -= 250;
 
 					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
 						inp = true;

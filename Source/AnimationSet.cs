@@ -34,14 +34,14 @@ namespace MiGfx
 	/// <summary>
 	///   A set of string indexed animations.
 	/// </summary>
-	public class AnimationSet : BinarySerializable, IXmlLoadable, IEnumerable<KeyValuePair<string, Animation>>, IEquatable<AnimationSet>
+	public class AnimationSet : BinarySerializable, IXmlLoadable, IEnumerable<string>, IEquatable<AnimationSet>
 	{
 		/// <summary>
 		///   Constructor.
 		/// </summary>
 		public AnimationSet()
 		{
-			m_animap = new Dictionary<string, Animation>();
+			m_anims = new List<string>();
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -54,25 +54,25 @@ namespace MiGfx
 			if( a == null )
 				throw new ArgumentNullException();
 
-			m_animap = new Dictionary<string, Animation>( a.Count );
+			m_anims = new List<string>( a.Count );
 
-			foreach( var v in m_animap )
-				Add( new Animation( v.Value ) );
+			foreach( var v in m_anims )
+				Add( new string( v.ToCharArray() ) );
 		}
 
 		/// <summary>
-		///   Animation accessor.
+		///   Access the animation ID at the given index.
 		/// </summary>
-		/// <param name="id">
-		///   The ID of the animation to access.
+		/// <param name="index">
+		///   The index of the animation to access.
 		/// </param>
 		/// <returns>
-		///   The animation with the given ID
+		///   The ID of the animation at the given index.
 		/// </returns>
-		public Animation this[ string id ]
+		public string this[ int index ]
 		{
-			get { return Get( id ); }
-			set { if( !Set( value ) ) throw new ArgumentException( "Unable to set animation." ); }
+			get { return Get( index ); }
+			set { if( !Set( index, value ) ) throw new ArgumentException( "Failed setting animation." ); }
 		}
 
 		/// <summary>
@@ -87,7 +87,7 @@ namespace MiGfx
 		/// </summary>
 		public int Count
 		{
-			get { return m_animap.Count; }
+			get { return m_anims.Count; }
 		}
 
 		/// <summary>
@@ -97,81 +97,110 @@ namespace MiGfx
 		///   The animation ID.
 		/// </param>
 		/// <returns>
-		///   True if the set contains an animation with the given ID and false
-		///   otherwise.
+		///   True if the set contains an animation with the given ID, otherwise false.
 		/// </returns>
 		public bool Contains( string id )
 		{
 			if( string.IsNullOrWhiteSpace( id ) )
 				return false;
 
-			return m_animap.ContainsKey( id.ToLower() );
+			return m_anims.Contains( id.ToLower() );
 		}
 
 		/// <summary>
-		///   Gets the animation from the set with the given ID.
+		///   Retrieves the animation from the database with the ID at the given index.
 		/// </summary>
-		/// <param name="id">
-		///   The animation ID.
-		/// </param>
-		/// <returns>
-		///   The animation from the set with the given ID or null if it does
-		///   not exist.
-		/// </returns>
-		public Animation Get( string id )
+		/// <param name="index"></param>
+		/// <returns></returns>
+		public Animation GetAnimation( int index )
 		{
-			if( !Contains( id ) )
+			if( !DatabaseManager.Instance.Load<AnimationDB, Animation>() ||
+				index < 0 || index >= Count )
 				return null;
 
-			return m_animap[ id.ToLower() ];
+			return DatabaseManager.Instance.Get<AnimationDB, Animation>().Get( m_anims[ index ] );
 		}
+
 		/// <summary>
-		///   Replaces an existing animation with the given ID with a new one.
+		///   Gets the animation ID at the given index.
 		/// </summary>
-		/// <param name="anim">
-		///   The new animation.
+		/// <param name="index">
+		///   The animation index.
 		/// </param>
 		/// <returns>
-		///   True if an animation with the given ID exists in the set and was
-		///   replaced successfully.
+		///   The animation ID at the given index or null if the index is out of range.
 		/// </returns>
-		public bool Set( Animation anim )
+		public string Get( int index )
 		{
-			if( anim == null || !Contains( anim.ID ) )
+			if( index < 0 || index >= Count )
+				return null;
+
+			return m_anims[ index ];
+		}
+		/// <summary>
+		///   Replaces an existing animation ID.
+		/// </summary>
+		/// <remarks>
+		///   If setting an animation ID that already exists at a different index, the old ID will
+		///   be removed after setting.
+		/// </remarks>
+		/// <param name="index">
+		///   The animation index.
+		/// </param>
+		/// <param name="anim">
+		///   The new animation ID.
+		/// </param>
+		/// <returns>
+		///   True if index is within range and the animation ID was set, otherwise false.
+		/// </returns>
+		public bool Set( int index, string anim )
+		{
+			if( index < 0 || index >= Count || !Identifiable.IsValid( anim ) )
 				return false;
 
-			m_animap[ anim.ID.ToLower() ] = anim;
+			int i = IndexOf( anim );
+			m_anims[ index ] = anim.ToLower();
+
+			if( i >= 0 && i != index )
+				Remove( index );
+
 			return true;
 		}
 		/// <summary>
-		///   Adds an animation to the set, optionally replacing an existing
-		///   animation with the same ID.
+		///   Adds an animation by ID to the set.
 		/// </summary>
 		/// <param name="anim">
-		///   The animation to add.
-		/// </param>
-		/// <param name="replace">
-		///   If an animation already exists with the same ID, should it be
-		///   replaced?
+		///   The animation ID to add.
 		/// </param>
 		/// <returns>
-		///   True if the animation was successfully added to the set and
-		///   false otherwise.
+		///   True if the animation ID was either already in the set or it was successfully added,
+		///   otherwise false.
 		/// </returns>
-		public bool Add( Animation anim, bool replace = false )
+		public bool Add( string anim )
 		{
-			if( anim == null )
+			if( !Identifiable.IsValid( anim ) )
 				return false;
 
-			if( Contains( anim.ID ) )
-			{
-				if( !replace )
-					return false;
-
-				return Set( anim );
-			}
+			if( !Contains( anim ) )
+				m_anims.Add( anim.ToLower() );			
 			
-			m_animap.Add( anim.ID.ToLower(), anim );
+			return true;
+		}
+		/// <summary>
+		///   Removes the animation ID from the given index.
+		/// </summary>
+		/// <param name="index">
+		///   The index of the animation ID.
+		/// </param>
+		/// <returns>
+		///   True if index is within range and the animation ID was removed, otherwise false.
+		/// </returns>
+		public bool Remove( int index )
+		{
+			if( index < 0 || index >= Count )
+				return false;
+
+			m_anims.RemoveAt( index );
 			return true;
 		}
 		/// <summary>
@@ -181,22 +210,41 @@ namespace MiGfx
 		///   The name of the animation to remove.
 		/// </param>
 		/// <returns>
-		///   True if an animation existed with the given ID and was removed
-		///   successfully, otherwise false.
+		///   True if an animation existed with the given ID and was removed successfully, otherwise
+		///   false.
 		/// </returns>
 		public bool Remove( string name )
 		{
 			if( string.IsNullOrWhiteSpace( name ) )
 				return false;
 
-			return m_animap.Remove( name.ToLower() );
+			return m_anims.Remove( name.ToLower() );
 		}
 		/// <summary>
 		///   Removes all animations from the set.
 		/// </summary>
 		public void RemoveAll()
 		{
-			m_animap.Clear();
+			m_anims.Clear();
+		}
+
+		/// <summary>
+		///   Gets the index of the animation ID.
+		/// </summary>
+		/// <param name="anim">
+		///   The animation ID.
+		/// </param>
+		/// <returns>
+		///   The index of the animation ID or -1 if 
+		/// </returns>
+		public int IndexOf( string anim )
+		{
+			if( Identifiable.IsValid( anim ) )
+				for( int i = 0; i < Count; i++ )
+					if( m_anims[ i ].ToLower().Equals( anim.ToLower() ) )
+						return i;
+
+			return -1;
 		}
 
 		/// <summary>
@@ -205,9 +253,9 @@ namespace MiGfx
 		/// <returns>
 		///   An enumerator that can enumerate over the collection.
 		/// </returns>
-		public IEnumerator<KeyValuePair<string, Animation>> GetEnumerator()
+		public IEnumerator<string> GetEnumerator()
 		{
-			return ( (IEnumerable<KeyValuePair<string, Animation>>)m_animap ).GetEnumerator();
+			return ( (IEnumerable<string>)m_anims ).GetEnumerator();
 		}
 		/// <summary>
 		///   Gets an enumerator that can enumerate over the collection.
@@ -217,7 +265,7 @@ namespace MiGfx
 		/// </returns>
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return ( (IEnumerable<KeyValuePair<string, Animation>>)m_animap ).GetEnumerator();
+			return ( (IEnumerable<string>)m_anims ).GetEnumerator();
 		}
 
 		/// <summary>
@@ -239,14 +287,8 @@ namespace MiGfx
 				uint len = br.ReadUInt32();
 
 				for( int i = 0; i < len; i++ )
-				{
-					Animation anim = new Animation();
-
-					if( !anim.LoadFromStream( br ) )
-						return Logger.LogReturn( "Failed loading AnimationSet's Animation from stream.", false, LogType.Error );
-					if( !Add( anim ) )
-						return Logger.LogReturn( "Failed adding Animation to AnimationSet loaded from stream.", false, LogType.Error );
-				}
+					if( !Add( br.ReadString() ) )
+						return Logger.LogReturn( "Failed adding Animation ID to AnimationSet loaded from stream.", false, LogType.Error );
 			}
 			catch( Exception e )
 			{
@@ -275,9 +317,8 @@ namespace MiGfx
 			{
 				bw.Write( (uint)Count );
 
-				foreach( var v in m_animap )
-					if( !v.Value.SaveToStream( bw ) )
-						return Logger.LogReturn( "Failed saving AnimationSet's Animation to stream.", false, LogType.Error );
+				foreach( var v in m_anims )
+					bw.Write( v );
 			}
 			catch( Exception e )
 			{
@@ -308,14 +349,8 @@ namespace MiGfx
 				XmlNodeList anims = element.SelectNodes( nameof( Animation ) );
 
 				foreach( XmlNode f in anims )
-				{
-					Animation a = new Animation();
-
-					if( !a.LoadFromXml( (XmlElement)f ) )
-						return Logger.LogReturn( "Failed loading AnimationSet's Animation from xml.", false, LogType.Error );
-					if( !Add( a, true ) )
-						return Logger.LogReturn( "Failed adding Animation to AnimationSet loaded from xml.", false, LogType.Error );
-				}
+					if( !Add( f.InnerText.Trim() ) )
+						return Logger.LogReturn( "Failed adding Animation ID to AnimationSet loaded from xml.", false, LogType.Error );
 			}
 			catch( Exception e )
 			{
@@ -339,8 +374,16 @@ namespace MiGfx
 			sb.Append( nameof( AnimationSet ) );
 			sb.AppendLine( ">" );
 
-			foreach( var a in m_animap )
-				sb.AppendLine( XmlLoadable.ToString( a.Value, 1 ) );
+			foreach( var a in m_anims )
+			{
+				sb.Append( "\t<" );
+				sb.Append( nameof( Animation ) );
+				sb.Append( ">" );				
+				sb.Append( a );
+				sb.Append( "</" );
+				sb.Append( nameof( Animation ) );
+				sb.AppendLine( ">" );
+			}
 
 			sb.Append( "</" );
 			sb.Append( nameof( AnimationSet ) );
@@ -363,13 +406,13 @@ namespace MiGfx
 			if( other == null || Count != other.Count )
 				return false;
 
-			foreach( var v in m_animap )
-				if( !other.Contains( v.Key ) || !m_animap[ v.Key ].Equals( other.m_animap[ v.Key ] ) )
+			for( int i = 0; i < Count; i++ )
+				if( !m_anims[ i ].Equals( other.m_anims[ i ] ) )
 					return false;
 
 			return true;
 		}
 
-		private Dictionary<string, Animation> m_animap;
+		private List<string> m_anims;
 	}
 }

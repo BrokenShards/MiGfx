@@ -37,19 +37,29 @@ namespace MiGfx
 		/// </returns>
 		public static bool Register()
 		{
-			return ComponentRegister.Manager.Register<Button>() &&
-			       ComponentRegister.Manager.Register<CheckBox>() &&
+			return ComponentRegister.Manager.Register<BoxCollider>() &&
+			       ComponentRegister.Manager.Register<CircleCollider>() &&
+
 				   ComponentRegister.Manager.Register<Clickable>() &&
-				   ComponentRegister.Manager.Register<FillBar>() &&
 				   ComponentRegister.Manager.Register<Label>() &&
 				   ComponentRegister.Manager.Register<Selectable>() &&
 				   ComponentRegister.Manager.Register<Selector>() &&
 				   ComponentRegister.Manager.Register<Sprite>() &&
 				   ComponentRegister.Manager.Register<SpriteAnimator>() &&
 				   ComponentRegister.Manager.Register<SpriteArray>() &&
-				   ComponentRegister.Manager.Register<TextBox>() &&
 				   ComponentRegister.Manager.Register<TextListener>() &&
-				   ComponentRegister.Manager.Register<Transform>();
+				   ComponentRegister.Manager.Register<Transform>() &&
+
+				   ComponentRegister.Manager.Register<Button>() &&
+				   ComponentRegister.Manager.Register<CheckBox>() &&
+				   ComponentRegister.Manager.Register<FillBar>() &&
+				   ComponentRegister.Manager.Register<TextBox>() &&
+				   ComponentRegister.Manager.Register<UIClickable>() &&
+				   ComponentRegister.Manager.Register<UILabel>() &&
+				   ComponentRegister.Manager.Register<UISprite>() &&
+				   ComponentRegister.Manager.Register<UISpriteAnimator>() &&
+				   ComponentRegister.Manager.Register<UISpriteArray>() &&
+				   ComponentRegister.Manager.Register<UITransform>();
 		}
 	}
 }

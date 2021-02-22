@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// SpriteAnimator.cs 
+// UISpriteAnimator.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -28,49 +28,49 @@ using SFML.System;
 
 namespace MiGfx.Test
 {
-	public class SpriteAnimatorTest : VisualTestModule
+	public class UISpriteAnimatorTest : VisualTestModule
 	{
-		const string AnimatorPath = "animator.bin";
+		const string UIAnimatorPath = "uianimator.bin";
 
 		protected override bool OnTest()
 		{
 			if( !TestDB.CreateAnimations() )
-				return Logger.LogReturn( "Failed creating test animations, skipping SpriteAnimator Tests...", false );
+				return Logger.LogReturn( "Failed creating test animations, skipping UISpriteAnimator Tests...", false );
 
-			Logger.Log( "Running SpriteAnimator Tests..." );
+			Logger.Log( "Running UISpriteAnimator Tests..." );
 
 			AnimationDB db = DatabaseManager.Instance.Get<AnimationDB, Animation>();
 
-			SpriteAnimator a1 = new SpriteAnimator();
+			UISpriteAnimator a1 = new UISpriteAnimator();
 
 			foreach( var v in db )
 				if( !a1.Animations.Add( v.Key ) )
 					return Logger.LogReturn( "Failed: Unable to add Animation ID to AnimationSet.", false );
 
-			if( !BinarySerializable.ToFile( a1, AnimatorPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize SpriteAnimator to file.", false );
+			if( !BinarySerializable.ToFile( a1, UIAnimatorPath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize UISpriteAnimator to file.", false );
 
-			SpriteAnimator a2 = BinarySerializable.FromFile<SpriteAnimator>( AnimatorPath );
+			UISpriteAnimator a2 = BinarySerializable.FromFile<UISpriteAnimator>( UIAnimatorPath );
 
 			try
 			{
-				File.Delete( AnimatorPath );
+				File.Delete( UIAnimatorPath );
 			}
 			catch
 			{ }
 
 			if( a2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize SpriteAnimator from file.", false );
+				return Logger.LogReturn( "Failed: Unable to deserialize UISpriteAnimator from file.", false );
 			if( !a2.Equals( a1 ) )
-				return Logger.LogReturn( "Failed: Deserialized SpriteAnimator has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Deserialized UISpriteAnimator has incorrect values.", false );
 
 			string xml = Xml.Header + "\r\n" + a1.ToString();
-			SpriteAnimator x = XmlLoadable.FromXml<SpriteAnimator>( xml );
+			UISpriteAnimator x = XmlLoadable.FromXml<UISpriteAnimator>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load SpriteAnimator from xml.", false );
+				return Logger.LogReturn( "Failed: Unable to load UISpriteAnimator from xml.", false );
 			if( !x.Equals( a1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded SpriteAnimator has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Xml loaded UISpriteAnimator has incorrect values.", false );
 
 			a1?.Dispose();
 			a2?.Dispose();
@@ -80,20 +80,20 @@ namespace MiGfx.Test
 		}
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running SpriteAnimator Visual Tests..." );
+			Logger.Log( "Running UISpriteAnimator Visual Tests..." );
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
 			using( MiEntity ent = new MiEntity( "tester", window ) )
 			{
-				if( !ent.AddNewComponent<SpriteAnimator>() )
-					return Logger.LogReturn( "Failed: Unable to add SpriteAnimator to test entity.", false );
+				if( !ent.AddNewComponent<UISpriteAnimator>() )
+					return Logger.LogReturn( "Failed: Unable to add UISpriteAnimator to test entity.", false );
 
-				AnimationDB    db   = DatabaseManager.Instance.Get<AnimationDB, Animation>();
-				Transform      trn  = ent.GetComponent<Transform>();
-				Sprite         spr  = ent.GetComponent<Sprite>();
-				SpriteAnimator anim = ent.GetComponent<SpriteAnimator>();
+				AnimationDB      db   = DatabaseManager.Instance.Get<AnimationDB, Animation>();
+				UITransform      trn  = ent.GetComponent<UITransform>();
+				UISprite         spr  = ent.GetComponent<UISprite>();
+				UISpriteAnimator anim = ent.GetComponent<UISpriteAnimator>();
 
 				spr.Image = new ImageInfo( Test.AnimationTexturePath );
 
@@ -105,8 +105,8 @@ namespace MiGfx.Test
 				Vector2u texsize = tex.Size;
 
 				trn.Origin   = Allignment.Middle;
-				trn.Size     = new Vector2f( 200, 200 );
-				trn.Position = window.GetView().Center;
+				trn.Size     = new Vector2f( 0.4f, 0.4f );
+				trn.Position = new Vector2f( 0.5f, 0.5f );
 
 				foreach( var v in db )
 					if( !anim.Animations.Add( v.Key ) )
@@ -136,7 +136,7 @@ namespace MiGfx.Test
 				}
 
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: SpriteAnimator did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: UISpriteAnimator did not display correctly (user input).", false );
 			}
 
 			return Logger.LogReturn( "Success!", true );

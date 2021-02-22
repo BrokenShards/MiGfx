@@ -29,45 +29,6 @@ using MiCore;
 namespace MiGfx
 {
 	/// <summary>
-	///   Contains path related functionality.
-	/// </summary>
-	public static class Paths
-	{
-		/// <summary>
-		///   Swaps path seperator character '/' with '\\' like in windows paths.
-		/// </summary>
-		/// <param name="path">
-		///   The path.
-		/// </param>
-		/// <returns>
-		///   The path with the seperator character '/' replaced with '\\'.
-		/// </returns>
-		public static string ToWindows( string path )
-		{
-			if( string.IsNullOrWhiteSpace( path ) )
-				return path;
-
-			return path.Replace( '/', '\\' );
-		}
-		/// <summary>
-		///   Swaps path seperator character '\\' with '/' like in non windows paths.
-		/// </summary>
-		/// <param name="path">
-		///   The path.
-		/// </param>
-		/// <returns>
-		///   The path with the seperator character '\\' replaced with '/'.
-		/// </returns>
-		public static string FromWindows( string path )
-		{
-			if( string.IsNullOrWhiteSpace( path ) )
-				return path;
-
-			return path.Replace( '\\', '/' );
-		}
-	}
-
-	/// <summary>
 	///   Contains folder paths.
 	/// </summary>
 	public static class FolderPaths
@@ -140,7 +101,7 @@ namespace MiGfx
 		/// <summary>
 		///   Settings folder.
 		/// </summary>
-		public static readonly string Settings  = Executable + "\\Settings\\";
+		public static readonly string Settings = Executable + "\\Settings\\";
 
 		/// <summary>
 		///   Game data folder.
@@ -199,5 +160,34 @@ namespace MiGfx
 	///   Contains file paths.
 	/// </summary>
 	public static partial class FilePaths
-	{ }
+	{
+		/// <summary>
+		///   The binary executable path.
+		/// </summary>
+		public static string Executable
+		{
+			get
+			{
+				string path = Assembly.GetExecutingAssembly().CodeBase;
+
+				int len = path.Length;
+
+				string s5 = len > 5 ? path.Substring( 0, 5 ).ToLower() : null;
+				string s6 = len > 6 ? path.Substring( 0, 6 ).ToLower() : null;
+				string s8 = len > 8 ? path.Substring( 0, 8 ).ToLower() : null;
+				string s10 = len > 10 ? path.Substring( 0, 10 ).ToLower() : null;
+
+				if( s5 != null && ( s5 == "dir:/" || s5 == "dir:\\" ) )
+					path = path.Substring( 5 );
+				else if( s6 != null && ( s6 == "file:/" || s6 == "file:\\" || s6 == "path:/" || s6 == "path:\\" ) )
+					path = path.Substring( 6 );
+				else if( s8 != null && ( s8 == "folder:/" || s8 == "folder:\\" ) )
+					path = path.Substring( 8 );
+				else if( s10 != null && ( s10 == "directory:/" || s10 == "directory:\\" ) )
+					path = path.Substring( 10 );
+
+				return Paths.ToWindows( path );
+			}
+		}
+	}
 }

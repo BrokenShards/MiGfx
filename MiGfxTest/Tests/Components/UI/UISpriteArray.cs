@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// SpriteArray.cs 
+// UISpriteArray.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -30,13 +30,13 @@ using MiInput;
 
 namespace MiGfx.Test
 {
-	public class SpriteArrayTest : VisualTestModule
+	public class UISpriteArrayTest : VisualTestModule
 	{
-		const string SpriteArrayPath = "spritearray.bin";
+		const string UISpriteArrayPath = "uispritearray.bin";
 
 		protected override bool OnTest()
 		{
-			Logger.Log( "Running SpriteArray Tests..." );
+			Logger.Log( "Running UISpriteArray Tests..." );
 
 			Texture tex = Assets.Manager.Texture.Get( Test.AnimationTexturePath );
 
@@ -46,40 +46,40 @@ namespace MiGfx.Test
 			Vector2u texsize = tex.Size;
 
 			// Create a new Sprite with an ImageInfo that tells it which texture to draw.
-			SpriteArray s1 = new SpriteArray() { TexturePath = Test.AnimationTexturePath };
+			UISpriteArray s1 = new UISpriteArray() { TexturePath = Test.AnimationTexturePath };
 
 			s1.Sprites.Add( new SpriteInfo( new FloatRect( 0, 0, texsize.X / 3.0f, texsize.Y ) ) );
 			s1.Sprites.Add( new SpriteInfo( new FloatRect( texsize.X / 3.0f, 0, texsize.X / 3.0f, texsize.Y ) ) );
 			s1.Sprites.Add( new SpriteInfo( new FloatRect( texsize.X / 3.0f * 2.0f, 0, texsize.X / 3.0f, texsize.Y ) ) );
 
 			// Write object to a binary file.
-			if( !BinarySerializable.ToFile( s1, SpriteArrayPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize SpriteArray to file.", false );
+			if( !BinarySerializable.ToFile( s1, UISpriteArrayPath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize UISpriteArray to file.", false );
 
 			// Read the object from a binary file.
-			SpriteArray s2 = BinarySerializable.FromFile<SpriteArray>( SpriteArrayPath );
+			UISpriteArray s2 = BinarySerializable.FromFile<UISpriteArray>( UISpriteArrayPath );
 
 			try
 			{
 				// Delete temp file.
-				File.Delete( SpriteArrayPath );
+				File.Delete( UISpriteArrayPath );
 			}
 			catch
 			{ }
 
 			// Ensure object loaded and is the same.
 			if( s2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize SpriteArray from file.", false );
+				return Logger.LogReturn( "Failed: Unable to deserialize UISpriteArray from file.", false );
 			if( !s2.Equals( s1 ) )
-				return Logger.LogReturn( "Failed: Deserialized SpriteArray has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Deserialized UISpriteArray has incorrect values.", false );
 
 			string xml = Xml.Header + "\r\n" + s1.ToString();
-			SpriteArray x = XmlLoadable.FromXml<SpriteArray>( xml );
+			UISpriteArray x = XmlLoadable.FromXml<UISpriteArray>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load SpriteArray from xml.", false );
+				return Logger.LogReturn( "Failed: Unable to load UISpriteArray from xml.", false );
 			if( !x.Equals( s1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded SpriteArray has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Xml loaded UISpriteArray has incorrect values.", false );
 
 			s1.Dispose();
 			s2.Dispose();
@@ -89,7 +89,7 @@ namespace MiGfx.Test
 
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running SpriteArray Visual Tests..." );
+			Logger.Log( "Running UISpriteArray Visual Tests..." );
 
 			Texture tex = Assets.Manager.Texture.Get( Test.AnimationTexturePath );
 
@@ -100,10 +100,10 @@ namespace MiGfx.Test
 
 			using( MiEntity ent = new MiEntity( "tester", window ) )
 			{
-				if( !ent.AddNewComponent<SpriteArray>() )
-					return Logger.LogReturn( "Failed: Unable to add SpriteArray to entity.", false ); ;
+				if( !ent.AddNewComponent<UISpriteArray>() )
+					return Logger.LogReturn( "Failed: Unable to add UISpriteArray to entity.", false ); ;
 
-				SpriteArray sa = ent.GetComponent<SpriteArray>();
+				UISpriteArray sa = ent.GetComponent<UISpriteArray>();
 				sa.TexturePath = Test.AnimationTexturePath;
 
 				sa.Sprites.Add( new SpriteInfo( new FloatRect( 0, 0, texsize.X / 3.0f, texsize.Y ), null,
@@ -113,12 +113,12 @@ namespace MiGfx.Test
 				sa.Sprites.Add( new SpriteInfo( new FloatRect( texsize.X / 3.0f * 2.0f, 0, texsize.X / 3.0f, texsize.Y ), null,
 												new Vector2f( 300, 300 ), new Vector2f( 100, 100 ) ) );
 
-				Transform trn = ent.GetComponent<Transform>();
+				UITransform trn = ent.GetComponent<UITransform>();
 
 				trn.Position = new Vector2f();
-				trn.Size     = new Vector2f( 400, 400 );
+				trn.Size     = new Vector2f( 0.4f, 0.4f );
 
-				Logger.Log( "Is SpriteArray displayed on window? (y/n)" );
+				Logger.Log( "Is UISpriteArray displayed on window? (y/n)" );
 				bool? inp = null;
 
 				while( window.IsOpen && inp == null )
@@ -139,7 +139,7 @@ namespace MiGfx.Test
 				}
 
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: SpriteArray did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: UISpriteArray did not display correctly (user input).", false );
 			}
 
 			return Logger.LogReturn( "Success!", true );

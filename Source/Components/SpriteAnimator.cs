@@ -47,11 +47,10 @@ namespace MiGfx
 			Playing    = false;
 			Loop       = true;
 			Multiplier = 1.0f;
-			m_selected = string.Empty;
+			m_selected = 0;
 			FrameIndex = 0;
 			m_timer    = new Clock();
-
-			RequiredComponents = new string[] { nameof( Sprite ) };
+			Selected   = 0;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -67,11 +66,10 @@ namespace MiGfx
 			Playing    = a.Playing;
 			Loop       = a.Loop;
 			Multiplier = a.Multiplier;
-			m_selected = new string( a.m_selected.ToCharArray() );
+			m_selected = a.m_selected;
 			FrameIndex = a.FrameIndex;
 			m_timer    = new Clock();
-
-			RequiredComponents = new string[] { nameof( Sprite ) };
+			Selected   = a.Selected;
 		}
 		/// <summary>
 		///   Constructor setting the initial animation set.
@@ -82,21 +80,17 @@ namespace MiGfx
 		/// <param name="selected">
 		///   The initially selected animation.
 		/// </param>
-		public SpriteAnimator( AnimationSet set, string selected = null )
+		public SpriteAnimator( AnimationSet set, int selected = 0 )
 		:	base()
 		{
-			Animations = set == null ? new AnimationSet() : set;
+			Animations = set ?? new AnimationSet();
 			Playing    = false;
 			Loop       = true;
 			Multiplier = 1.0f;
-			m_selected = string.Empty;
+			m_selected = 0;
 			FrameIndex = 0;
 			m_timer    = new Clock();
-
-			if( selected != null )
-				Selected = selected;
-
-			RequiredComponents = new string[] { nameof( Sprite ) };
+			Selected   = selected;
 		}
 
 		/// <summary>
@@ -143,15 +137,15 @@ namespace MiGfx
 		}
 
 		/// <summary>
-		///   The selected animation ID.
+		///   The selected animation index.
 		/// </summary>
-		public string Selected
+		public int Selected
 		{
 			get { return m_selected; }
 			set
 			{
-				if( Animations != null && Animations.Contains( value ) )
-					m_selected = value.ToLower();
+				if( Animations != null && value >= 0 && value < Animations.Count )
+					m_selected = value;
 
 				FrameIndex = 0;
 				m_timer.Restart();
@@ -166,25 +160,26 @@ namespace MiGfx
 			private set { m_frame = value; }
 		}
 		/// <summary>
+		///   Gets the current animation ID.
+		/// </summary>
+		public string CurrentAnimationID
+		{
+			get
+			{
+				if( Animations.Empty || Selected < 0 || Selected < Animations.Count )
+					return null;
+
+				return Animations[ Selected ];
+			}
+		}
+		/// <summary>
 		///   Gets the current animation.
 		/// </summary>
 		public Animation CurrentAnimation
 		{
 			get
 			{
-				if( Animations.Empty )
-					return null;
-
-				if( !Animations.Contains( Selected ) )
-				{
-					var e = Animations.GetEnumerator();
-					e.MoveNext();
-
-					Selected = e.Current.Key;
-					FrameIndex = 0;
-				}
-
-				return Animations[ Selected ];
+				return Animations.GetAnimation( Selected );
 			}
 		}
 		/// <summary>
@@ -229,7 +224,7 @@ namespace MiGfx
 		public void Play( string id = null )
 		{
 			if( !string.IsNullOrWhiteSpace( id ) )
-				Selected = id;
+				Selected = Animations.IndexOf( id );
 
 			m_frame   = 0;
 			m_playing = true;
@@ -249,6 +244,17 @@ namespace MiGfx
 		{
 			m_frame   = 0;
 			m_playing = false;
+		}
+
+		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( Transform ), nameof( Sprite ) };
 		}
 
 		/// <summary>
@@ -290,7 +296,7 @@ namespace MiGfx
 
 			if( Parent != null && current != null )
 			{
-				Sprite spr = Parent.Components.Get<Sprite>();
+				Sprite spr = Parent.GetComponent<Sprite>();
 				ImageInfo i = spr.Image;
 				current.Apply( ref i );
 				spr.Image = i;
@@ -315,7 +321,7 @@ namespace MiGfx
 			{
 				Loop       = br.ReadBoolean();
 				Multiplier = br.ReadSingle();
-				m_selected = br.ReadString();
+				m_selected = br.ReadInt32();
 			}
 			catch( Exception e )
 			{
@@ -377,7 +383,7 @@ namespace MiGfx
 			Animations = new AnimationSet();
 			Loop       = false;
 			Multiplier = 1.0f;
-			Selected   = null;
+			Selected   = 0;
 
 			XmlElement aset = element[ nameof( AnimationSet ) ];
 
@@ -396,16 +402,13 @@ namespace MiGfx
 					Loop = bool.Parse( loop );
 				if( !string.IsNullOrWhiteSpace( mult ) )
 					Multiplier = float.Parse( mult );
-				
-				Selected = string.IsNullOrWhiteSpace( sele ) ? null : sele;
 
-				if( Selected == null )
+				if( element.HasAttribute( nameof( Selected ) ) )
 				{
-					foreach( var s in Animations )
-					{
-						Selected = s.Key;
-						break;
-					}
+					if( !int.TryParse( element.GetAttribute( nameof( Selected ) ), out int s ) )
+						return Logger.LogReturn( "Failed loading SpriteAnimator: Unable to parse Selected attribute.", false, LogType.Error );
+
+					Selected = s;
 				}
 			}
 			catch( Exception e )
@@ -456,7 +459,7 @@ namespace MiGfx
 			sb.Append( "          " );
 			sb.Append( nameof( Selected ) );
 			sb.Append( "=\"" );
-			sb.Append( Selected ?? string.Empty );
+			sb.Append( Selected );
 			sb.AppendLine( "\">" );
 
 			sb.AppendLine( XmlLoadable.ToString( Animations, 1 ) );
@@ -496,10 +499,25 @@ namespace MiGfx
 			return new SpriteAnimator( this );
 		}
 
-		private Clock  m_timer;
-		private bool   m_playing;
-		private string m_selected;
-		private uint   m_frame;
-		private float  m_multiplier;
+		/// <summary>
+		///   Timer.
+		/// </summary>
+		protected Clock m_timer;
+		/// <summary>
+		///   Is playing.
+		/// </summary>
+		protected bool  m_playing;
+		/// <summary>
+		///   Selected animation.
+		/// </summary>
+		protected int   m_selected;
+		/// <summary>
+		///   Current animation frame.
+		/// </summary>
+		protected uint  m_frame;
+		/// <summary>
+		///   Play speed multiplier.
+		/// </summary>
+		protected float m_multiplier;
 	}
 }

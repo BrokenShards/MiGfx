@@ -103,8 +103,8 @@ namespace MiGfx
 			{
 				Texture  = string.Empty;
 				CellSize = size ?? new Vector2u( DefaultCellSize, DefaultCellSize );
-				Offset   = off ?? new Vector2u();
-				Padding  = pad ?? new Vector2u();
+				Offset   = off  ?? new Vector2u();
+				Padding  = pad  ?? new Vector2u();
 			}
 		}
 
@@ -158,14 +158,14 @@ namespace MiGfx
 				Vector2u size = Offset + CellSize + Padding;
 
 				if( size.X > texsize.X )
-					count = new Vector2u( 1, 0 );
+					count.X = 1;
 				else
-					count = new Vector2u( texsize.X / size.X, 0 );
+					count.X = texsize.X / size.X;
 
 				if( size.Y > texsize.Y )
-					count = new Vector2u( count.X, 1 );
+					count.Y = 1;
 				else
-					count = new Vector2u( count.X, texsize.Y / size.Y );
+					count.Y = texsize.Y / size.Y;
 
 				return count;
 			}

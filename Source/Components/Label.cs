@@ -60,7 +60,7 @@ namespace MiGfx
 		/// <summary>
 		///   Allign to the middle left of the transform.
 		/// </summary>
-		MiddleLeft,
+		Left,
 		/// <summary>
 		///   Allign to the middle of the transform.
 		/// </summary>
@@ -68,7 +68,7 @@ namespace MiGfx
 		/// <summary>
 		///   Allign to the middle right of the transform.
 		/// </summary>
-		MiddleRight,
+		Right,
 		/// <summary>
 		///   Allign to the bottom left of the transform.
 		/// </summary>
@@ -98,8 +98,6 @@ namespace MiGfx
 			Offset = new Vector2f();
 			Allign = Allignment.TopLeft;
 			m_text = new Text();
-
-			RequiredComponents = new string[] { nameof( Transform ) };
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -114,8 +112,6 @@ namespace MiGfx
 			Offset = l.Offset;
 			Allign = l.Allign;
 			m_text = new Text();
-
-			RequiredComponents = new string[] { nameof( Transform ) };
 		}
 		/// <summary>
 		///   Constructs the label and sets its display string.
@@ -134,8 +130,6 @@ namespace MiGfx
 			Allign = allign;
 			m_text = new Text();
 			String = !string.IsNullOrWhiteSpace( str ) ? str : string.Empty;
-
-			RequiredComponents = new string[] { nameof( Transform ) };
 		}
 		/// <summary>
 		///   Constructs the label with a text style and an optional string.
@@ -158,8 +152,6 @@ namespace MiGfx
 			Allign = allign;
 			m_text = new Text();
 			String = !string.IsNullOrWhiteSpace( str ) ? str : string.Empty;
-
-			RequiredComponents = new string[] { nameof( Transform ) };
 		}
 
 		/// <summary>
@@ -216,6 +208,17 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( Transform ) };
+		}
+
+		/// <summary>
 		///   Updates the component logic.
 		/// </summary>
 		/// <param name="dt">
@@ -228,50 +231,62 @@ namespace MiGfx
 
 			Text.Apply( ref m_text );
 
-			Transform trn = Stack?.Get<Transform>();
+			Transform trn = Parent?.GetComponent<Transform>();
 
-			if( trn != null )
+			if( trn == null || Parent?.Window == null )
+				return;
+
+			m_text.Scale = trn.Scale;
+			
+			FloatRect bounds = GetTextBounds();
+			trn.Size = new Vector2f( Math.Max( trn.Size.X, bounds.Width ), Math.Max( trn.Size.Y, bounds.Height ) );
+			
+			FloatRect pb = trn.GlobalBounds;
+
+			Vector2f pos  = new Vector2f( pb.Left,  pb.Top ),
+			         size = new Vector2f( pb.Width, pb.Height );
+
+			FloatRect lb = m_text.GetLocalBounds();
+
+			switch( Allign )
 			{
-				FloatRect bounds = GetTextBounds();
-				Vector2f  pos;
+				case Allignment.Top:
+					m_text.Origin = new Vector2f( lb.Width / 2.0f, 0.0f );
+					pos += new Vector2f( size.X / 2.0f , 0.0f );
+					break;
+				case Allignment.TopRight:
+					m_text.Origin = new Vector2f( lb.Width, 0.0f );
+					pos += new Vector2f( size.X, 0.0f );
+					break;
 
-				switch( Allign )
-				{
-					case Allignment.Top:
-						pos = trn.Position + new Vector2f( ( trn.GlobalSize.X / 2.0f ) - ( bounds.Width / 2.0f ), 0.0f );
-						break;
-					case Allignment.TopRight:
-						pos = trn.Position + new Vector2f( trn.GlobalSize.X - bounds.Width, 0.0f );
-						break;
+				case Allignment.Left:
+					m_text.Origin = new Vector2f( 0.0f, lb.Height / 2.0f );
+					pos += new Vector2f( 0.0f, size.Y / 2.0f );
+					break;
+				case Allignment.Middle:
+					m_text.Origin = new Vector2f( lb.Width, lb.Height ) / 2.0f;
+					pos += size / 2.0f;
+					break;
+				case Allignment.Right:
+					m_text.Origin = new Vector2f( lb.Width, lb.Height / 2.0f );
+					pos += new Vector2f( size.X, size.Y / 2.0f );
+					break;
 
-					case Allignment.MiddleLeft:
-						pos = trn.Position + new Vector2f( 0.0f, ( trn.GlobalSize.Y / 2.0f ) - ( bounds.Height / 2.0f ) );
-						break;
-					case Allignment.Middle:
-						pos = trn.Center - ( new Vector2f( bounds.Width, bounds.Height ) / 2.0f );
-						break;
-					case Allignment.MiddleRight:
-						pos = trn.Position + new Vector2f( trn.GlobalSize.X - bounds.Width, ( trn.GlobalSize.Y / 2.0f ) - ( bounds.Height / 2.0f ) );
-						break;
-
-					case Allignment.BottomLeft:
-						pos = trn.Position + new Vector2f( 0.0f, trn.GlobalSize.Y - bounds.Height );
-						break;
-					case Allignment.Bottom:
-						pos = trn.Center + new Vector2f( 0.0f, ( trn.GlobalSize.Y / 2.0f ) - bounds.Height );
-						break;
-					case Allignment.BottomRight:
-						pos = trn.Position + trn.GlobalSize - new Vector2f( bounds.Width, bounds.Height );
-						break;
-
-					default:
-						pos = trn.Position;
-						break;
-				}
-
-
-				m_text.Position = pos + Offset;
+				case Allignment.BottomLeft:
+					m_text.Origin = new Vector2f( 0.0f, lb.Height );
+					pos += new Vector2f( 0.0f, size.Y );
+					break;
+				case Allignment.Bottom:
+					m_text.Origin = new Vector2f( lb.Width / 2.0f, lb.Height );
+					pos += new Vector2f( size.X / 2.0f, size.Y );
+					break;
+				case Allignment.BottomRight:
+					m_text.Origin = new Vector2f( lb.Width, lb.Height );
+					pos += size;
+					break;
 			}
+
+			m_text.Position = pos + new Vector2f( Offset.X * trn.Scale.X, Offset.Y * trn.Scale.Y );
 		}
 		/// <summary>
 		///   Draws the component.
@@ -352,7 +367,6 @@ namespace MiGfx
 
 			return true;
 		}
-
 		/// <summary>
 		///   Attempts to load the object from the xml element.
 		/// </summary>
@@ -400,7 +414,6 @@ namespace MiGfx
 
 			return true;
 		}
-
 		/// <summary>
 		///   Converts the object to an xml string.
 		/// </summary>
@@ -495,6 +508,9 @@ namespace MiGfx
 			return new Label( this );
 		}
 
-		private Text m_text;
+		/// <summary>
+		///   Label text.
+		/// </summary>
+		protected Text m_text;
 	}
 }

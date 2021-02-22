@@ -40,7 +40,7 @@ namespace MiGfx
 		public Selector()
 		:	base()
 		{
-			SelectedChild = -1;
+			SelectedIndex = -1;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -51,15 +51,29 @@ namespace MiGfx
 		public Selector( Selector s )
 		:	base( s )
 		{
-			SelectedChild = s.SelectedChild;
+			SelectedIndex = s.SelectedIndex;
 		}
 
 		/// <summary>
 		///   The index of the selected child.
 		/// </summary>
-		public int SelectedChild
+		public int SelectedIndex
 		{
 			get; private set;
+		}
+
+		/// <summary>
+		///   The selected entity.
+		/// </summary>
+		public MiEntity Selected
+		{
+			get
+			{
+				if( Parent == null || SelectedIndex < 0 || SelectedIndex >= Parent.ChildCount )
+					return null;
+
+				return Parent.GetChild( SelectedIndex );
+			}
 		}
 
 		/// <summary>
@@ -85,33 +99,51 @@ namespace MiGfx
 			if( Parent == null || !Parent.HasChildren || index >= Parent.ChildCount )
 				return false;
 
-			if( SelectedChild < -1 )
-				SelectedChild = -1;
+			if( index < -1 )
+				index = -1;
 
 			if( index >= 0 )
 			{
-				MiEntity e = Parent.GetChild( index );
+				for( ; index < Parent.ChildCount; index++ )
+				{
+					MiEntity e = Parent.GetChild( index );
 
-				if( !e.Components.Contains<Selectable>() )
+					if( e.HasComponent<Selectable>() )
+						break;
+				}
+
+				if( index >= Parent.ChildCount )
 					return false;
-
-				e.Components.Get<Selectable>().Selected = true;
-			}
-			for( int i = 0; i < Parent.ChildCount; i++ )
-			{
-				if( i == index )
-					continue;
-
-				MiEntity e = Parent.GetChild( index );
-
-				if( !e.Components.Contains<Selectable>() )
-					continue;
-
-				e.Components.Get<Selectable>().Selected = false;
 			}
 
-			SelectedChild = index;
+			SelectedIndex = index;
 			return true;
+		}
+		/// <summary>
+		///   Selects the given child.
+		/// </summary>
+		/// <param name="ent">
+		///   The child entity to select.
+		/// </param>
+		/// <returns>
+		///   True if the parent entity is valid, ent is a child of parent, ent contains a 
+		///   Selectable component and was selected (or deselected) successfully.
+		/// </returns>
+		public bool Select( MiEntity ent )
+		{
+			if( Parent == null || !Parent.HasChildren )
+				return false;
+
+			if( ent == null )
+			{
+				SelectedIndex = -1;
+				return true;
+			}
+
+			if( !Parent.HasChild( ent ) )
+				return false;
+
+			return Select( Parent.ChildIndex( ent ) );
 		}
 		/// <summary>
 		///   Selects the next selctable child entity.
@@ -124,10 +156,10 @@ namespace MiGfx
 			if( Parent == null || !Parent.HasChildren )
 				return false;
 
-			if( SelectedChild < -1 )
-				SelectedChild = -1;
+			if( SelectedIndex < -1 )
+				SelectedIndex = -1;
 
-			int initial = SelectedChild + 1;
+			int initial = SelectedIndex + 1;
 
 			for( int i = initial; i < Parent.ChildCount; i++ )
 				if( Select( i ) )
@@ -151,9 +183,9 @@ namespace MiGfx
 			if( Parent == null || !Parent.HasChildren )
 				return false;
 
-			int initial = SelectedChild - 1;
+			int initial = SelectedIndex - 1;
 
-			if( initial <= 0 )
+			if( initial < 0 )
 				initial = Parent.ChildCount - 1;
 
 			for( int i = initial; i >= 0; i-- )
@@ -166,6 +198,20 @@ namespace MiGfx
 						return true;
 
 			return false;
+		}
+
+		/// <summary>
+		///   Updates the object logic.
+		/// </summary>
+		/// <param name="dt">
+		///   Delta time.
+		/// </param>
+		protected override void OnUpdate( float dt )
+		{
+			if( Parent != null )
+				foreach( MiEntity ent in Parent )
+					if( ent.HasComponent<Selectable>() )
+						ent.GetComponent<Selectable>().Selector = this;
 		}
 
 		/// <summary>
@@ -184,7 +230,7 @@ namespace MiGfx
 
 			try
 			{
-				SelectedChild = sr.ReadInt32();
+				SelectedIndex = sr.ReadInt32();
 			}
 			catch( Exception e )
 			{
@@ -209,7 +255,7 @@ namespace MiGfx
 
 			try
 			{
-				sw.Write( SelectedChild );
+				sw.Write( SelectedIndex );
 			}
 			catch( Exception e )
 			{
@@ -232,12 +278,12 @@ namespace MiGfx
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			if( element.HasAttribute( nameof( SelectedChild ) ) )
+			if( element.HasAttribute( nameof( SelectedIndex ) ) )
 			{
-				if( !int.TryParse( element.GetAttribute( nameof( SelectedChild ) ), out int s ) )
+				if( !int.TryParse( element.GetAttribute( nameof( SelectedIndex ) ), out int s ) )
 					return Logger.LogReturn( "Failed loading Selector: Failed parsing SelectedChild xml attribute.", false, LogType.Error );
 
-				SelectedChild = s;
+				SelectedIndex = s;
 			}
 
 			return true;
@@ -269,9 +315,9 @@ namespace MiGfx
 			sb.AppendLine( "\"" );
 
 			sb.Append( "          " );
-			sb.Append( nameof( SelectedChild ) );
+			sb.Append( nameof( SelectedIndex ) );
 			sb.Append( "=\"" );
-			sb.Append( SelectedChild );
+			sb.Append( SelectedIndex );
 			sb.AppendLine( "\"/>" );
 
 			return sb.ToString();

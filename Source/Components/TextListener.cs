@@ -120,6 +120,21 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   Maximum size of entered text.
+		/// </summary>
+		public uint MaxCharacters
+		{
+			get { return m_max; }
+			set
+			{
+				m_max = value;
+
+				if( m_max > 0 && EnteredText.Length > m_max )
+					EnteredText = EnteredText.Substring( 0, (int)m_max );
+			}
+		}
+
+		/// <summary>
 		///   If letters should be added to the entered text.
 		/// </summary>
 		public bool AllowLetters { get; set; }
@@ -162,43 +177,48 @@ namespace MiGfx
 		/// </param>
 		protected override void OnTextEntered( TextEventArgs e )
 		{
-			Logger.Log( "Text Event!" );
-			Logger.Log( "EnteredText: " + EnteredText );
-
 			if( !Listen )
 				return;
 
 			int len = EnteredText.Length;
+
+			Logger.Log( "Entered: " + EnteredText );
 
 			// Backspace
 			if( e.Unicode == "\u0008" || e.Unicode == "\u0232" )
 			{
 				if( len > 0 )
 					EnteredText = EnteredText.Substring( 0, len - 1 );
-			}
-			// Carriage Return, Newline, or both (all treated as newline)
-			else if( e.Unicode == "\r\n" || e.Unicode == "\u000A" || e.Unicode == "\u000D" )
-			{
-				if( len > 0 && AllowNewline )
-					EnteredText += "\r\n";
-			}
-			else if( e.Unicode.Trim().Length > 0 || ( len > 0 && e.Unicode == " " ) )
-			{
-				if( char.IsLetter( e.Unicode, 0 ) && !AllowLetters )
-					return;
-				if( e.Unicode[ 0 ] >= '0' && e.Unicode[ 0 ] <= '9' && !AllowNumbers )
-					return;
-				if( e.Unicode == "." && AllowNumbers && !AllowPunctuation && EnteredText.Contains( "." ) )
-					return;
 
-				if( char.IsSymbol( e.Unicode, 0 ) && !AllowSymbols )
-					return;
-				if( char.IsPunctuation( e.Unicode, 0 ) && !AllowPunctuation )
-					return;
-				if( e.Unicode == " " && !AllowSpace )
-					return;
-				
-				EnteredText += e.Unicode;
+				return;
+			}
+
+			if( MaxCharacters == 0 || len < MaxCharacters )
+			{
+				// Carriage Return, Newline, or both (all treated as newline)
+				if( e.Unicode == "\r\n" || e.Unicode == "\u000A" || e.Unicode == "\u000D" )
+				{
+					if( len > 0 && AllowNewline )
+						EnteredText += "\r\n";
+				}
+				else if( e.Unicode.Trim().Length > 0 || ( len > 0 && e.Unicode == " " ) )
+				{
+					if( char.IsLetter( e.Unicode, 0 ) && !AllowLetters )
+						return;
+					if( e.Unicode[ 0 ] >= '0' && e.Unicode[ 0 ] <= '9' && !AllowNumbers )
+						return;
+					if( e.Unicode == "." && AllowNumbers && !AllowPunctuation && EnteredText.Contains( "." ) )
+						return;
+
+					if( char.IsSymbol( e.Unicode, 0 ) && !AllowSymbols )
+						return;
+					if( char.IsPunctuation( e.Unicode, 0 ) && !AllowPunctuation )
+						return;
+					if( e.Unicode == " " && !AllowSpace )
+						return;
+
+					EnteredText += e.Unicode;
+				}
 			}
 		}
 		/// <summary>
@@ -218,6 +238,7 @@ namespace MiGfx
 			try
 			{
 				EnteredText      = sr.ReadString();
+				MaxCharacters    = sr.ReadUInt32();
 				AllowLetters     = sr.ReadBoolean();
 				AllowNumbers     = sr.ReadBoolean();
 				AllowSymbols     = sr.ReadBoolean();
@@ -250,6 +271,7 @@ namespace MiGfx
 			try
 			{
 				sw.Write( EnteredText );
+				sw.Write( MaxCharacters );
 				sw.Write( AllowLetters );
 				sw.Write( AllowNumbers );
 				sw.Write( AllowSymbols );
@@ -281,6 +303,7 @@ namespace MiGfx
 				return false;
 
 			EnteredText      = string.Empty;
+			MaxCharacters    = 0;
 			AllowLetters     = true;
 			AllowNumbers     = true;
 			AllowSymbols     = true;
@@ -296,6 +319,8 @@ namespace MiGfx
 
 			try
 			{
+				if( element.HasAttribute( nameof( MaxCharacters ) ) )
+					MaxCharacters = uint.Parse( element.GetAttribute( nameof( MaxCharacters ) ) );
 				if( element.HasAttribute( nameof( AllowLetters ) ) )
 					AllowLetters = bool.Parse( element.GetAttribute( nameof( AllowLetters ) ) );
 				if( element.HasAttribute( nameof( AllowNumbers ) ) )
@@ -342,6 +367,12 @@ namespace MiGfx
 			sb.Append( nameof( Visible ) );
 			sb.Append( "=\"" );
 			sb.Append( Visible );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "              " );
+			sb.Append( nameof( MaxCharacters ) );
+			sb.Append( "=\"" );
+			sb.Append( MaxCharacters );
 			sb.AppendLine( "\"" );
 
 			sb.Append( "              " );
@@ -413,7 +444,8 @@ namespace MiGfx
 		public bool Equals( TextListener other )
 		{
 			return base.Equals( other ) && EnteredText.Equals( other.EnteredText ) &&
-				   AllowLetters     == other.AllowLetters &&
+				   MaxCharacters    == other.MaxCharacters &&
+			       AllowLetters     == other.AllowLetters &&
 				   AllowNumbers     == other.AllowNumbers &&
 				   AllowSymbols     == other.AllowSymbols &&
 				   AllowPunctuation == other.AllowPunctuation &&
@@ -435,5 +467,6 @@ namespace MiGfx
 
 		string m_text;
 		bool   m_multi;
+		uint   m_max;
 	}
 }

@@ -27,7 +27,7 @@ namespace MiGfx
 	/// <summary>
 	///   Manages textures.
 	/// </summary>
-	public class TextureManager : AssetManager<Texture>
+	public class TextureManager : DisposableAssetManager<Texture>
 	{
 		/// <summary>
 		///   Constructor.

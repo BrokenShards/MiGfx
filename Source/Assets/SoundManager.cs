@@ -27,7 +27,7 @@ namespace MiGfx
 	/// <summary>
 	///   Manages sounds.
 	/// </summary>
-	public class SoundManager : AssetManager<SoundBuffer>
+	public class SoundManager : DisposableAssetManager<SoundBuffer>
 	{
 		/// <summary>
 		///   Constructor.

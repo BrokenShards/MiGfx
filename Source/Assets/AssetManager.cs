@@ -25,6 +25,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 
+using MiCore;
+
 namespace MiGfx
 {
 	/// <summary>
@@ -33,7 +35,7 @@ namespace MiGfx
 	/// <typeparam name="T">
 	///   The managed asset type.
 	/// </typeparam>
-	public abstract class AssetManager<T> : IDisposable, IEnumerable<KeyValuePair<string, T>> where T : class, IDisposable
+	public abstract class AssetManager<T> : IEnumerable<KeyValuePair<string, T>> where T : class
 	{
 		/// <summary>
 		///   Constructor.
@@ -157,31 +159,14 @@ namespace MiGfx
 			if( path.Length <= elen || path.Substring( 0, elen ) != exec )
 				path = Path.Combine( exec, path );
 
-			if( m_assets.ContainsKey( path ) )
-				m_assets[ path ].Dispose();
-
 			return m_assets.Remove( path );
 		}
 		/// <summary>
 		///   Unloads all assets.
 		/// </summary>
-		public void Clear()
+		public virtual void Clear()
 		{
-			var keys = m_assets.Keys;
-
-			string[] list = new string[ keys.Count ];
-			keys.CopyTo( list, 0 );
-
-			foreach( string s in list )
-				Unload( s );
-		}
-
-		/// <summary>
-		///   Disposes of all assets.
-		/// </summary>
-		public virtual void Dispose()
-		{
-			Clear();
+			m_assets.Clear();
 		}
 
 		/// <summary>
@@ -203,5 +188,74 @@ namespace MiGfx
 		///   Dictionary containing assets indexed by their file paths.
 		/// </summary>
 		protected Dictionary<string, T> m_assets;
+	}
+
+	/// <summary>
+	///   Base class for asset managers with disposable assets.
+	/// </summary>
+	/// <typeparam name="T">
+	///   The disposable managed asset type.
+	/// </typeparam>
+	public abstract class DisposableAssetManager<T> : AssetManager<T>, IDisposable where T : class, IDisposable
+	{
+		/// <summary>
+		///   Constructor.
+		/// </summary>
+		public DisposableAssetManager()
+		:	base()
+		{ }
+
+		/// <summary>
+		///   Unloads the asset loaded from the given path.
+		/// </summary>
+		/// <remarks>
+		///   Please note the given path should be relative to the executable as it will be 
+		///   appended to the executable path.
+		/// </remarks>
+		/// <param name="path">
+		///   The path of the asset.
+		/// </param>
+		/// <returns>
+		///   True if the asset existed and was unloaded and removed successfully, otherwise false.
+		/// </returns>
+		public override bool Unload( string path )
+		{
+			if( string.IsNullOrWhiteSpace( path ) )
+				return false;
+
+			path = Paths.ToWindows( path );
+			string exec = FolderPaths.Executable;
+
+			int elen = exec.Length;
+
+			if( path.Length <= elen || path.Substring( 0, elen ) != exec )
+				path = Path.Combine( exec, path );
+
+			if( m_assets.ContainsKey( path ) )
+				m_assets[ path ].Dispose();
+
+			return m_assets.Remove( path );
+		}
+		/// <summary>
+		///   Unloads all assets.
+		/// </summary>
+		public override void Clear()
+		{
+			var keys = m_assets.Keys;
+
+			string[] list = new string[ keys.Count ];
+			keys.CopyTo( list, 0 );
+
+			foreach( string s in list )
+				Unload( s );
+		}
+
+		/// <summary>
+		///   Disposes of all assets.
+		/// </summary>
+		public virtual void Dispose()
+		{
+			Clear();
+		}
 	}
 }

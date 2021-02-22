@@ -20,6 +20,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using System;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -39,7 +40,7 @@ namespace MiGfx
 		public Selectable()
 		:	base()
 		{
-			Selected = false;
+			Selector = null;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -50,26 +51,46 @@ namespace MiGfx
 		public Selectable( Selectable s )
 		:	base( s )
 		{
-			Selected = s.Selected;
+			Selector = null;
 		}
+
 		/// <summary>
-		///   Constructor setting selected status.
+		///   The selector object managing this selectable.
 		/// </summary>
-		/// <param name="selected">
-		///   Selected status.
-		/// </param>
-		public Selectable( bool selected )
-		:	base()
-		{
-			Selected = selected;
+		public Selector Selector 
+		{ 
+			get; set; 
 		}
 
 		/// <summary>
 		///   If currently selected.
 		/// </summary>
+		/// <remarks>
+		///   When assigning to true, there is no guarantee the object will be successfully
+		///   selected; Check the value after assignment to ensure the object has been selected.
+		/// </remarks>
+		/// <exception cref="InvalidOperationException">
+		///   If trying to assign with no parent or the selector is invalid or has no parent.
+		/// </exception>
 		public bool Selected
 		{
-			get; set;
+			get
+			{
+				if( Parent == null || Selector?.Parent == null )
+					return false;
+
+				return Selector.Selected == Parent;
+			}
+			set
+			{
+				if( Parent == null || Selector?.Parent == null )
+					throw new InvalidOperationException();
+
+				if( value )
+					Selector.Select( Parent );
+				else if( Selector.Selected == Parent )
+					Selector.Select( null );
+			}
 		}
 
 		/// <summary>
@@ -94,7 +115,6 @@ namespace MiGfx
 			if( !base.LoadFromStream( sr ) )
 				return false;
 
-			Selected = false;
 			return true;
 		}
 		/// <summary>
@@ -127,7 +147,6 @@ namespace MiGfx
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			Selected = false;
 			return true;
 		}
 

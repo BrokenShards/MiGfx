@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -45,7 +46,6 @@ namespace MiGfx
 	/// <summary>
 	///   A 2D transformation.
 	/// </summary>
-	[Serializable]
 	public class Transform : MiComponent, IEquatable<Transform>
 	{
 		/// <summary>
@@ -54,10 +54,7 @@ namespace MiGfx
 		public Transform()
 		:	base()
 		{
-			LockPosition = false;
-			LockSize     = false;
-			LockScale    = false;
-
+			Origin   = Allignment.TopLeft;
 			Position = new Vector2f();
 			Size     = new Vector2f( 1.0f, 1.0f );
 			Scale    = new Vector2f( 1.0f, 1.0f );
@@ -71,21 +68,27 @@ namespace MiGfx
 		public Transform( Transform t )
 		:	base( t )
 		{
-			LockPosition = false;
-			LockSize     = false;
-			LockScale    = false;
-
+			Origin   = t.Origin;
 			Position = t.Position;
 			Size     = t.Size;
 			Scale    = t.Scale;
-
-			LockPosition = t.LockPosition;
-			LockSize     = t.LockSize;
-			LockScale    = t.LockScale;
 		}
 		/// <summary>
-		///   Constructor assigning the position and optionally the size and
-		///   scale.
+		///   Copy constructor.
+		/// </summary>
+		/// <param name="t">
+		///   The transform to copy from.
+		/// </param>
+		public Transform( UITransform t )
+		:	base( t )
+		{
+			Origin   = t.Origin;
+			Position = t.PixelPosition;
+			Size     = t.PixelSize;
+			Scale    = t.Scale;
+		}
+		/// <summary>
+		///   Constructor assigning values.
 		/// </summary>
 		/// <param name="pos">
 		///   Transform position.
@@ -93,19 +96,19 @@ namespace MiGfx
 		/// <param name="size">
 		///   Transform size.
 		/// </param>
-		/// <param name="scale">
+		/// <param name="scl">
 		///   Transform scale.
 		/// </param>
-		public Transform( Vector2f pos, Vector2f? size = null, Vector2f? scale = null )
+		/// <param name="org">
+		///   Origin point.
+		/// </param>
+		public Transform( Vector2f pos, Vector2f? size = null, Vector2f? scl = null, Allignment org = 0 )
 		:	base()
 		{
-			LockPosition = false;
-			LockSize     = false;
-			LockScale    = false;
-
+			Origin   = org;
 			Position = pos;
-			Size     = size  ?? new Vector2f( 1.0f, 1.0f );
-			Scale    = scale ?? new Vector2f( 1.0f, 1.0f );
+			Size     = size ?? new Vector2f( 1.0f, 1.0f );
+			Scale    = scl  ?? new Vector2f( 1.0f, 1.0f );
 		}
 
 		/// <summary>
@@ -117,16 +120,19 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   The origin point of the transform.
+		/// </summary>
+		public Allignment Origin
+		{
+			get; set;
+		}
+
+		/// <summary>
 		///   Position.
 		/// </summary>
 		public Vector2f Position 
 		{
-			get { return m_pos; }
-			set
-			{
-				if( !LockPosition )
-					m_pos = value;
-			}
+			get; set;
 		}
 		/// <summary>
 		///   Local size.
@@ -136,21 +142,18 @@ namespace MiGfx
 			get { return m_size; }
 			set
 			{
-				if( !LockSize )
+				if( value.X <= 0.0f )
 				{
-					if( value.X <= 0.0f )
-					{
-						float x = Math.Abs( value.X );
-						value.X = x > 0.0f ? x : 1.0f;
-					}
-					if( value.Y <= 0.0f )
-					{
-						float y = Math.Abs( value.Y );
-						value.Y = y > 0.0f ? y : 1.0f;
-					}
-
-					m_size = value;
+					float x = Math.Abs( value.X );
+					value.X = x > 0.0f ? x : 1.0f;
 				}
+				if( value.Y <= 0.0f )
+				{
+					float y = Math.Abs( value.Y );
+					value.Y = y > 0.0f ? y : 1.0f;
+				}
+
+				m_size = value;
 			}
 		}
 		/// <summary>
@@ -161,37 +164,13 @@ namespace MiGfx
 			get { return m_scale; }
 			set
 			{
-				if( !LockScale )
-				{
-					if( value.X <= 0.0f || value.Y <= 0.0f )
-						m_scale = new Vector2f( 1.0f, 1.0f );
-					else
-						m_scale = value;
-				}
+				if( value.X <= 0.0f || value.Y <= 0.0f )
+					m_scale = new Vector2f( 1.0f, 1.0f );
+				else
+					m_scale = value;
 			}
 		}
 
-		/// <summary>
-		///   Prevents position from being modified if true.
-		/// </summary>
-		public bool LockPosition { get; set; }
-		/// <summary>
-		///   Prevents size from being modified if true.
-		/// </summary>
-		public bool LockSize { get; set; }
-		/// <summary>
-		///   Prevents scale from being modified if true.
-		/// </summary>
-		public bool LockScale { get; set; }
-
-		/// <summary>
-		///   Center position.
-		/// </summary>
-		public Vector2f Center
-		{
-			get { return Position + ( GlobalSize / 2.0f ); }
-			set { Position = value - ( GlobalSize / 2.0f ); }
-		}
 		/// <summary>
 		///   Scaled size.
 		/// </summary>
@@ -199,26 +178,115 @@ namespace MiGfx
 		{
 			get { return new Vector2f( m_size.X * m_scale.X, m_size.Y * m_scale.Y ); }
 		}
-
 		/// <summary>
 		///   Scaled bounds of the transform.
 		/// </summary>
 		public FloatRect GlobalBounds
 		{
-			get { return new FloatRect( Position, GlobalSize ); }
-			set
+			get
 			{
-				try
+				Vector2f pos  = Position,
+				         size = GlobalSize;
+
+				switch( Origin )
 				{
-					Scale    = new Vector2f( 1.0f, 1.0f );
-					Position = new Vector2f( value.Left,  value.Top );
-					Size     = new Vector2f( value.Width, value.Height );
+					case Allignment.Top:
+						pos.X -= size.X / 2.0f;
+						break;
+					case Allignment.TopRight:
+						pos.X -= size.X;
+						break;
+
+					case Allignment.Left:
+						pos.Y -= size.Y / 2.0f;
+						break;
+					case Allignment.Middle:
+						pos -= size / 2.0f;
+						break;
+					case Allignment.Right:
+						pos.X -= size.X;
+						pos.Y -= size.Y / 2.0f;
+						break;
+
+					case Allignment.BottomLeft:
+						pos.Y -= size.Y;
+						break;
+					case Allignment.Bottom:
+						pos.X -= size.X / 2.0f;
+						pos.Y -= size.Y;
+						break;
+					case Allignment.BottomRight:
+						pos -= size;
+						break;
 				}
-				catch
-				{
-					throw;
-				}
+
+				return new FloatRect( pos, size ); 
 			}
+		}
+
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( Button ), nameof( CheckBox ), nameof( FillBar ),
+			                      nameof( TextBox ), nameof( UIClickable ), nameof( UILabel ),
+								  nameof( UISprite ), nameof( UISpriteAnimator ), nameof( UISpriteArray ),
+								  nameof( UITransform ) };
+		}
+
+		/// <summary>
+		///   Sets the origin point while maintaining position.
+		/// </summary>
+		/// <param name="org">
+		///   The new origin point.
+		/// </param>
+		public void SetOrigin( Allignment org )
+		{
+			if( org < 0 || (int)org >= Enum.GetNames( typeof( Allignment ) ).Length || org == Origin )
+				return;
+
+			FloatRect bounds = GlobalBounds;
+			Vector2f  pos    = new Vector2f( bounds.Left,  bounds.Top ),
+			          size   = new Vector2f( bounds.Width, bounds.Height );
+
+			switch( org )
+			{
+				case Allignment.Top:
+					pos.X -= size.X / 2.0f;
+					break;
+				case Allignment.TopRight:
+					pos.X -= size.X;
+					break;
+
+				case Allignment.Left:
+					pos.Y -= size.Y / 2.0f;
+					break;
+				case Allignment.Middle:
+					pos -= size / 2.0f;
+					break;
+				case Allignment.Right:
+					pos.X -= size.X;
+					pos.Y -= size.Y / 2.0f;
+					break;
+
+				case Allignment.BottomLeft:
+					pos.Y -= size.Y;
+					break;
+				case Allignment.Bottom:
+					pos.X -= size.X / 2.0f;
+					pos.Y -= size.Y;
+					break;
+				case Allignment.BottomRight:
+					pos -= size;
+					break;
+			}
+
+			Origin   = org;
+			Position = pos;
 		}
 
 		/// <summary>
@@ -235,18 +303,12 @@ namespace MiGfx
 			if( !base.LoadFromStream( br ) )
 				return false;
 
-			LockPosition = false;
-			LockSize     = false;
-			LockScale    = false;
-
 			try
 			{
-				Position     = new Vector2f( br.ReadSingle(), br.ReadSingle() );
-				Size         = new Vector2f( br.ReadSingle(), br.ReadSingle() );
-				Scale        = new Vector2f( br.ReadSingle(), br.ReadSingle() );
-				LockPosition = br.ReadBoolean();
-				LockSize     = br.ReadBoolean();
-				LockScale    = br.ReadBoolean();
+				Origin   = (Allignment)br.ReadInt32();
+				Position = new Vector2f( br.ReadSingle(), br.ReadSingle() );
+				Size     = new Vector2f( br.ReadSingle(), br.ReadSingle() );
+				Scale    = new Vector2f( br.ReadSingle(), br.ReadSingle() );
 			}
 			catch( Exception e )
 			{
@@ -271,12 +333,10 @@ namespace MiGfx
 
 			try
 			{
+				bw.Write( (int)Origin );
 				bw.Write( Position.X ); bw.Write( Position.Y );
 				bw.Write( Size.X );     bw.Write( Size.Y );
 				bw.Write( Scale.X );    bw.Write( Scale.Y );
-				bw.Write( LockPosition );
-				bw.Write( LockSize );
-				bw.Write( LockScale );
 			}
 			catch( Exception e )
 			{
@@ -285,7 +345,6 @@ namespace MiGfx
 
 			return true;
 		}
-
 		/// <summary>
 		///   Attempts to load the object from the xml element.
 		/// </summary>
@@ -300,61 +359,49 @@ namespace MiGfx
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			LockPosition = false;
-			LockSize     = false;
-			LockScale    = false;
+			Origin     = 0;
+			Scale      = new Vector2f( 1.0f, 1.0f );
 
 			XmlElement position = element[ nameof( Position ) ],
 			           size     = element[ nameof( Size ) ],
 			           scale    = element[ nameof( Scale ) ];
+
+			Vector2f? pos = Xml.ToVec2f( position ),
+					  siz = Xml.ToVec2f( size );
 
 			if( position == null )
 				return Logger.LogReturn( "Failed loading Transform: No Position element.", false, LogType.Error );
 			if( size == null )
 				return Logger.LogReturn( "Failed loading Transform: No Size element.", false, LogType.Error );
 
-			Vector2f? pos = Xml.ToVec2f( position ),
-					  siz = Xml.ToVec2f( size ),
-					  scl = scale != null ? Xml.ToVec2f( scale ) : null;
-
 			if( !pos.HasValue )
 				return Logger.LogReturn( "Failed loading Transform: Unable to parse position.", false, LogType.Error );
 			if( !siz.HasValue )
 				return Logger.LogReturn( "Failed loading Transform: Unable to parse size.", false, LogType.Error );
-			if( scale != null && !scl.HasValue )
-				return Logger.LogReturn( "Failed loading Transform: Unable to parse scale.", false, LogType.Error );
-			else if( scale == null )
-				scl = new Vector2f( 1.0f, 1.0f );
 
 			Position = pos.Value;
 			Size     = siz.Value;
-			Scale    = scl.Value;
-
-			if( element.HasAttribute( nameof( LockPosition ) ) )
+			
+			if( element.HasAttribute( nameof( Origin ) ) )
 			{
-				if( !bool.TryParse( element.GetAttribute( nameof( LockPosition ) ), out bool lp ) )
-					return Logger.LogReturn( "Failed loading Transform: Unable to parse position lock.", false, LogType.Error );
+				if( !Enum.TryParse( element.GetAttribute( nameof( Origin ) ), true, out Allignment a ) )
+					return Logger.LogReturn( "Failed loading Transform: Unable to parse Anchor attribute.", false, LogType.Error );
 
-				LockPosition = lp;
+				Origin = a;
 			}
-			if( element.HasAttribute( nameof( LockSize ) ) )
-			{
-				if( !bool.TryParse( element.GetAttribute( nameof( LockSize ) ), out bool ls ) )
-					return Logger.LogReturn( "Failed loading Transform: Unable to parse size lock.", false, LogType.Error );
 
-				LockSize = ls;
-			}
-			if( element.HasAttribute( nameof( LockScale ) ) )
+			if( scale != null )
 			{
-				if( !bool.TryParse( element.GetAttribute( nameof( LockScale ) ), out bool ls ) )
-					return Logger.LogReturn( "Failed loading Transform: Unable to parse scale lock.", false, LogType.Error );
+				Vector2f? scl = scale != null ? Xml.ToVec2f( scale ) : null;
 
-				LockScale = ls;
+				if( !scl.HasValue )
+					return Logger.LogReturn( "Failed loading Transform: Unable to parse scale.", false, LogType.Error );
+
+				Scale = scl.Value;
 			}
 
 			return true;
 		}
-
 		/// <summary>
 		///   Converts the object to an xml string.
 		/// </summary>
@@ -381,21 +428,9 @@ namespace MiGfx
 			sb.AppendLine( "\"" );
 
 			sb.Append( "           " );
-			sb.Append( nameof( LockPosition ) );
+			sb.Append( nameof( Origin ) );
 			sb.Append( "=\"" );
-			sb.Append( LockPosition );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( LockSize ) );
-			sb.Append( "=\"" );
-			sb.Append( LockSize );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( LockScale ) );
-			sb.Append( "=\"" );
-			sb.Append( LockScale );
+			sb.Append( Origin );
 			sb.AppendLine( "\">" );
 
 			sb.AppendLine( Xml.ToString( Position, nameof( Position ), 1 ) );
@@ -420,11 +455,11 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( Transform other )
 		{
-			return Position  == other.Position  &&
-				   Size == other.Size &&
-				   Scale     == other.Scale;
+			return Origin     == other.Origin &&
+			       Position.Equals( other.Position ) &&
+				   Size.Equals( other.Size ) &&
+				   Scale.Equals( other.Scale );
 		}
-
 		/// <summary>
 		///   Clones this object.
 		/// </summary>
@@ -436,6 +471,76 @@ namespace MiGfx
 			return new Transform( this );
 		}
 
-		private Vector2f m_pos, m_size, m_scale;
+		/// <summary>
+		///   Gets immediate children of the root entity that contain a Transform and are within the
+		///   given area.
+		/// </summary>
+		/// <param name="root">
+		///   The root entity containing the entities to check.
+		/// </param>
+		/// <param name="area">
+		///   The area in world pixel coordinates to check.
+		/// </param>
+		/// <returns>
+		///   All immediate children of the root entity that contain a Transform and are within the
+		///   given area.
+		/// </returns>
+		public static MiEntity[] GetEntitiesInArea( MiEntity root, FloatRect area )
+		{
+			List<MiEntity> ents = new List<MiEntity>();
+
+			MiEntity[] children = root.GetChildrenWithComponent<Transform>();
+
+			foreach( MiEntity c in children )
+			{
+				FloatRect b = c.GetComponent<Transform>().GlobalBounds;
+
+				if( b.Left > area.Left + area.Width ||
+					area.Left > b.Left + b.Width ||
+					b.Top > area.Top + area.Height ||
+					area.Top > b.Top + b.Height )
+					continue;
+
+				ents.Add( c );
+			}
+
+			return ents.ToArray();
+		}
+		/// <summary>
+		///   Recursively gets all children of the root entity that contain a Transform and are
+		///   within the given area.
+		/// </summary>
+		/// <param name="root">
+		///   The root entity containing the entities to check.
+		/// </param>
+		/// <param name="area">
+		///   The area in world pixel coordinates to check.
+		/// </param>
+		/// <returns>
+		///   All children of the root entity that contain a Transform and are within the given area.
+		/// </returns>
+		public static MiEntity[] GetAllEntitiesInArea( MiEntity root, FloatRect area )
+		{
+			List<MiEntity> ents = new List<MiEntity>();
+
+			MiEntity[] children = root.GetAllChildrenWithComponent<Transform>();
+
+			foreach( MiEntity c in children )
+			{
+				FloatRect b = c.GetComponent<Transform>().GlobalBounds;
+
+				if( b.Left > area.Left + area.Width ||
+					area.Left > b.Left + b.Width ||
+					b.Top > area.Top + area.Height ||
+					area.Top > b.Top + b.Height )
+					continue;
+
+				ents.Add( c );
+			}
+
+			return ents.ToArray();
+		}
+
+		private Vector2f m_size, m_scale;
 	}
 }

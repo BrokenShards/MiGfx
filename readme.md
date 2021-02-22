@@ -14,6 +14,20 @@ A basic C# graphics library for use with SFML.Net.
 
 ## Changelog
 
+### Version 0.11.0
+- Added `BoxCollider` and `CircleCollider` components along with `Physics` class for managing
+  geometry collision.
+- Fixed issue where `Label` and `UILabel` allignment was not working.
+- `AssetManager<T>` no longer requires the asset type to be disposable and no longer disposes of
+  assets on removal. Use `DisposableAssetManager<T>` if you would like the old functionality that
+  manages disposable assets.
+- `Paths.ToWindows(string)` and `Paths.FromWindows(string)` have been moved to MiCore.
+- Added `AnimationDB`, `TextStyleDB` and `TilesetDB` databases.
+- Now `AnimationSet` just stores the IDs of its animations rather than entire objects and retrieves
+  the actual animations from `AnimationDB`.
+- Updated MiCore to version 0.9.0.
+- Updated MiInput to version 0.10.0.
+
 ### Version 0.10.0
 - `AssetManager<T>` now implements `IEnumerable<KeyValuePair<string, T>>` so loaded assets can be
   iterated through.

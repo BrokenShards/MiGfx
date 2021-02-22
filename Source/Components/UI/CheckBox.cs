@@ -80,12 +80,6 @@ namespace MiGfx
 				Colors[ i ] = Color.White;
 
 			Checked = false;
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
-			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( Button ),         nameof( SpriteArray ),
-													nameof( SpriteAnimator ), nameof( TextBox ),
-			                                        nameof( FillBar ) };
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -102,12 +96,6 @@ namespace MiGfx
 				Colors[ i ] = new Color( b.Colors[ i ] );
 
 			Checked = b.Checked;
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
-			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( Button ),         nameof( SpriteArray ),
-													nameof( SpriteAnimator ), nameof( TextBox ),
-			                                        nameof( FillBar ) };
 		}
 		/// <summary>
 		///   Constructor setting the initial checked value.
@@ -124,12 +112,6 @@ namespace MiGfx
 				Colors[ i ] = Color.White;
 
 			Checked = check;
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( Selectable ), 
-			                                        nameof( Clickable ), nameof( Sprite ) };
-			IncompatibleComponents = new string[] { nameof( Button ),         nameof( SpriteArray ),
-													nameof( SpriteAnimator ), nameof( TextBox ),
-			                                        nameof( FillBar ) };
 		}
 
 		/// <summary>
@@ -159,6 +141,29 @@ namespace MiGfx
 		public bool Checked { get; set; }
 
 		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( UITransform ), nameof( Selectable ), nameof( UIClickable ),
+			                      nameof( UISprite ) };
+		}
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( Button ),  nameof( FillBar ), nameof( TextBox ),
+			                      nameof( UISpriteAnimator ), nameof( UISpriteArray ) };
+		}
+
+		/// <summary>
 		///   Updates the component logic.
 		/// </summary>
 		/// <param name="dt">
@@ -166,13 +171,13 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Stack == null )
+			if( Parent == null )
 				return;
 
-			Selectable sel = Stack.Get<Selectable>();
-			Clickable  clk = Stack.Get<Clickable>();
-			Sprite     spr = Stack.Get<Sprite>();
-			Texture    tex = Assets.Manager.Texture.Get( spr.Image.Path );
+			Selectable  sel = Parent.GetComponent<Selectable>();
+			UIClickable clk = Parent.GetComponent<UIClickable>();
+			UISprite    spr = Parent.GetComponent<UISprite>();
+			Texture     tex = Assets.Manager.Texture.Get( spr.Image.Path );
 
 			if( clk.Clicked )
 				Checked = !Checked;
@@ -398,13 +403,13 @@ namespace MiGfx
 		{
 			MiEntity ent = new MiEntity( id, window );
 
-			if( !ent.Components.AddNew<CheckBox>( true ) )
+			if( !ent.AddComponent( new CheckBox( check ), true ) )
 			{
 				ent.Dispose();
 				return Logger.LogReturn<MiEntity>( "Failed creating CheckBox entity: Adding CheckBox failed.", null, LogType.Error );
 			}
 
-			Sprite spr = ent.Components.Get<Sprite>();
+			UISprite spr = ent.GetComponent<UISprite>();
 			spr.Image = new ImageInfo( FilePaths.CheckBoxTexture );
 
 			if( !spr.Image.IsTextureValid )
@@ -413,9 +418,12 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating CheckBox entity: Loading Texture failed.", null, LogType.Error );
 			}
 
-			Vector2u tsize = spr.Image.TextureSize;
-			ent.Components.Get<Transform>().Size = new Vector2f( tsize.X / 2.0f, tsize.Y / 2.0f );
-			ent.Components.Get<Transform>().LockSize = true;
+			if( window != null )
+			{
+				View view = window.GetView();
+				Vector2u size = spr.Image.TextureSize / 2;
+				ent.GetComponent<UITransform>().Size = new Vector2f( size.X / view.Size.X, size.Y / view.Size.Y );
+			}
 
 			return ent;
 		}

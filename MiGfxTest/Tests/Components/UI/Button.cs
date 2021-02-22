@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// CheckBox.cs 
+// Button.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -29,65 +29,79 @@ using MiInput;
 
 namespace MiGfx.Test
 {
-	public class CheckBoxTest : VisualTestModule
+	public class ButtonTest : VisualTestModule
 	{
-		const string CheckBoxPath = "checkbox.bin";
+		const string ButtonPath = "button.bin";
 
 		protected override bool OnTest()
 		{
-			Logger.Log( "Running CheckBox Tests..." );
+			Logger.Log( "Running Button Tests..." );
 
-			CheckBox c1 = new CheckBox();
+			Button b1 = new Button();
 
-			if( c1.Checked )
-				return Logger.LogReturn( "Failed: Default constructed object with incorrect checked value.", false );
-			if( !BinarySerializable.ToFile( c1, CheckBoxPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize CheckBox to file.", false );
+			if( !BinarySerializable.ToFile( b1, ButtonPath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize Button to file.", false );
 
-			CheckBox c2 = BinarySerializable.FromFile<CheckBox>( CheckBoxPath );
+			Button b2 = BinarySerializable.FromFile<Button>( ButtonPath );
 
 			try
 			{
-				File.Delete( CheckBoxPath );
+				File.Delete( ButtonPath );
 			}
 			catch
 			{ }
 
-			if( c2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize CheckBox from file.", false );
-			if( !c2.Equals( c1 ) )
-				return Logger.LogReturn( "Failed: Deserialized CheckBox has incorrect values.", false );
+			if( b2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize Button from file.", false );
+			if( !b2.Equals( b1 ) )
+				return Logger.LogReturn( "Failed: Deserialized Button has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + c1.ToString();
-			CheckBox x = XmlLoadable.FromXml<CheckBox>( xml );
+			string xml = Xml.Header + "\r\n" + b1.ToString();
+			Button x = XmlLoadable.FromXml<Button>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
-			if( !x.Equals( c1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Unable to load Button from xml.", false );
 
-			c1.Dispose();
-			c2.Dispose();
+			if( !x.Equals( b1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded Button has incorrect values.", false );
+
+			b1.Dispose();
+			b2.Dispose();
 			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running CheckBox Visual Tests..." );
+			Logger.Log( "Running Button Visual Tests..." );
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = CheckBox.Create( "tester", window );
-
-			if( ent == null )
-				return Logger.LogReturn( "Failed: Unable to create CheckBox.", false );
+			MiEntity ent = new MiEntity( "selector", window );
 
 			using( ent )
 			{
-				ent.Components.Get<Transform>().Center = window.GetView().Center;
+				if( !ent.AddNewComponent<Selector>() )
+				{
+					ent.Dispose();
+					return Logger.LogReturn( "Failed: Unable to create Selector.", false );
+				}
 
-				Logger.Log( "Is checkbox displayed on window? (y/n)" );
+				MiEntity but = Button.Create( "tester", window, "Test Button" );
+
+				if( but == null )
+					return Logger.LogReturn( "Failed: Unable to create button.", false );
+
+				UITransform tran = but.GetComponent<UITransform>();
+
+				tran.Origin   = Allignment.Middle;
+				tran.Size     = new Vector2f( 0.4f, 0.1f );
+				tran.Position = new Vector2f( 0.5f, 0.5f );
+
+				ent.AddChild( but );
+				ent.GetComponent<Selector>().Select( 0 );
+
+				Logger.Log( "Is button displayed on window? (y/n)" );
 				bool? inp = null;
 
 				while( window.IsOpen && inp == null )
@@ -108,7 +122,7 @@ namespace MiGfx.Test
 				}
 
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: CheckBox did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: Button did not display correctly (user input).", false );
 			}
 
 			return Logger.LogReturn( "Success!", true );

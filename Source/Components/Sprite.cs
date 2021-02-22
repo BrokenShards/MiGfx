@@ -42,10 +42,8 @@ namespace MiGfx
 		public Sprite()
 		:	base()
 		{
-			Image     = new ImageInfo();
-			m_verts   = new VertexArray( PrimitiveType.Quads, 4 );
-
-			RequiredComponents = new string[] { nameof( Transform ) };
+			Image   = new ImageInfo();
+			m_verts = new VertexArray( PrimitiveType.Quads, 4 );
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -57,13 +55,11 @@ namespace MiGfx
 			if( s == null )
 				throw new ArgumentNullException();
 
-			Image     = new ImageInfo( s.Image );
-			m_verts   = new VertexArray( PrimitiveType.Quads, 4 );
+			Image   = new ImageInfo( s.Image );
+			m_verts = new VertexArray( PrimitiveType.Quads, 4 );
 
 			for( uint i = 0; i < 4; i++ )
 				m_verts[ i ] = s.m_verts[ i ];
-
-			RequiredComponents = new string[] { nameof( Transform ) };
 		}
 		/// <summary>
 		///   Constructs the sprite with the given image info.
@@ -74,10 +70,8 @@ namespace MiGfx
 		public Sprite( ImageInfo i )
 		:	base()
 		{
-			Image     = i ?? new ImageInfo();
-			m_verts   = new VertexArray( PrimitiveType.Quads, 4 );
-
-			RequiredComponents = new string[] { nameof( Transform ) };
+			Image   = i ?? new ImageInfo();
+			m_verts = new VertexArray( PrimitiveType.Quads, 4 );
 		}
 
 		/// <summary>
@@ -97,6 +91,27 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( Transform ) };
+		}
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( SpriteArray ) };
+		}
+
+		/// <summary>
 		///   Updates the sprite geometry. Call this before drawing.
 		/// </summary>
 		/// <param name="dt">
@@ -104,11 +119,11 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			Transform t = Stack?.Get<Transform>();
+			Transform t = Parent?.GetComponent<Transform>();
 
 			if( Image != null && t != null )
 				for( uint i = 0; i < m_verts.VertexCount; i++ )
-					m_verts[ i ] = Image.GetVertex( i, t );
+					m_verts[ i ] = Image.GetVertex( i, t.GlobalBounds );
 		}
 		/// <summary>
 		///   Draws the sprite to the render target.
@@ -209,7 +224,6 @@ namespace MiGfx
 
 			return true;
 		}
-
 		/// <summary>
 		///   Converts the object to an xml string.
 		/// </summary>
@@ -278,6 +292,9 @@ namespace MiGfx
 			return new Sprite( this );
 		}
 
-		private VertexArray m_verts;
+		/// <summary>
+		///   Sprite vertices.
+		/// </summary>
+		protected VertexArray m_verts;
 	}
 }

@@ -61,6 +61,8 @@ namespace MiGfx
 		public Clickable()
 		:	base()
 		{
+			Hovering = false;
+			Clicked  = false;
 			ClickState = ClickableState.Idle;
 		}
 		/// <summary>
@@ -72,6 +74,8 @@ namespace MiGfx
 		public Clickable( Clickable c )
 		:	base( c )
 		{
+			Hovering   = c.Hovering;
+			Clicked    = c.Clicked;
 			ClickState = c.ClickState;
 		}
 
@@ -88,7 +92,7 @@ namespace MiGfx
 		/// </summary>
 		public ClickableState ClickState
 		{
-			get; private set;
+			get; protected set;
 		}
 
 		/// <summary>
@@ -96,25 +100,35 @@ namespace MiGfx
 		/// </summary>
 		public bool Hovering
 		{
-			get
-			{
-				if( !Enabled || Parent?.Window == null )
-					return false;
-
-				Vector2f pos = Parent.Window.MapPixelToCoords( Input.Manager.Mouse.GetPosition( Parent.Window ) );
-				return Parent.Components.Get<Transform>().GlobalBounds.Contains( pos.X, pos.Y );
-			}
+			get; protected set;
 		}
 		/// <summary>
 		///   If the entity is being clicked.
 		/// </summary>
 		public bool Clicked
 		{
-			get
-			{
-				return( Hovering && Input.Manager.Mouse.JustPressed( Mouse.Button.Left ) ) ||
-					  ( Parent.Components.Get<Selectable>().Selected && Input.Manager.Keyboard.JustPressed( Keyboard.Key.Enter ) );
-			}
+			get; protected set;
+		}
+
+		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( Transform ), nameof( Selectable ) };
+		}
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( UIClickable ) };
 		}
 
 		/// <summary>
@@ -125,7 +139,38 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			ClickState = Clicked ? ClickableState.Click : ( Hovering ? ClickableState.Hover : ClickableState.Idle );
+			Transform  t = Parent?.GetComponent<Transform>();
+			Selectable s = Parent?.GetComponent<Selectable>();
+
+			if( !Enabled || Parent?.Window == null || t == null || s == null )
+			{
+				ClickState = ClickableState.Idle;
+				return;
+			}
+
+			if( Input.Manager.LastDevice == InputDevice.Mouse )
+			{
+				Vector2f mpos = Parent.Window.MapPixelToCoords( Input.Manager.Mouse.GetPosition( Parent.Window ) );
+				Hovering = t.GlobalBounds.Contains( mpos.X, mpos.Y );
+
+				if( s.Selector?.Parent != null )
+					s.Selected = Hovering;
+			}
+			else
+				Hovering = s.Selected;
+
+			Action submit = Input.Manager.Actions[ 0 ]?.Get( "Submit" );
+
+			bool sub = submit != null ? submit.JustPressed :
+					( Input.Manager.Keyboard.JustPressed( Keyboard.Key.Enter ) ||
+					  Input.Manager.Joystick[ 0 ].JustPressed( "A" ) );
+
+			if( Input.Manager.LastDevice == InputDevice.Mouse )
+				Clicked = Hovering && Input.Manager.Mouse.JustPressed( Mouse.Button.Left );
+			else
+				Clicked = s.Selected && sub;
+			
+			ClickState = Clicked ? ClickableState.Click : ( s.Selected ? ClickableState.Hover : ClickableState.Idle );
 		}
 
 		/// <summary>

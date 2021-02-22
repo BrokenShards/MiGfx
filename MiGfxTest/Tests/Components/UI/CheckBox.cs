@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// Label.cs 
+// CheckBox.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -22,73 +22,86 @@
 
 using System.IO;
 using SFML.Graphics;
+using SFML.System;
 
 using MiCore;
 using MiInput;
 
 namespace MiGfx.Test
 {
-	public class LabelTest : VisualTestModule
+	public class CheckBoxTest : VisualTestModule
 	{
-		const string LabelPath = "label.bin";
+		const string CheckBoxPath = "checkbox.bin";
 
 		protected override bool OnTest()
 		{
-			Logger.Log( "Running Label Tests..." );
+			Logger.Log( "Running CheckBox Tests..." );
 
-			Label l1 = new Label( "Test" );
+			CheckBox c1 = new CheckBox();
 
-			if( !BinarySerializable.ToFile( l1, LabelPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize Label to file.", false );
+			if( c1.Checked )
+				return Logger.LogReturn( "Failed: Default constructed object with incorrect checked value.", false );
+			if( !BinarySerializable.ToFile( c1, CheckBoxPath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize CheckBox to file.", false );
 
-			Label l2 = BinarySerializable.FromFile<Label>( LabelPath );
+			CheckBox c2 = BinarySerializable.FromFile<CheckBox>( CheckBoxPath );
 
 			try
 			{
-				File.Delete( LabelPath );
+				File.Delete( CheckBoxPath );
 			}
 			catch
 			{ }
 
-			if( l2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize Label from file.", false );
-			if( !l2.Equals( l1 ) )
-				return Logger.LogReturn( "Failed: Deserialized Label has incorrect values.", false );
+			if( c2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize CheckBox from file.", false );
+			if( !c2.Equals( c1 ) )
+				return Logger.LogReturn( "Failed: Deserialized CheckBox has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + l1.ToString();
-			Label x = XmlLoadable.FromXml<Label>( xml );
+			string xml = Xml.Header + "\r\n" + c1.ToString();
+			CheckBox x = XmlLoadable.FromXml<CheckBox>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load Label from xml.", false );
-			if( !x.Equals( l1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded Label has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
+			if( !x.Equals( c1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
 
-			l1.Dispose();
-			l2.Dispose();
+			c1.Dispose();
+			c2.Dispose();
 			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running Label Visual Tests..." );
+			Logger.Log( "Running CheckBox Visual Tests..." );
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			using( MiEntity ent = new MiEntity( "tester", window ) )
+			MiEntity ent = new MiEntity( "selector", window );
+
+			using( ent )
 			{
-				if( !ent.AddNewComponent<Label>() )
-					return Logger.LogReturn( "Failed: Unable to add Label to test entity.", false );
+				if( !ent.AddNewComponent<Selector>() )
+				{
+					ent.Dispose();
+					return Logger.LogReturn( "Failed: Unable to create Selector.", false );
+				}
 
-				ent.GetComponent<Label>().String = "Test";
-				ent.GetComponent<Label>().Text.FillColor = Color.White;
+				MiEntity chk = CheckBox.Create( "tester", window );
 
-				Transform tran = ent.GetComponent<Transform>();
+				if( chk == null )
+					return Logger.LogReturn( "Failed: Unable to create CheckBox.", false );
 
-				tran.Origin = Allignment.Middle;
-				tran.Position = window.GetView().Center;
+				UITransform tran = chk.GetComponent<UITransform>();
 
-				Logger.Log( "Is label text displayed on window? (y/n)" );
+				tran.Origin   = Allignment.Middle;
+				tran.Position = new Vector2f( 0.5f, 0.5f );
+
+				ent.AddChild( chk );
+				ent.GetComponent<Selector>().Select( 0 );
+
+				Logger.Log( "Is checkbox displayed on window? (y/n)" );
 				bool? inp = null;
 
 				while( window.IsOpen && inp == null )
@@ -109,7 +122,7 @@ namespace MiGfx.Test
 				}
 
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: Label did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: CheckBox did not display correctly (user input).", false );
 			}
 
 			return Logger.LogReturn( "Success!", true );

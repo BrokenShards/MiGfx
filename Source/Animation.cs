@@ -59,7 +59,7 @@ namespace MiGfx
 			m_frames = new List<Frame>( a.m_frames.Count );
 
 			foreach( Frame f in a.m_frames )
-				Add( f );
+				Add( new Frame( f ) );
 		}
 		/// <summary>
 		///   Constructor that assigns the ID.
@@ -140,7 +140,7 @@ namespace MiGfx
 		public string ID 
 		{
 			get { return m_id; }
-			private set
+			set
 			{
 				if( !Identifiable.IsValid( value ) )
 					throw new ArgumentException( "Trying to set invalid Animation ID." );

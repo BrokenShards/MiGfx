@@ -42,7 +42,7 @@ namespace MiGfx
 		:	base()
 		{
 			FontPath     = FilePaths.DefaultFont;
-			Size         = 24;
+			Size         = 20;
 			Style        = 0;
 			Outline      = 0.0f;
 			FillColor    = new Color( 255, 255, 255, 255 );
@@ -96,7 +96,7 @@ namespace MiGfx
 		:	base()
 		{
 			FontPath     = font ?? FilePaths.DefaultFont;
-			Size         = size == 0 ? 24 : size;
+			Size         = size == 0 ? 20 : size;
 			Style        = style;
 			Outline      = line < 0.0f ? 0.0f : line;
 			FillColor    = fill ?? new Color( 255, 255, 255, 255 );

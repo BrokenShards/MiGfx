@@ -334,11 +334,6 @@ namespace MiGfx
 			Background  = new FillBarInfo();
 			Fill        = new FillBarInfo();
 			FillPadding = new Vector2f();
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( SpriteArray ) };
-			IncompatibleComponents = new string[] { nameof( Button ), nameof( CheckBox ), 
-			                                        nameof( Sprite ), nameof( TextBox ),
-													nameof( SpriteAnimator ) };
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -357,11 +352,6 @@ namespace MiGfx
 			Background  = s.Background == null ? new FillBarInfo() : new FillBarInfo( s.Background );
 			Fill        = s.Fill       == null ? new FillBarInfo() : new FillBarInfo( s.Fill );
 			FillPadding = s.FillPadding;
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( SpriteArray ) };
-			IncompatibleComponents = new string[] { nameof( Button ), nameof( CheckBox ),
-													nameof( Sprite ), nameof( TextBox ),
-													nameof( SpriteAnimator ) };
 		}
 		/// <summary>
 		///   Constructor setting min-max values.
@@ -392,11 +382,6 @@ namespace MiGfx
 			Background  = new FillBarInfo();
 			Fill        = new FillBarInfo();
 			FillPadding = new Vector2f();
-
-			RequiredComponents     = new string[] { nameof( Transform ), nameof( SpriteArray ) };
-			IncompatibleComponents = new string[] { nameof( Button ), nameof( CheckBox ),
-													nameof( Sprite ), nameof( TextBox ),
-													nameof( SpriteAnimator ) };
 		}
 
 		/// <summary>
@@ -496,6 +481,28 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   Gets the type names of components required by this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components required by this component type.
+		/// </returns>
+		protected override string[] GetRequiredComponents()
+		{
+			return new string[] { nameof( UITransform ), nameof( UISpriteArray ) };
+		}
+		/// <summary>
+		///   Gets the type names of components incompatible with this component type.
+		/// </summary>
+		/// <returns>
+		///   The type names of components incompatible with this component type.
+		/// </returns>
+		protected override string[] GetIncompatibleComponents()
+		{
+			return new string[] { nameof( Button ),  nameof( CheckBox ), nameof( UISprite ),
+			                      nameof( TextBox ), nameof( UISpriteAnimator ) };
+		}
+
+		/// <summary>
 		///   Updates the progress bar.
 		/// </summary>
 		/// <param name="dt">
@@ -503,7 +510,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Stack == null )
+			if( Parent == null )
 				return;
 
 			if( Background == null )
@@ -511,8 +518,8 @@ namespace MiGfx
 			if( Fill == null )
 				Fill = new FillBarInfo();
 
-			Transform   tr = Stack.Get<Transform>();
-			SpriteArray sa = Stack.Get<SpriteArray>();
+			UITransform   tr = Parent.GetComponent<UITransform>();
+			UISpriteArray sa = Parent.GetComponent<UISpriteArray>();
 
 			Texture tex = Assets.Manager.Get<Texture>( sa.TexturePath );
 
@@ -521,14 +528,14 @@ namespace MiGfx
 				Vector2u size = tex.Size;
 
 				SpriteInfo bginfo = new SpriteInfo( new FloatRect( 0, 0, size.X, size.Y / 2 ),
-									Background.Color, null, tr.Size, Background.Orientation,
+									Background.Color, null, tr.PixelSize, Background.Orientation,
 									Background.FlipHorizontal, Background.FlipVertical ),
 				           flinfo = new SpriteInfo( 
 							        new FloatRect( FillPadding.X, FillPadding.Y + ( size.Y / 2 ),
 										         ( size.X - ( FillPadding.X * 2 ) ) * Progress,
 												 ( size.Y / 2 ) - ( FillPadding.Y * 2 ) ),
-									Fill.Color, FillPadding, tr.Size - ( FillPadding * 2 ), Fill.Orientation,
-									Fill.FlipHorizontal, Fill.FlipVertical );
+									Fill.Color, FillPadding, tr.PixelSize - ( FillPadding * 2 ),
+									Fill.Orientation, Fill.FlipHorizontal, Fill.FlipVertical );
 
 				if( Progress == 0.0f )
 					flinfo.Color = new Color( 255, 255, 255, 0 );
@@ -549,18 +556,18 @@ namespace MiGfx
 			}
 
 			// Label
-			if( Stack.Contains<Label>() )
+			if( Parent.HasComponent<UILabel>() )
 			{
 				if( Labeling == LabelType.Percentage )
-					Stack.Get<Label>().String = string.Format( "{0:0.#}", (double)( Progress * 100.0 ) ) + "%";
+					Parent.GetComponent<UILabel>().String = string.Format( "{0:0.#}", (double)( Progress * 100.0 ) ) + "%";
 				else if( Labeling == LabelType.Decimal )
-					Stack.Get<Label>().String = string.Format( "{0:0.#}", (double)Progress );
+					Parent.GetComponent<UILabel>().String = string.Format( "{0:0.#}", (double)Progress );
 				else if( Labeling == LabelType.Value )
-					Stack.Get<Label>().String = Value.ToString();
+					Parent.GetComponent<UILabel>().String = Value.ToString();
 				else if( Labeling == LabelType.ValueMax )
-					Stack.Get<Label>().String = Value.ToString() + "/" + Max.ToString();
+					Parent.GetComponent<UILabel>().String = Value.ToString() + "/" + Max.ToString();
 				else
-					Stack.Get<Label>().String = string.Empty;
+					Parent.GetComponent<UILabel>().String = string.Empty;
 			}
 		}
 		
@@ -843,33 +850,39 @@ namespace MiGfx
 		{
 			MiEntity ent = new MiEntity( id, window );
 
-			if( !ent.Components.Add( new FillBar( val, min, max ) ) )
+			if( !ent.AddComponent( new FillBar( val, min, max ) ) )
 			{
 				ent.Dispose();
 				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Adding FillBar failed.", null, LogType.Error );
 			}
-			if( !ent.Components.AddNew<Label>() )
+			if( !ent.AddNewComponent<UILabel>() )
 			{
 				ent.Dispose();
-				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Adding Label failed.", null, LogType.Error );
+				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Adding UILabel failed.", null, LogType.Error );
 			}
 
-			ent.Components.Get<SpriteArray>().TexturePath = FilePaths.FillBarTexture;
+			Texture tex = Assets.Manager.Get<Texture>( FilePaths.FillBarTexture );
 
-			FillBar fb = ent.Components.Get<FillBar>();
+			if( tex == null )
+			{
+				ent.Dispose();
+				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Loading Texture failed.", null, LogType.Error );
+			}
+
+			ent.GetComponent<UISpriteArray>().TexturePath = FilePaths.FillBarTexture;
+
+			FillBar fb = ent.GetComponent<FillBar>();
 			fb.Labeling = lt;
 			fb.Fill.Color = col ?? Color.White;
 
-			Label lab = ent.Components.Get<Label>();
+			UILabel lab = ent.GetComponent<UILabel>();
 			lab.Text.FillColor = Color.White;
 			lab.Allign = Allignment.Middle;
 			lab.Offset = new Vector2f( 0, -8.0f );
 
-			Transform trn = ent.Components.Get<Transform>();
+			UITransform trn = ent.GetComponent<UITransform>();
 
-			trn.Size = new Vector2f( 640, 64 );
-			trn.LockSize = true;
-
+			trn.PixelSize = new Vector2f( tex.Size.X, tex.Size.Y / 2 );
 			return ent;
 		}
 

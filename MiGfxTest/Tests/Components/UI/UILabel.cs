@@ -1,5 +1,5 @@
 ﻿////////////////////////////////////////////////////////////////////////////////
-// TextBox.cs 
+// UILabel.cs 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MiGfx - A basic graphics library for use with SFML.Net.
@@ -29,69 +29,72 @@ using MiInput;
 
 namespace MiGfx.Test
 {
-	public class TextBoxTest : VisualTestModule
+	public class UILabelTest : VisualTestModule
 	{
-		const string TextBoxPath = "text_box.bin";
+		const string UILabelPath = "uilabel.bin";
 
 		protected override bool OnTest()
 		{
-			Logger.Log( "Running TextBox Tests..." );
+			Logger.Log( "Running UILabel Tests..." );
 
-			TextBox t1 = new TextBox( new TextBoxData( new ImageInfo( Test.SpriteTexturePath ) ) );
+			UILabel l1 = new UILabel( "Test" );
 
-			if( !BinarySerializable.ToFile( t1, TextBoxPath, true ) )
-				return Logger.LogReturn( "Failed: Unable to serialize TextBox to file.", false );
+			if( !BinarySerializable.ToFile( l1, UILabelPath, true ) )
+				return Logger.LogReturn( "Failed: Unable to serialize UILabel to file.", false );
 
-			TextBox t2 = BinarySerializable.FromFile<TextBox>( TextBoxPath );
+			UILabel l2 = BinarySerializable.FromFile<UILabel>( UILabelPath );
 
 			try
 			{
-				File.Delete( TextBoxPath );
+				File.Delete( UILabelPath );
 			}
 			catch
 			{ }
 
-			if( t2 == null )
-				return Logger.LogReturn( "Failed: Unable to deserialize TextBox from file.", false );
-			if( !t2.Equals( t1 ) )
-				return Logger.LogReturn( "Failed: Deserialized TextBox has incorrect values.", false );
+			if( l2 == null )
+				return Logger.LogReturn( "Failed: Unable to deserialize UILabel from file.", false );
+			if( !l2.Equals( l1 ) )
+				return Logger.LogReturn( "Failed: Deserialized UILabel has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + t1.ToString();
-			TextBox x = XmlLoadable.FromXml<TextBox>( xml );
+			string xml = Xml.Header + "\r\n" + l1.ToString();
+			UILabel x = XmlLoadable.FromXml<UILabel>( xml );
 
 			if( x == null )
-				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
-			if( !x.Equals( t1 ) )
-				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
+				return Logger.LogReturn( "Failed: Unable to load UILabel from xml.", false );
+			if( !x.Equals( l1 ) )
+				return Logger.LogReturn( "Failed: Xml loaded UILabel has incorrect values.", false );
 
-			t1.Dispose();
-			t2.Dispose();
+			l1.Dispose();
+			l2.Dispose();
 			x.Dispose();
 			return Logger.LogReturn( "Success!", true );
 		}
 		protected override bool OnVisualTest( RenderWindow window )
 		{
-			Logger.Log( "Running TextBox Visual Tests..." );
+			Logger.Log( "Running UILabel Visual Tests..." );
 
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = null;
-
-			void OnTextEntered( object sender, SFML.Window.TextEventArgs e )
+			using( MiEntity ent = new MiEntity( "tester", window ) )
 			{
-				ent.TextEntered( e );
-			}
+				if( !ent.AddNewComponent<UILabel>() )
+					return Logger.LogReturn( "Failed: Unable to add UILabel to test entity.", false );
 
-			window.TextEntered += OnTextEntered;
+				UILabel label = ent.GetComponent<UILabel>();
 
-			using( ent = TextBox.Create( "tester", window, default, true ) )
-			{
-				ent.Components.Get<Transform>().Size = window.GetView().Size;
-				ent.Components.Get<Transform>().Position = new Vector2f( 0, 0 );
-				ent.Components.Get<TextBox>().SetString( "Testing text box." );
+				label.String = "Test";
+				label.Text.FillColor = Color.White;
+				label.Allign = Allignment.Middle;
 
-				Logger.Log( "Is textbox displayed on window? (y/n)" );
+				FloatRect   textbounds = label.GetTextBounds();
+				UITransform tran = ent.GetComponent<UITransform>();
+
+				tran.Origin   = Allignment.Middle;
+				tran.Size     = new Vector2f( 0.5f, 0.5f );
+				tran.Position = new Vector2f( 0.5f, 0.5f );
+
+				Logger.Log( "Is label text displayed on window? (y/n)" );
 				bool? inp = null;
 
 				while( window.IsOpen && inp == null )
@@ -112,10 +115,8 @@ namespace MiGfx.Test
 				}
 
 				if( inp == null || !inp.Value )
-					return Logger.LogReturn( "Failed: TextBox did not display correctly (user input).", false );
+					return Logger.LogReturn( "Failed: UILabel did not display correctly (user input).", false );
 			}
-
-			window.TextEntered -= OnTextEntered;
 
 			return Logger.LogReturn( "Success!", true );
 		}
