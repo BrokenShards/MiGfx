@@ -32,26 +32,6 @@ using MiCore;
 
 namespace MiGfx
 {
-	public static partial class FilePaths
-	{
-		/// <summary>
-		///   Default button texture.
-		/// </summary>
-		public static readonly string ButtonTexture = FolderPaths.UI + "Button.png";
-		/// <summary>
-		///   Short button texture.
-		/// </summary>
-		public static readonly string ButtonShort   = FolderPaths.UI + "ButtonShort.png";
-		/// <summary>
-		///   Square button texture.
-		/// </summary>
-		public static readonly string ButtonSquare  = FolderPaths.UI + "ButtonShort.png";
-		/// <summary>
-		///   Thick button texture.
-		/// </summary>
-		public static readonly string ButtonThick   = FolderPaths.UI + "ButtonShort.png";
-	}
-
 	/// <summary>
 	///   Contains visual button info.
 	/// </summary>
@@ -314,6 +294,55 @@ namespace MiGfx
 		public ButtonData[] Data { get; private set; }
 
 		/// <summary>
+		///   Called when the component is added to an entity.
+		/// </summary>
+		public override void OnAdd()
+		{
+			Sprite spr = Parent.GetComponent<Sprite>();
+			spr.Image = new ImageInfo( FolderPaths.UI + "Button.png" );
+
+			if( spr.Image.IsTextureValid )
+			{
+				Vector2u size = spr.Image.TextureSize;
+				size.Y /= 3;
+
+				Parent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y );
+			}
+
+			foreach( var b in Parent.GetComponent<Button>().Data )
+			{
+				b.Text.FillColor = Color.White;
+				b.TextOffset = new Vector2f( 0, -8.0f );
+			}
+
+			Label lab  = Parent.GetComponent<Label>();
+			lab.Allign = Allignment.Middle;
+		}
+
+		/// <summary>
+		///   Refreshes components' visual elements.
+		/// </summary>
+		public override void Refresh()
+		{
+			if( Parent == null )
+				return;
+
+			Sprite  spr = Parent.GetComponent<Sprite>();
+			Texture tex = spr.Image.Texture;
+
+			if( tex != null )
+			{
+				Vector2u size = tex.Size;
+				spr.Image.Rect = new FloatRect( 0, 0, size.X, size.Y / 3u );
+			}
+
+			spr.Image.Color = Data[ 0 ].Color;
+
+			Label lab = Parent.GetComponent<Label>();
+			lab.Text = Data[ 0 ].Text;
+			lab.Offset = Data[ 0 ].TextOffset;
+		}
+		/// <summary>
 		///   Updates the elements' logic.
 		/// </summary>
 		/// <param name="dt">
@@ -324,10 +353,10 @@ namespace MiGfx
 			if( Parent == null )
 				return;
 
-			UISprite spr = Parent.GetComponent<UISprite>();
-			Texture  tex = Assets.Manager.Texture.Get( spr.Image.Path );
+			Sprite  spr = Parent.GetComponent<Sprite>();
+			Texture tex = spr.Image.Texture;
 
-			ClickableState state = Parent.GetComponent<UIClickable>().ClickState;
+			ClickableState state = Parent.GetComponent<Clickable>().ClickState;
 			int s = (int)state;
 
 			if( tex != null )
@@ -338,15 +367,16 @@ namespace MiGfx
 					spr.Image.Rect = new FloatRect( 0, size.Y / 3u, size.X, size.Y / 3u );
 				else if( state == ClickableState.Click )
 					spr.Image.Rect = new FloatRect( 0, size.Y / 3u * 2, size.X, size.Y / 3u );
-				else
-					spr.Image.Rect = new FloatRect( 0, 0, size.X, size.Y / 3u );
 			}
 
-			spr.Image.Color = Data[ s ].Color;
+			if( state != ClickableState.Idle )
+			{
+				spr.Image.Color = Data[ s ].Color;
 
-			UILabel lab = Parent.GetComponent<UILabel>();
-			lab.Text    = Data[ s ].Text;
-			lab.Offset  = Data[ s ].TextOffset;
+				Label lab  = Parent.GetComponent<Label>();
+				lab.Text   = Data[ s ].Text;
+				lab.Offset = Data[ s ].TextOffset;
+			}
 		}
 
 		/// <summary>
@@ -357,8 +387,8 @@ namespace MiGfx
 		/// </returns>
 		protected override string[] GetRequiredComponents()
 		{
-			return new string[] { nameof( UITransform ), nameof( Selectable ),
-			                      nameof( UIClickable ), nameof( UISprite ), nameof( UILabel ) };
+			return new string[] { nameof( Transform ), nameof( Selectable ), nameof( Clickable ),
+			                      nameof( Sprite ),    nameof( Label ) };
 		}
 		/// <summary>
 		///   Gets the type names of components incompatible with this component type.
@@ -369,7 +399,7 @@ namespace MiGfx
 		protected override string[] GetIncompatibleComponents()
 		{
 			return new string[] { nameof( CheckBox ), nameof( FillBar ), nameof( TextBox ),
-								  nameof( UISpriteAnimator ), nameof( UISpriteArray ) };
+								  nameof( SpriteAnimator ), nameof( SpriteArray ) };
 		}
 
 		/// <summary>
@@ -535,8 +565,8 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating Button entity: Adding Button failed.", null, LogType.Error );
 			}
 
-			UISprite spr = ent.GetComponent<UISprite>();
-			spr.Image = new ImageInfo( FilePaths.ButtonTexture );
+			Sprite spr = ent.GetComponent<Sprite>();
+			spr.Image = new ImageInfo( FolderPaths.UI + "Button.png" );
 
 			if( !spr.Image.IsTextureValid )
 			{
@@ -546,12 +576,10 @@ namespace MiGfx
 
 			if( window != null )
 			{
-				View view = window.GetView();
-
 				Vector2u size = spr.Image.TextureSize;
 				size.Y /= 3;
 
-				ent.GetComponent<UITransform>().Size = new Vector2f( size.X / view.Size.X, size.Y / view.Size.Y );
+				ent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y );
 			}
 
 			foreach( var b in ent.GetComponent<Button>().Data )
@@ -560,7 +588,7 @@ namespace MiGfx
 				b.TextOffset = new Vector2f( 0, -8.0f );
 			}
 
-			UILabel lab = ent.GetComponent<UILabel>();
+			Label lab = ent.GetComponent<Label>();
 
 			lab.String = string.IsNullOrEmpty( str ) ? string.Empty : str;
 			lab.Allign = Allignment.Middle;

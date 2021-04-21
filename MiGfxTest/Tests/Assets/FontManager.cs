@@ -28,7 +28,7 @@ namespace MiGfx.Test
 	public class FontManagerTest : TestModule
 	{
 		// The path of the Font to load.
-		static readonly string FontPath = FilePaths.DefaultFont;
+		static readonly string FontPath = FolderPaths.Fonts + "FallingSky.otf";
 
 		protected override bool OnTest()
 		{

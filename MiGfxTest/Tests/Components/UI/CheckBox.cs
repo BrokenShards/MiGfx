@@ -93,10 +93,12 @@ namespace MiGfx.Test
 				if( chk == null )
 					return Logger.LogReturn( "Failed: Unable to create CheckBox.", false );
 
-				UITransform tran = chk.GetComponent<UITransform>();
+				Transform tran = chk.GetComponent<Transform>();
 
 				tran.Origin   = Allignment.Middle;
-				tran.Position = new Vector2f( 0.5f, 0.5f );
+				tran.Relative = true;
+				tran.Size     = new Vector2f( 100, 100 );
+				tran.Position = new Vector2f( 400, 300 );
 
 				ent.AddChild( chk );
 				ent.GetComponent<Selector>().Select( 0 );

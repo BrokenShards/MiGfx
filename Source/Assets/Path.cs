@@ -34,87 +34,68 @@ namespace MiGfx
 	public static class FolderPaths
 	{
 		/// <summary>
-		///   The folder path containing the binary executable.
+		///   Directory separator character.
 		/// </summary>
-		public static string Executable
-		{
-			get
-			{
-				string path = Path.GetDirectoryName( Assembly.GetExecutingAssembly().CodeBase );
+		public static readonly char Separator = Path.DirectorySeparatorChar;
 
-				int len = path.Length;
-
-				string s5  = len > 5  ? path.Substring( 0, 5 ).ToLower()  : null;
-				string s6  = len > 6  ? path.Substring( 0, 6 ).ToLower()  : null;
-				string s8  = len > 8  ? path.Substring( 0, 8 ).ToLower()  : null;
-				string s10 = len > 10 ? path.Substring( 0, 10 ).ToLower() : null;
-
-				if( s5 != null && ( s5 == "dir:/" || s5 == "dir:\\" ) )
-					path = path.Substring( 5 );
-				else if( s6 != null && ( s6 == "file:/" || s6 == "file:\\" || s6 == "path:/" || s6 == "path:\\" ) )
-					path = path.Substring( 6 );
-				else if( s8 != null && ( s8 == "folder:/" || s8 == "folder:\\" ) )
-					path = path.Substring( 8 );
-				else if( s10 != null && ( s10 == "directory:/" || s10 == "directory:\\" ) )
-					path = path.Substring( 10 );
-
-				return Paths.ToWindows( path );
-			}
-		}
+		/// <summary>
+		///   The path to the folder containing the binary executable.
+		/// </summary>
+		public static readonly string Executable = Path.GetDirectoryName( FilePaths.Executable ) + Separator;
 
 		/// <summary>
 		///   Base assets folder.
 		/// </summary>
-		public static readonly string Assets = Executable + "\\Assets\\";
+		public static readonly string Assets = Executable + "Assets" + Separator;
 
 		/// <summary>
 		///   Textures folder.
 		/// </summary>
-		public static readonly string Textures = Assets + "Textures\\";
+		public static readonly string Textures = Assets + "Textures" + Separator;
 		/// <summary>
 		///   Fonts folder.
 		/// </summary>
-		public static readonly string Fonts = Assets + "Fonts\\";
+		public static readonly string Fonts = Assets + "Fonts" + Separator;
 		/// <summary>
 		///   Sprites folder.
 		/// </summary>
-		public static readonly string Sprites = Assets + "Sprites\\";
+		public static readonly string Sprites = Assets + "Sprites" + Separator;
 		/// <summary>
 		///   Tilesets folder.
 		/// </summary>
-		public static readonly string Tilesets = Assets + "Tilesets\\";
-		
+		public static readonly string Tilesets = Assets + "Tilesets" + Separator;
+
 		/// <summary>
 		///   Sounds folder.
 		/// </summary>
-		public static readonly string Sounds = Assets + "Sounds\\";
+		public static readonly string Sounds = Assets + "Sounds" + Separator;
 		/// <summary>
 		///   Music folder.
 		/// </summary>
-		public static readonly string Music = Assets + "Music\\";
-		
+		public static readonly string Music = Assets + "Music" + Separator;
+
 		/// <summary>
 		///   GUI assets folder.
 		/// </summary>
-		public static readonly string UI = Assets + "UI\\";
+		public static readonly string UI = Assets + "UI" + Separator;
 
 		/// <summary>
 		///   Settings folder.
 		/// </summary>
-		public static readonly string Settings = Executable + "\\Settings\\";
+		public static readonly string Settings = Executable + "Settings" + Separator;
 
 		/// <summary>
 		///   Game data folder.
 		/// </summary>
-		public static readonly string Data = Executable + "\\Data\\";
+		public static readonly string Data = Executable + "Data" + Separator;
 		/// <summary>
 		///   Database folder.
 		/// </summary>
-		public static readonly string Databases = Data + "Databases\\";
+		public static readonly string Databases = Data + "Databases" + Separator;
 		/// <summary>
 		///   Tilemaps folder.
 		/// </summary>
-		public static readonly string Tilemaps = Data + "Tilemaps\\";
+		public static readonly string Tilemaps = Data + "Tilemaps" + Separator;
 
 		/// <summary>
 		///   Creates the entire folder structure.
@@ -170,23 +151,12 @@ namespace MiGfx
 			{
 				string path = Assembly.GetExecutingAssembly().CodeBase;
 
-				int len = path.Length;
-
-				string s5 = len > 5 ? path.Substring( 0, 5 ).ToLower() : null;
-				string s6 = len > 6 ? path.Substring( 0, 6 ).ToLower() : null;
-				string s8 = len > 8 ? path.Substring( 0, 8 ).ToLower() : null;
-				string s10 = len > 10 ? path.Substring( 0, 10 ).ToLower() : null;
-
-				if( s5 != null && ( s5 == "dir:/" || s5 == "dir:\\" ) )
-					path = path.Substring( 5 );
-				else if( s6 != null && ( s6 == "file:/" || s6 == "file:\\" || s6 == "path:/" || s6 == "path:\\" ) )
-					path = path.Substring( 6 );
-				else if( s8 != null && ( s8 == "folder:/" || s8 == "folder:\\" ) )
+				if( path.StartsWith( "file:///" ) || path.StartsWith( "file:\\\\\\" ) )
 					path = path.Substring( 8 );
-				else if( s10 != null && ( s10 == "directory:/" || s10 == "directory:\\" ) )
-					path = path.Substring( 10 );
+				else if( path.StartsWith( "file://" ) || path.StartsWith( "file:\\\\" ) )
+					path = path.Substring( 7 );
 
-				return Paths.ToWindows( path );
+				return path;
 			}
 		}
 	}

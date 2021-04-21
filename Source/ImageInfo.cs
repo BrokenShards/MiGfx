@@ -64,12 +64,13 @@ namespace MiGfx
 		/// </summary>
 		public ImageInfo()
 		{
-			Path           = string.Empty;
-			Rect           = new FloatRect();
-			Color          = Color.White;
-			Orientation    = Direction.Up;
-			FlipHorizontal = false;
-			FlipVertical   = false;
+			OverrideTexture = null;
+			Path            = string.Empty;
+			Rect            = new FloatRect();
+			Color           = Color.White;
+			Orientation     = Direction.Up;
+			FlipHorizontal  = false;
+			FlipVertical    = false;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -84,13 +85,14 @@ namespace MiGfx
 		{
 			if( i == null )
 				throw new ArgumentNullException();
-
-			Path           = new string( i.Path.ToCharArray() );
-			Rect           = i.Rect;
-			Color          = i.Color;
-			Orientation    = i.Orientation;
-			FlipHorizontal = i.FlipHorizontal;
-			FlipVertical   = i.FlipVertical;
+			
+			OverrideTexture = i.OverrideTexture;
+			Path            = new string( i.Path.ToCharArray() );
+			Rect            = i.Rect;
+			Color           = i.Color;
+			Orientation     = i.Orientation;
+			FlipHorizontal  = i.FlipHorizontal;
+			FlipVertical    = i.FlipVertical;
 		}
 		/// <summary>
 		///   Constructor that assigns texture path.
@@ -116,14 +118,22 @@ namespace MiGfx
 		public ImageInfo( string path, FloatRect rect = default, Color? col = null, 
 		                  Direction dir = 0, bool hflip = false, bool vflip = false )
 		{
-			Path           = path ?? string.Empty;
-			Rect           = rect;
-			Color          = col  ?? new Color( 255, 255, 255, 255 );
-			Orientation    = dir;
-			FlipHorizontal = hflip;
-			FlipVertical   = vflip;
+			OverrideTexture = null;
+			Path            = path ?? string.Empty;
+			Rect            = rect;
+			Color           = col  ?? new Color( 255, 255, 255, 255 );
+			Orientation     = dir;
+			FlipHorizontal  = hflip;
+			FlipVertical    = vflip;
 		}
 
+		/// <summary>
+		///   If this is not null, this texture will be used instead of using the texture manager.
+		/// </summary>
+		public Texture OverrideTexture
+		{
+			get; set;
+		}
 		/// <summary>
 		///   Texture path.
 		/// </summary>
@@ -153,21 +163,26 @@ namespace MiGfx
 		public bool FlipVertical { get; set; }
 
 		/// <summary>
+		///   Gets the texture.
+		/// </summary>
+		public Texture Texture
+		{
+			get { return OverrideTexture ?? Assets.Manager.Texture.Get( Path ); }
+		}
+
+		/// <summary>
 		///   If a valid texture exists at <see cref="Path"/>.
 		/// </summary>
 		public bool IsTextureValid
 		{
-			get
-			{
-				return Assets.Manager.Texture.Get( Path ) != null;
-			}
+			get { return Texture != null; }
 		}
 		/// <summary>
 		///   Gets the size of the texture if valid.
 		/// </summary>
 		public Vector2u TextureSize
 		{
-			get { return IsTextureValid ? Assets.Manager.Texture.Get( Path ).Size : default; }
+			get { return Texture?.Size ?? default; }
 		}
 
 		/// <summary>
@@ -175,7 +190,7 @@ namespace MiGfx
 		/// </summary>
 		public void SetFullRect()
 		{
-			Texture tex = Assets.Manager.Texture.Get( Path );
+			Texture tex = Texture;
 
 			if( tex == null )
 				Rect = Logger.LogReturn( "SetFullRect failed because of invalid texture path; Rect has been reset.", new FloatRect(), LogType.Warning );
@@ -209,7 +224,7 @@ namespace MiGfx
 			{
 				if( IsTextureValid )
 				{
-					Vector2u ts = Assets.Manager.Get<Texture>( Path ).Size;
+					Vector2u ts = Texture.Size;
 					rect = new FloatRect( 0, 0, ts.X, ts.Y );
 				}
 				else
@@ -342,8 +357,6 @@ namespace MiGfx
 		{
 			if( element == null )
 				return Logger.LogReturn( "Cannot load ImageInfo from a null XmlElement.", false, LogType.Error );
-			if( !element.HasAttribute( nameof( Path ) ) )
-				return Logger.LogReturn( "Failed loading ImageInfo: No Path attribute.", false, LogType.Error );
 			
 			XmlElement rect   = element[ nameof( Rect ) ],
 					   color  = element[ nameof( Color ) ];
@@ -365,7 +378,8 @@ namespace MiGfx
 			Rect  = rec.Value;
 			Color = col.Value;
 
-			Path = element.GetAttribute( nameof( Path ) );
+			if( element.HasAttribute( nameof( Path ) ) )
+				Path = element.GetAttribute( nameof( Path ) );
 
 			Orientation    = Direction.Up;
 			FlipHorizontal = false;
@@ -455,6 +469,7 @@ namespace MiGfx
 		public bool Equals( ImageInfo other )
 		{
 			return other != null &&
+			       OverrideTexture == other.OverrideTexture &&
 			       Path?.Trim()?.ToLower() == other.Path?.Trim()?.ToLower() &&
 				   Rect.Equals( other.Rect ) &&
 				   Color.Equals( other.Color ) &&

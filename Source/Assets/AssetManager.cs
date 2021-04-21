@@ -71,18 +71,12 @@ namespace MiGfx
 		/// </returns>
 		public bool IsLoaded( string path )
 		{
-			if( string.IsNullOrWhiteSpace( path ) )
+			string p = MakeAbsolute( path );
+
+			if( string.IsNullOrWhiteSpace( p ) )
 				return false;
 
-			path = Paths.ToWindows( path );
-			string exec = FolderPaths.Executable;
-
-			int elen = exec.Length;
-
-			if( path.Length <= elen || path.Substring( 0, elen ) != exec )
-				path = Path.Combine( exec, path );
-
-			return m_assets.ContainsKey( path );
+			return m_assets.ContainsKey( p );
 		}
 		/// <summary>
 		///   Gets the asset loaded from the given path, attempting to load a new one if needed.
@@ -105,19 +99,13 @@ namespace MiGfx
 			if( string.IsNullOrWhiteSpace( path ) )
 				return null;
 
-			path = Paths.ToWindows( path );
-			string exec = FolderPaths.Executable;
+			string p = MakeAbsolute( path );
 
-			int elen = exec.Length;
-
-			if( path.Length <= elen || path.Substring( 0, elen ) != exec )
-				path = Path.Combine( exec, path );
-
-			if( !IsLoaded( path ) )
-				if( !Load( path, reload ) )
+			if( !IsLoaded( p ) )
+				if( !Load( p, reload ) )
 					return null;
 
-			return m_assets[ path ];
+			return m_assets[ p ];
 		}
 
 		/// <summary>
@@ -151,15 +139,7 @@ namespace MiGfx
 			if( string.IsNullOrWhiteSpace( path ) )
 				return false;
 
-			path = Paths.ToWindows( path );
-			string exec = FolderPaths.Executable;
-
-			int elen = exec.Length;
-
-			if( path.Length <= elen || path.Substring( 0, elen ) != exec )
-				path = Path.Combine( exec, path );
-
-			return m_assets.Remove( path );
+			return m_assets.Remove( MakeAbsolute( path ) );
 		}
 		/// <summary>
 		///   Unloads all assets.
@@ -182,6 +162,43 @@ namespace MiGfx
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return ( (IEnumerable)m_assets ).GetEnumerator();
+		}
+
+		/// <summary>
+		///   Removes file URI from the given path and makes it absolute.
+		/// </summary>
+		/// <param name="path">
+		///   The path to make absolute.
+		/// </param>
+		/// <returns>
+		///   The absolute path on success, otherwise just path.
+		/// </returns>
+		protected string MakeAbsolute( string path )
+		{
+			if( string.IsNullOrWhiteSpace( path ) )
+				return path;
+
+			string result = path;
+
+			if( result.StartsWith( "file:///" ) || result.StartsWith( "file:\\\\\\" ) )
+				result = result.Substring( 8 );
+			else if( result.StartsWith( "file://" ) || result.StartsWith( "file:\\\\" ) )
+				result = result.Substring( 7 );
+
+			if( result.Length > 0 )
+			{
+				if( result.StartsWith( "/" ) || result.StartsWith( "\\" ) )
+					result = result.Substring( 1 );
+
+				string alpha = "abcdefghijklmnopqrstuvwxyz";
+
+				bool absolute = result.Length > 1 && alpha.Contains( result.ToLower().Substring( 0, 1 ) ) && path[ 1 ] == ':';
+
+				if( !absolute )
+					result = FolderPaths.Executable + result;
+			}
+
+			return result;
 		}
 
 		/// <summary>
@@ -223,31 +240,22 @@ namespace MiGfx
 			if( string.IsNullOrWhiteSpace( path ) )
 				return false;
 
-			path = Paths.ToWindows( path );
-			string exec = FolderPaths.Executable;
+			string p = MakeAbsolute( path );
 
-			int elen = exec.Length;
+			if( m_assets.ContainsKey( p ) )
+				m_assets[ p ].Dispose();
 
-			if( path.Length <= elen || path.Substring( 0, elen ) != exec )
-				path = Path.Combine( exec, path );
-
-			if( m_assets.ContainsKey( path ) )
-				m_assets[ path ].Dispose();
-
-			return m_assets.Remove( path );
+			return m_assets.Remove( p );
 		}
 		/// <summary>
 		///   Unloads all assets.
 		/// </summary>
 		public override void Clear()
 		{
-			var keys = m_assets.Keys;
+			foreach( var v in m_assets )
+				v.Value?.Dispose();
 
-			string[] list = new string[ keys.Count ];
-			keys.CopyTo( list, 0 );
-
-			foreach( string s in list )
-				Unload( s );
+			m_assets.Clear();
 		}
 
 		/// <summary>

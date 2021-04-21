@@ -86,14 +86,6 @@ namespace MiGfx.Test
 						result = false;
 					if( !new TextBoxTest().RunTest( window ) )
 						result = false;
-					if( !new UILabelTest().RunTest( window ) )
-						result = false;
-					if( !new UISpriteTest().RunTest( window ) )
-						result = false;
-					if( !new UISpriteArrayTest().RunTest( window ) )
-						result = false;
-					if( !new UISpriteAnimatorTest().RunTest( window ) )
-						result = false;
 
 					window.Close();
 				}

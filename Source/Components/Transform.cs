@@ -54,6 +54,7 @@ namespace MiGfx
 		public Transform()
 		:	base()
 		{
+			Relative = false;
 			Origin   = Allignment.TopLeft;
 			Position = new Vector2f();
 			Size     = new Vector2f( 1.0f, 1.0f );
@@ -68,23 +69,10 @@ namespace MiGfx
 		public Transform( Transform t )
 		:	base( t )
 		{
+			Relative = t.Relative;
 			Origin   = t.Origin;
 			Position = t.Position;
 			Size     = t.Size;
-			Scale    = t.Scale;
-		}
-		/// <summary>
-		///   Copy constructor.
-		/// </summary>
-		/// <param name="t">
-		///   The transform to copy from.
-		/// </param>
-		public Transform( UITransform t )
-		:	base( t )
-		{
-			Origin   = t.Origin;
-			Position = t.PixelPosition;
-			Size     = t.PixelSize;
 			Scale    = t.Scale;
 		}
 		/// <summary>
@@ -102,9 +90,13 @@ namespace MiGfx
 		/// <param name="org">
 		///   Origin point.
 		/// </param>
-		public Transform( Vector2f pos, Vector2f? size = null, Vector2f? scl = null, Allignment org = 0 )
+		/// <param name="rel">
+		///   If the transform is relative to the view of the window.
+		/// </param>
+		public Transform( Vector2f pos, Vector2f? size = null, Vector2f? scl = null, Allignment org = 0, bool rel = false )
 		:	base()
 		{
+			Relative = rel;
 			Origin   = org;
 			Position = pos;
 			Size     = size ?? new Vector2f( 1.0f, 1.0f );
@@ -120,6 +112,14 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   If the transform is relative to the top left corner of the window view (true) or is
+		///   in absolute pixel coordinates (false).
+		/// </summary>
+		public bool Relative
+		{
+			get; set;
+		}
+		/// <summary>
 		///   The origin point of the transform.
 		/// </summary>
 		public Allignment Origin
@@ -132,7 +132,23 @@ namespace MiGfx
 		/// </summary>
 		public Vector2f Position 
 		{
-			get; set;
+			get { return m_pos; }
+			set
+			{
+				if( m_pos.Equals( value ) )
+					return;
+
+				Vector2f diff = value - m_pos;
+				m_pos = value;
+
+				if( Parent == null || !Parent.HasChildren )
+					return;
+
+				MiEntity[] children = Parent.GetChildrenWithComponent<Transform>();
+
+				foreach( MiEntity e in children )
+					e.GetComponent<Transform>().Position += diff;
+			}
 		}
 		/// <summary>
 		///   Local size.
@@ -172,12 +188,48 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   The absolute position of the transform, taking into account if it is relative or not.
+		/// </summary>
+		public Vector2f AbsolutePosition
+		{
+			get
+			{
+				if( !Relative )
+				{
+					return Position;
+				}
+
+				View view = Parent?.Window?.GetView();
+
+				if( view == null )
+					throw new InvalidOperationException( "Transform cannot calculate absolute position without a valid parent and window." );
+
+				return view.Center - ( view.Size / 2.0f ) + Position;
+			}
+			set
+			{
+				if( !Relative )
+				{
+					Position = value;
+					return;
+				}
+
+				View view = Parent?.Window?.GetView();
+
+				if( view == null )
+					throw new InvalidOperationException( "Transform cannot assign absolute position without a valid parent and window." );
+
+				Position = view.Center - ( view.Size / 2.0f ) + value;
+			}
+		}
+		/// <summary>
 		///   Scaled size.
 		/// </summary>
-		public Vector2f GlobalSize
+		public Vector2f ScaledSize
 		{
 			get { return new Vector2f( m_size.X * m_scale.X, m_size.Y * m_scale.Y ); }
 		}
+
 		/// <summary>
 		///   Scaled bounds of the transform.
 		/// </summary>
@@ -185,8 +237,8 @@ namespace MiGfx
 		{
 			get
 			{
-				Vector2f pos  = Position,
-				         size = GlobalSize;
+				Vector2f pos  = AbsolutePosition,
+				         size = ScaledSize;
 
 				switch( Origin )
 				{
@@ -225,19 +277,33 @@ namespace MiGfx
 		}
 
 		/// <summary>
-		///   Gets the type names of components incompatible with this component type.
+		///   Sets if the transform is relative to the window view or not while maintaining absolute
+		///   position.
 		/// </summary>
-		/// <returns>
-		///   The type names of components incompatible with this component type.
-		/// </returns>
-		protected override string[] GetIncompatibleComponents()
+		/// <param name="rel">
+		///   If the transform should be relative to the view or not.
+		/// </param>
+		public void SetRelative( bool rel )
 		{
-			return new string[] { nameof( Button ), nameof( CheckBox ), nameof( FillBar ),
-			                      nameof( TextBox ), nameof( UIClickable ), nameof( UILabel ),
-								  nameof( UISprite ), nameof( UISpriteAnimator ), nameof( UISpriteArray ),
-								  nameof( UITransform ) };
-		}
+			if( Relative == rel )
+				return;
 
+			if( Relative )
+			{
+				Position = AbsolutePosition;
+				Relative = false;
+			}
+			else
+			{
+				View view = Parent?.Window?.GetView();
+
+				if( view == null )
+					throw new InvalidOperationException( "Transform cannot calculate absolute position without a valid parent and window." );
+
+				Position = Position - ( view.Center - ( view.Size / 2.0f ) );
+				Relative = true;
+			}
+		}
 		/// <summary>
 		///   Sets the origin point while maintaining position.
 		/// </summary>
@@ -305,6 +371,7 @@ namespace MiGfx
 
 			try
 			{
+				Relative = br.ReadBoolean();
 				Origin   = (Allignment)br.ReadInt32();
 				Position = new Vector2f( br.ReadSingle(), br.ReadSingle() );
 				Size     = new Vector2f( br.ReadSingle(), br.ReadSingle() );
@@ -333,6 +400,7 @@ namespace MiGfx
 
 			try
 			{
+				bw.Write( Relative );
 				bw.Write( (int)Origin );
 				bw.Write( Position.X ); bw.Write( Position.Y );
 				bw.Write( Size.X );     bw.Write( Size.Y );
@@ -381,7 +449,14 @@ namespace MiGfx
 
 			Position = pos.Value;
 			Size     = siz.Value;
-			
+
+			if( element.HasAttribute( nameof( Relative ) ) )
+			{
+				if( !bool.TryParse( element.GetAttribute( nameof( Relative ) ), out bool r ) )
+					return Logger.LogReturn( "Failed loading Transform: Unable to parse Relative attribute.", false, LogType.Error );
+
+				Relative = r;
+			}
 			if( element.HasAttribute( nameof( Origin ) ) )
 			{
 				if( !Enum.TryParse( element.GetAttribute( nameof( Origin ) ), true, out Allignment a ) )
@@ -425,6 +500,12 @@ namespace MiGfx
 			sb.Append( nameof( Visible ) );
 			sb.Append( "=\"" );
 			sb.Append( Visible );
+			sb.AppendLine( "\"" );
+
+			sb.Append( "           " );
+			sb.Append( nameof( Relative ) );
+			sb.Append( "=\"" );
+			sb.Append( Relative );
 			sb.AppendLine( "\"" );
 
 			sb.Append( "           " );
@@ -541,6 +622,6 @@ namespace MiGfx
 			return ents.ToArray();
 		}
 
-		private Vector2f m_size, m_scale;
+		private Vector2f m_pos, m_size, m_scale;
 	}
 }

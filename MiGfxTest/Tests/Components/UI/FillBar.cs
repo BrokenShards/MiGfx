@@ -85,10 +85,11 @@ namespace MiGfx.Test
 
 			using( ent )
 			{
-				UITransform tran = ent.GetComponent<UITransform>();
+				Transform tran = ent.GetComponent<Transform>();
 
 				tran.Origin   = Allignment.Middle; 
-				tran.Position = new Vector2f( 0.5f, 0.5f );
+				tran.Relative = true;
+				tran.Position = new Vector2f( 400, 300 );
 
 				Logger.Log( "Is FillBar displayed on window? (y/n)" );
 				bool? inp = null;

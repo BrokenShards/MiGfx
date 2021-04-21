@@ -32,14 +32,6 @@ using MiCore;
 
 namespace MiGfx
 {
-	public static partial class FilePaths
-	{
-		/// <summary>
-		///   Default font path.
-		/// </summary>
-		public static string DefaultFont = FolderPaths.Fonts + "FallingSky.otf";
-	}
-
 	/// <summary>
 	///   Possible transform allignments.
 	/// </summary>
@@ -94,7 +86,7 @@ namespace MiGfx
 		public Label()
 		:	base()
 		{
-			Text   = new TextStyle( FilePaths.DefaultFont );
+			Text   = new TextStyle( FolderPaths.Fonts + "FallingSky.otf" );
 			Offset = new Vector2f();
 			Allign = Allignment.TopLeft;
 			m_text = new Text();
@@ -123,12 +115,9 @@ namespace MiGfx
 		///   Text allignment.
 		/// </param>
 		public Label( string str, Allignment allign = default )
-		:	base()
+		:	this()
 		{
-			Text   = new TextStyle( FilePaths.DefaultFont );
-			Offset = new Vector2f();
 			Allign = allign;
-			m_text = new Text();
 			String = !string.IsNullOrWhiteSpace( str ) ? str : string.Empty;
 		}
 		/// <summary>
@@ -208,6 +197,38 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   Gets the position of the character at the given index in the display string.
+		/// </summary>
+		/// <param name="index">
+		///   The character index.
+		/// </param>
+		/// <returns>
+		///   The position of the character at the given index in the display string; `float.NaN` if 
+		///   index is greater than display string length. Accomodates for scale if the parent owns
+		///   a valid `Transform`.
+		/// </returns>
+		public Vector2f GetCharacterPosition( uint index )
+		{
+			if( index > String.Length )
+				return new Vector2f( float.NaN, float.NaN );
+
+			Vector2f pos = m_text.FindCharacterPos( index );
+			Transform t = Parent?.GetComponent<Transform>();
+
+			if( t != null )
+			{
+				pos.X *= t.Scale.X;
+				pos.Y *= t.Scale.Y;
+
+				FloatRect rect = m_text.GetGlobalBounds();
+
+				pos += new Vector2f( rect.Left, rect.Top );
+			}
+
+			return pos;
+		}
+
+		/// <summary>
 		///   Gets the type names of components required by this component type.
 		/// </summary>
 		/// <returns>
@@ -219,12 +240,9 @@ namespace MiGfx
 		}
 
 		/// <summary>
-		///   Updates the component logic.
+		///   Refreshes components' visual elements.
 		/// </summary>
-		/// <param name="dt">
-		///   Delta time.
-		/// </param>
-		protected override void OnUpdate( float dt )
+		public override void Refresh()
 		{
 			if( Text == null )
 				Text = new TextStyle();
@@ -288,6 +306,7 @@ namespace MiGfx
 
 			m_text.Position = pos + new Vector2f( Offset.X * trn.Scale.X, Offset.Y * trn.Scale.Y );
 		}
+
 		/// <summary>
 		///   Draws the component.
 		/// </summary>
@@ -306,7 +325,7 @@ namespace MiGfx
 		/// </summary>
 		protected override void OnDispose()
 		{
-			m_text.Dispose();
+			m_text?.Dispose();
 		}
 
 		/// <summary>

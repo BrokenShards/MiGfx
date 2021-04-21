@@ -11,8 +11,28 @@ A basic C# graphics library for use with SFML.Net.
 - Implement UI containers/grouping/layouting.
 - Create `Slider` component from `FillBar`.
 - Create `Tilemap` component that uses a `SpriteArray` to draw tiles from a `Tileset`.
+- Write tests for BoxRenderer and ShapeRenderer.
 
 ## Changelog
+
+### Version 0.12.0
+- Added new `TextCaret` component that provides a text cursor for text boxes `TextBox` now requires
+  the `TextCaret` because of this.
+- `TextListener` now contains the text cursor index and handles left, right, home and end movement
+  keys along with the delete key.
+- Added `BoxRenderer` and `ShapeRenderer` components for drawing boxes or regular shapes that can
+  be coloured, textured and have an outline.
+- Added new function `Physics.ShapeContainsPoint(Shape,Vector2f)` with variations for checking 
+  if a point is inside a shape.
+- Now modifying `Transform.Position` will also modify child entities that have a `Transform`. This
+  behaviour was intended to start with as it allows children to follow their parent when moved.
+- Added `SpriteArray.SpriteBounds` to easily get a rectangle containing all sprites.
+- Now path strings in `FolderPaths` and `FilePaths` use the correct system directory separator.
+- `FilePaths.Executable` and `FolderPaths.Executable` no longer modify directory separators and now
+  properly handle and strip the `file:` URI.
+- `FolderPaths.Executable` is now guaranteed to end with the system directory separator character.
+- Updated MiCore to version 0.10.0.
+- Updated MiInput to version 0.11.0.
 
 ### Version 0.11.0
 - Added `BoxCollider` and `CircleCollider` components along with `Physics` class for managing

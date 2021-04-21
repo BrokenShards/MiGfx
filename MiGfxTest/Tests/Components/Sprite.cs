@@ -84,7 +84,9 @@ namespace MiGfx.Test
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			using( MiEntity ent = new MiEntity( "tester", window ) )
+			MiEntity ent = new MiEntity( "tester", window );
+
+			using( ent )
 			{
 				if( !ent.AddNewComponent<Sprite>() )
 					return Logger.LogReturn( "Failed: Unable to add Sprite to test entity.", false );

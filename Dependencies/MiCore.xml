@@ -244,6 +244,43 @@
               The entity that owns the component.
             </summary>
         </member>
+        <member name="M:MiCore.MiComponent.OnAdd">
+            <summary>
+              Called when the component is added to an entity.
+            </summary>
+        </member>
+        <member name="M:MiCore.MiComponent.OnRemove">
+            <summary>
+              Called when the component is removed from an entity.
+            </summary>
+        </member>
+        <member name="M:MiCore.MiComponent.Refresh">
+            <summary>
+              Refreshes the components visual elements.
+            </summary>
+            <remarks>
+              This method is called before the component is updated and should only set up the
+              component to be displayed. It should contain no logic and not respond to any input.
+            </remarks>
+        </member>
+        <member name="M:MiCore.MiComponent.Update(System.Single)">
+            <summary>
+              Updates the object if enabled; called once per frame.
+            </summary>
+            <param name="dt">
+              Delta time.
+            </param>
+        </member>
+        <member name="M:MiCore.MiComponent.SubscribeEvents">
+            <summary>
+              Subscribe to window events. 
+            </summary>
+        </member>
+        <member name="M:MiCore.MiComponent.UnsubscribeEvents">
+            <summary>
+              Unsubscribe to window events. 
+            </summary>
+        </member>
         <member name="M:MiCore.MiComponent.Requires(System.String)">
             <summary>
               Checks if the component requires a component with the given component name.
@@ -310,14 +347,6 @@
               True if the component is incompatible with the given component type.
             </returns>
         </member>
-        <member name="M:MiCore.MiComponent.TextEntered(SFML.Window.TextEventArgs)">
-            <summary>
-              Called on TextEntered event.
-            </summary>
-            <param name="e">
-              The event args.
-            </param>
-        </member>
         <member name="M:MiCore.MiComponent.Equals(MiCore.MiComponent)">
             <summary>
               Checks if the object is considered equal to this object.
@@ -347,14 +376,6 @@
               The type names of components incompatible with this component type.
             </returns>
         </member>
-        <member name="M:MiCore.MiComponent.OnTextEntered(SFML.Window.TextEventArgs)">
-            <summary>
-              Override this with your TextEntered logic.
-            </summary>
-            <param name="e">
-              The event args.
-            </param>
-        </member>
         <member name="T:MiCore.ComponentRegister">
             <summary>
               Used for registering and creating components.
@@ -370,49 +391,6 @@
               The register object.
             </summary>
         </member>
-        <member name="P:MiCore.ComponentRegister.Empty">
-            <summary>
-              If no components are registered.
-            </summary>
-        </member>
-        <member name="P:MiCore.ComponentRegister.Count">
-            <summary>
-              The amount of components registered.
-            </summary>
-        </member>
-        <member name="M:MiCore.ComponentRegister.Registered``1">
-            <summary>
-              Checks if the given component type is registered.
-            </summary>
-            <typeparam name="T">
-              The component type.
-            </typeparam>
-            <returns>
-              True if the given component type is registered, otherwise false.
-            </returns>
-        </member>
-        <member name="M:MiCore.ComponentRegister.Registered(System.String)">
-            <summary>
-              Checks if the given component type name is registered.
-            </summary>
-            <param name="typename">
-              The component type name.
-            </param>
-            <returns>
-              True if the given component type name is registered, otherwise false.
-            </returns>
-        </member>
-        <member name="M:MiCore.ComponentRegister.Registered(System.Type)">
-            <summary>
-              Checks if the given component type is registered.
-            </summary>
-            <param name="type">
-              The component type.
-            </param>
-            <returns>
-              True if the given component type is registered, otherwise false.
-            </returns>
-        </member>
         <member name="M:MiCore.ComponentRegister.Register``1(System.Boolean)">
             <summary>
               Registers a component type.
@@ -420,39 +398,12 @@
             <typeparam name="T">
               The component type.
             </typeparam>
-            <returns>
-              True if the component type was registered successfully and false otherwise. This will
-              only fail if `T.TypeName` is not a valid ID.
-            </returns>
-        </member>
-        <member name="M:MiCore.ComponentRegister.Create``1">
-            <summary>
-              Creates a new component of the given type.
-            </summary>
-            <typeparam name="T">
-              The component type.
-            </typeparam>
-            <returns>
-              A new component of the given type or null if unregistered or unable to create.
-            </returns>
-        </member>
-        <member name="M:MiCore.ComponentRegister.Create(System.String)">
-            <summary>
-              Creates a component from a given type name.
-            </summary>
-            <param name="typename">
-              The component type name.
+            <param name="replace">
+              If an already registered type should be replaced.
             </param>
             <returns>
-              A new component if the type name was registered, otherwise false.
-            </returns>
-        </member>
-        <member name="M:MiCore.ComponentRegister.GetEnumerator">
-            <summary>
-              Gets an enumerator to iterate through the collection.
-            </summary>
-            <returns>
-              An enumerator to iterate through the collection.
+              True if the component type was registered successfully; false if `T.TypeName` is not a
+              valid ID or a type is already registered to the ID and replace is false.
             </returns>
         </member>
         <member name="T:MiCore.IDatabase`3">
@@ -1248,9 +1199,22 @@
               A reference to the target render window.
             </summary>
         </member>
+        <member name="M:MiCore.MiEntity.ChangeWindow(SFML.Graphics.RenderWindow)">
+            <summary>
+              Unsubscribes window events, switches the target window and subscribes window events.
+            </summary>
+            <param name="window">
+              The new target window.
+            </param>
+        </member>
         <member name="P:MiCore.MiEntity.ComponentCount">
             <summary>
               The amount of components the stack contains.
+            </summary>
+        </member>
+        <member name="P:MiCore.MiEntity.Components">
+            <summary>
+              Gets an array containing all components owned by the entity.
             </summary>
         </member>
         <member name="M:MiCore.MiEntity.GetIncompatibleComponents">
@@ -1615,18 +1579,44 @@
               Disposes of and clears all components from the stack.
             </summary>
         </member>
-        <member name="M:MiCore.MiEntity.TextEntered(SFML.Window.TextEventArgs)">
+        <member name="M:MiCore.MiEntity.Refresh">
             <summary>
-              To be called on TextEntered event. Calls <see cref="M:MiCore.MiComponent.OnTextEntered(SFML.Window.TextEventArgs)"/>
-              for all enabled components for this entity and all child entities.
+              Refreshes components and child entities.
             </summary>
-            <param name="e">
-              The event args.
+        </member>
+        <member name="M:MiCore.MiEntity.Update(System.Single)">
+            <summary>
+              Updates the object if enabled; called once per frame.
+            </summary>
+            <param name="dt">
+              Delta time.
             </param>
+        </member>
+        <member name="M:MiCore.MiEntity.SubscribeEvents(System.Boolean)">
+            <summary>
+              Subscribe to window events. 
+            </summary>
+            <param name="rec">
+              Recursively subscribe child entity events?
+            </param>
+            <returns>
+              True on success or false on failure.
+            </returns>
+        </member>
+        <member name="M:MiCore.MiEntity.UnsubscribeEvents(System.Boolean)">
+            <summary>
+              Unsubscribe to window events. 
+            </summary>
+            <param name="rec">
+              Recursively unsubscribe child entity events?
+            </param>
+            <returns>
+              True on success or false on failure.
+            </returns>
         </member>
         <member name="M:MiCore.MiEntity.OnUpdate(System.Single)">
             <summary>
-              Updates the component stack and children.
+              Updates components and child entities.
             </summary>
             <param name="dt">
               Delta time.
@@ -2683,7 +2673,7 @@
             </param>
             <returns>
               True if e is already a child or if it was added successfully, false if e is null, 
-              this, or  e is parent or .
+              this, or parent or if a child already exists with the same ID and replace is false.
             </returns>
         </member>
         <member name="M:MiCore.MiNode`1.AddChildren(`0[])">
@@ -3144,6 +3134,23 @@
               True if the object was successfully loaded and false otherwise.
             </returns>
         </member>
+        <member name="M:MiCore.XmlLoadable.LoadFromFile(System.String,System.String,System.Xml.XmlNamespaceManager)">
+            <summary>
+              Attempts to load the object from an xml file.
+            </summary>
+            <param name="path">
+              The path to the xml file.
+            </param>
+            <param name="xpath">
+              Optional xpath expression to select a single node to load from.
+            </param>
+            <param name="nsm">
+              Optional xml namespace manager.
+            </param>
+            <returns>
+              True on success and false on failure.
+            </returns>
+        </member>
         <member name="M:MiCore.XmlLoadable.ToString">
             <summary>
               Converts the object to an xml string.
@@ -3315,6 +3322,150 @@
             <returns>
               True if tests succeeded, otherwise false.
             </returns>
+        </member>
+        <member name="T:MiCore.TypeRegister`1">
+            <summary>
+              Used for registering types to IDs.
+            </summary>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.#ctor">
+            <summary>
+              Constructor.
+            </summary>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.#ctor(System.Boolean)">
+            <summary>
+              Constructor setting if null types can be registered.
+            </summary>
+            <param name="allownull">
+              If null types can be registered.
+            </param>
+        </member>
+        <member name="P:MiCore.TypeRegister`1.Empty">
+            <summary>
+              If no types are registered.
+            </summary>
+        </member>
+        <member name="P:MiCore.TypeRegister`1.Count">
+            <summary>
+              The amount of types registered.
+            </summary>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Get(System.String)">
+            <summary>
+              Gets the type mapped to the given type ID.
+            </summary>
+            <param name="typeid">
+              The type ID.
+            </param>
+            <returns>
+              The type mapped to the given type ID.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Registered``1">
+            <summary>
+              Checks if the given type is registered.
+            </summary>
+            <typeparam name="T">
+              The type.
+            </typeparam>
+            <returns>
+              True if the given type is registered, otherwise false.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Registered(System.String)">
+            <summary>
+              Checks if the given type ID is registered.
+            </summary>
+            <param name="typeid">
+              The type ID.
+            </param>
+            <returns>
+              True if the given type ID is registered, otherwise false.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Registered(System.Type)">
+            <summary>
+              Checks if the given type is registered.
+            </summary>
+            <remarks>
+              Always returns false if type is null.
+            </remarks>
+            <param name="type">
+              The type.
+            </param>
+            <returns>
+              True if the given type is registered, otherwise false.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Register``1(System.String,System.Boolean)">
+            <summary>
+              Registers a type.
+            </summary>
+            <typeparam name="T">
+              The type.
+            </typeparam>
+            <param name="typeid">
+              The type ID.
+            </param>
+            <param name="replace">
+              If an already registered type should be replaced.
+            </param>
+            <returns>
+              True if the type was registered successfully; false if typeid is not a valid ID or a
+              type is already registered to the ID and replace is false.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Register(System.String,System.Type,System.Boolean)">
+            <summary>
+              Registers a type to a type ID.
+            </summary>
+            <param name="typeid">
+              Type ID.
+            </param>
+            <param name="type">
+              Object type.
+            </param>
+            <param name="replace">
+              If a type is already registered to the type ID, should it be replaced? 
+            </param>
+            <returns>
+              True if the type was registered successfully; false if typeid is not a valid ID, type
+              is null, or a type is already registered to the ID and replace is false.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Create``1">
+            <summary>
+              Creates a new object of the given registered type.
+            </summary>
+            <typeparam name="T">
+              The type.
+            </typeparam>
+            <returns>
+              A new object of the given type or null if unregistered or unable to create.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.Create(System.String)">
+            <summary>
+              Creates an object of the type registered to the type ID.
+            </summary>
+            <param name="typeid">
+              The type ID.
+            </param>
+            <returns>
+              A new object if the type ID was registered, otherwise false.
+            </returns>
+        </member>
+        <member name="M:MiCore.TypeRegister`1.GetEnumerator">
+            <summary>
+              Gets an enumerator to iterate through the collection.
+            </summary>
+            <returns>
+              An enumerator to iterate through the collection.
+            </returns>
+        </member>
+        <member name="F:MiCore.TypeRegister`1.m_allownull">
+            <summary>If null types can be registered.</summary>
         </member>
         <member name="T:MiCore.Xml">
             <summary>

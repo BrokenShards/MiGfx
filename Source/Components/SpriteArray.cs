@@ -27,6 +27,7 @@ using System.Text;
 using System.Xml;
 
 using SFML.Graphics;
+using SFML.System;
 
 using MiCore;
 
@@ -94,6 +95,13 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   If this is not null, this texture will be used instead of using the texture manager.
+		/// </summary>
+		public Texture OverrideTexture
+		{
+			get; set;
+		}
+		/// <summary>
 		///   The texture path.
 		/// </summary>
 		public string TexturePath
@@ -102,11 +110,59 @@ namespace MiGfx
 		}
 
 		/// <summary>
+		///   Gets the texture.
+		/// </summary>
+		public Texture Texture
+		{
+			get { return OverrideTexture ?? Assets.Manager.Texture.Get( TexturePath ); }
+		}
+
+		/// <summary>
 		///   List of sprites.
 		/// </summary>
 		public List<SpriteInfo> Sprites
 		{
 			get; private set; 
+		}
+
+		/// <summary>
+		///   Gets a bounding rectangle containing all sprites.
+		/// </summary>
+		public FloatRect SpriteBounds
+		{
+			get
+			{
+				if( Sprites.Count == 0 )
+					return default;
+				
+				float left  = 0, top    = 0,
+					  right = 0, bottom = 0;
+
+				for( uint i = 0; i < m_verts.VertexCount; i++ )
+				{
+					if( i == 0 )
+					{
+						left   = m_verts[ i ].Position.X;
+						right  = m_verts[ i ].Position.X;
+						top    = m_verts[ i ].Position.Y;
+						bottom = m_verts[ i ].Position.Y;
+					}
+					else
+					{
+						if( m_verts[ i ].Position.X < left )
+							left = m_verts[ i ].Position.X;
+						if( m_verts[ i ].Position.X > right )
+							right = m_verts[ i ].Position.X;
+
+						if( m_verts[ i ].Position.Y < top )
+							top = m_verts[ i ].Position.Y;
+						if( m_verts[ i ].Position.Y > bottom )
+							bottom = m_verts[ i ].Position.Y;
+					}
+				}
+
+				return new FloatRect( left, top, right - left, bottom - top );
+			}
 		}
 
 		/// <summary>
@@ -131,20 +187,14 @@ namespace MiGfx
 		}
 
 		/// <summary>
-		///   Updates the sprite geometry. Call this before drawing.
+		///   Refreshes components' visual elements.
 		/// </summary>
-		/// <param name="dt">
-		///   Delta time.
-		/// </param>
-		/// <exception cref="ArgumentNullException">
-		///   If <see cref="Image"/> is null.
-		/// </exception>
-		protected override void OnUpdate( float dt )
+		public override void Refresh()
 		{
 			if( Parent == null )
 				return;
 
-			Texture tex = Assets.Manager.Texture.Get( TexturePath );
+			Texture tex = Texture;
 
 			if( tex != null )
 			{
@@ -177,7 +227,7 @@ namespace MiGfx
 			if( Sprites.Count == 0 )
 				return;
 
-			states.Texture = Assets.Manager.Texture.Get( TexturePath );
+			states.Texture = Texture;
 			m_verts.Draw( target, states );
 		}
 
@@ -279,10 +329,10 @@ namespace MiGfx
 		{
 			if( !base.LoadFromXml( element ) )
 				return false;
-			if( !element.HasAttribute( nameof( TexturePath ) ) )
-				return Logger.LogReturn( "Failed loading SpriteArray: No TexturePath xml attribute.", false, LogType.Error );
 
-			TexturePath = element.GetAttribute( nameof( TexturePath ) );
+			if( element.HasAttribute( nameof( TexturePath ) ) )
+				TexturePath = element.GetAttribute( nameof( TexturePath ) );
+
 			Sprites = new List<SpriteInfo>();
 
 			XmlNodeList list = element.SelectNodes( nameof( SpriteInfo ) );
@@ -346,7 +396,7 @@ namespace MiGfx
 		/// </summary>
 		protected override void OnDispose()
 		{
-			( (IDisposable)m_verts ).Dispose();
+			m_verts?.Dispose();
 		}
 
 		/// <summary>
@@ -360,7 +410,8 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( SpriteArray other )
 		{
-			if( !base.Equals( other ) || Sprites.Count != other.Sprites.Count ||
+			if( !base.Equals( other ) || OverrideTexture != other.OverrideTexture ||
+				Sprites.Count != other.Sprites.Count ||
 				!( TexturePath?.Equals( other.TexturePath ) ?? TexturePath == other.TexturePath ) )
 				return false;
 

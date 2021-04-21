@@ -76,25 +76,21 @@ namespace MiGfx.Test
 			if( window == null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = TextBox.Create( "tester", window, Allignment.Middle, false );
+			MiEntity ent = TextBox.Create( "tester", window, Allignment.Middle, true );
 
 			if( ent == null )
 				return Logger.LogReturn( "Failed: Unable to create TextBox.", false );
 
 			using( ent )
 			{
-				void OnTextEntered( object sender, SFML.Window.TextEventArgs e )
-				{
-					ent?.TextEntered( e );
-				}
-
-				window.TextEntered += OnTextEntered;
-
 				View view = window.GetView();
-				UITransform trn = ent.GetComponent<UITransform>();
+				Transform trn = ent.GetComponent<Transform>();
 
-				trn.Origin   = Allignment.Middle;
-				trn.Position = new Vector2f( 0.5f, 0.5f );
+				trn.Origin   = Allignment.TopLeft;
+				trn.Relative = true;
+				trn.Size     = view.Size;
+				trn.Position = new Vector2f( 0, 0 );
+
 				ent.GetComponent<TextBox>().SetString( "Testing text box." );
 
 				Logger.Log( "Is textbox displayed on window? (y/n)" );
@@ -116,8 +112,6 @@ namespace MiGfx.Test
 					window.Draw( ent );
 					window.Display();
 				}
-
-				window.TextEntered -= OnTextEntered;
 
 				if( inp == null || !inp.Value )
 					return Logger.LogReturn( "Failed: TextBox did not display correctly (user input).", false );

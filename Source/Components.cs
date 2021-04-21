@@ -40,6 +40,9 @@ namespace MiGfx
 			return ComponentRegister.Manager.Register<BoxCollider>() &&
 			       ComponentRegister.Manager.Register<CircleCollider>() &&
 
+				   ComponentRegister.Manager.Register<BoxRenderer>() &&
+				   ComponentRegister.Manager.Register<ShapeRenderer>() &&
+
 				   ComponentRegister.Manager.Register<Clickable>() &&
 				   ComponentRegister.Manager.Register<Label>() &&
 				   ComponentRegister.Manager.Register<Selectable>() &&
@@ -54,12 +57,7 @@ namespace MiGfx
 				   ComponentRegister.Manager.Register<CheckBox>() &&
 				   ComponentRegister.Manager.Register<FillBar>() &&
 				   ComponentRegister.Manager.Register<TextBox>() &&
-				   ComponentRegister.Manager.Register<UIClickable>() &&
-				   ComponentRegister.Manager.Register<UILabel>() &&
-				   ComponentRegister.Manager.Register<UISprite>() &&
-				   ComponentRegister.Manager.Register<UISpriteAnimator>() &&
-				   ComponentRegister.Manager.Register<UISpriteArray>() &&
-				   ComponentRegister.Manager.Register<UITransform>();
+				   ComponentRegister.Manager.Register<TextCaret>();
 		}
 	}
 }

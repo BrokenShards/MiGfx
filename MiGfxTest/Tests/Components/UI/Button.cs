@@ -92,11 +92,12 @@ namespace MiGfx.Test
 				if( but == null )
 					return Logger.LogReturn( "Failed: Unable to create button.", false );
 
-				UITransform tran = but.GetComponent<UITransform>();
+				Transform tran = but.GetComponent<Transform>();
 
 				tran.Origin   = Allignment.Middle;
-				tran.Size     = new Vector2f( 0.4f, 0.1f );
-				tran.Position = new Vector2f( 0.5f, 0.5f );
+				tran.Relative = true;
+				tran.Size     = new Vector2f( 200, 140 );
+				tran.Position = new Vector2f( 400, 300 );
 
 				ent.AddChild( but );
 				ent.GetComponent<Selector>().Select( 0 );

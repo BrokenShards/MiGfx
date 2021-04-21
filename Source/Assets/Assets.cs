@@ -28,7 +28,7 @@ namespace MiGfx
 	/// <summary>
 	///   Singleton asset manager.
 	/// </summary>
-	public class Assets : IDisposable
+	public sealed class Assets : IDisposable
 	{
 		private Assets()
 		{

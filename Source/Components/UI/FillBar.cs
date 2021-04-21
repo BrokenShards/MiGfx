@@ -32,18 +32,6 @@ using MiCore;
 
 namespace MiGfx
 {
-	public static partial class FilePaths
-	{
-		/// <summary>
-		///   Default FillBar texture.
-		/// </summary>
-		public static readonly string FillBarTexture = FolderPaths.UI + "FillBar.png";
-		/// <summary>
-		///   Fill image padding for default FillBar texture.
-		/// </summary>
-		public static readonly Vector2f FillBarPadding = new Vector2f( 4, 4 );
-	}
-
 	/// <summary>
 	///   Image display information.
 	/// </summary>
@@ -488,7 +476,7 @@ namespace MiGfx
 		/// </returns>
 		protected override string[] GetRequiredComponents()
 		{
-			return new string[] { nameof( UITransform ), nameof( UISpriteArray ) };
+			return new string[] { nameof( Transform ), nameof( SpriteArray ) };
 		}
 		/// <summary>
 		///   Gets the type names of components incompatible with this component type.
@@ -498,16 +486,33 @@ namespace MiGfx
 		/// </returns>
 		protected override string[] GetIncompatibleComponents()
 		{
-			return new string[] { nameof( Button ),  nameof( CheckBox ), nameof( UISprite ),
-			                      nameof( TextBox ), nameof( UISpriteAnimator ) };
+			return new string[] { nameof( Button ),  nameof( CheckBox ), nameof( Sprite ),
+			                      nameof( TextBox ), nameof( SpriteAnimator ) };
 		}
 
 		/// <summary>
-		///   Updates the progress bar.
+		///   Called when the component is added to an entity.
 		/// </summary>
-		/// <param name="dt">
-		///   Delta time.
-		/// </param>
+		public override void OnAdd()
+		{
+			string path = FolderPaths.UI + "FillBar.png";
+			Texture tex = Assets.Manager.Get<Texture>( path );
+
+			if( tex != null )
+			{
+				Parent.GetComponent<SpriteArray>().TexturePath = path;
+
+				FillBar fb    = Parent.GetComponent<FillBar>();
+				fb.Labeling   = LabelType.None;
+				fb.Fill.Color = Color.White;
+
+				Transform trn = Parent.GetComponent<Transform>();
+				trn.Size      = new Vector2f( tex.Size.X, tex.Size.Y / 2 );
+			}
+		}
+		/// <summary>
+		///   Refreshes components' visual elements.
+		/// </summary>
 		protected override void OnUpdate( float dt )
 		{
 			if( Parent == null )
@@ -518,8 +523,8 @@ namespace MiGfx
 			if( Fill == null )
 				Fill = new FillBarInfo();
 
-			UITransform   tr = Parent.GetComponent<UITransform>();
-			UISpriteArray sa = Parent.GetComponent<UISpriteArray>();
+			Transform   tr = Parent.GetComponent<Transform>();
+			SpriteArray sa = Parent.GetComponent<SpriteArray>();
 
 			Texture tex = Assets.Manager.Get<Texture>( sa.TexturePath );
 
@@ -528,13 +533,13 @@ namespace MiGfx
 				Vector2u size = tex.Size;
 
 				SpriteInfo bginfo = new SpriteInfo( new FloatRect( 0, 0, size.X, size.Y / 2 ),
-									Background.Color, null, tr.PixelSize, Background.Orientation,
+									Background.Color, null, tr.Size, Background.Orientation,
 									Background.FlipHorizontal, Background.FlipVertical ),
-				           flinfo = new SpriteInfo( 
-							        new FloatRect( FillPadding.X, FillPadding.Y + ( size.Y / 2 ),
-										         ( size.X - ( FillPadding.X * 2 ) ) * Progress,
+						   flinfo = new SpriteInfo(
+									new FloatRect( FillPadding.X, FillPadding.Y + ( size.Y / 2 ),
+												 ( size.X - ( FillPadding.X * 2 ) ) * Progress,
 												 ( size.Y / 2 ) - ( FillPadding.Y * 2 ) ),
-									Fill.Color, FillPadding, tr.PixelSize - ( FillPadding * 2 ),
+									Fill.Color, FillPadding, tr.Size - ( FillPadding * 2 ),
 									Fill.Orientation, Fill.FlipHorizontal, Fill.FlipVertical );
 
 				if( Progress == 0.0f )
@@ -556,21 +561,21 @@ namespace MiGfx
 			}
 
 			// Label
-			if( Parent.HasComponent<UILabel>() )
+			if( Parent.HasComponent<Label>() )
 			{
 				if( Labeling == LabelType.Percentage )
-					Parent.GetComponent<UILabel>().String = string.Format( "{0:0.#}", (double)( Progress * 100.0 ) ) + "%";
+					Parent.GetComponent<Label>().String = string.Format( "{0:0.#}", (double)( Progress * 100.0 ) ) + "%";
 				else if( Labeling == LabelType.Decimal )
-					Parent.GetComponent<UILabel>().String = string.Format( "{0:0.#}", (double)Progress );
+					Parent.GetComponent<Label>().String = string.Format( "{0:0.#}", (double)Progress );
 				else if( Labeling == LabelType.Value )
-					Parent.GetComponent<UILabel>().String = Value.ToString();
+					Parent.GetComponent<Label>().String = Value.ToString();
 				else if( Labeling == LabelType.ValueMax )
-					Parent.GetComponent<UILabel>().String = Value.ToString() + "/" + Max.ToString();
+					Parent.GetComponent<Label>().String = Value.ToString() + "/" + Max.ToString();
 				else
-					Parent.GetComponent<UILabel>().String = string.Empty;
+					Parent.GetComponent<Label>().String = string.Empty;
 			}
 		}
-		
+				
 		/// <summary>
 		///   Loads the object from the stream.
 		/// </summary>
@@ -855,13 +860,13 @@ namespace MiGfx
 				ent.Dispose();
 				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Adding FillBar failed.", null, LogType.Error );
 			}
-			if( !ent.AddNewComponent<UILabel>() )
+			if( !ent.AddNewComponent<Label>() )
 			{
 				ent.Dispose();
 				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Adding UILabel failed.", null, LogType.Error );
 			}
 
-			Texture tex = Assets.Manager.Get<Texture>( FilePaths.FillBarTexture );
+			Texture tex = Assets.Manager.Get<Texture>( FolderPaths.UI + "FillBar.png" );
 
 			if( tex == null )
 			{
@@ -869,20 +874,20 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Loading Texture failed.", null, LogType.Error );
 			}
 
-			ent.GetComponent<UISpriteArray>().TexturePath = FilePaths.FillBarTexture;
+			ent.GetComponent<SpriteArray>().TexturePath = FolderPaths.UI + "FillBar.png";
 
 			FillBar fb = ent.GetComponent<FillBar>();
 			fb.Labeling = lt;
 			fb.Fill.Color = col ?? Color.White;
 
-			UILabel lab = ent.GetComponent<UILabel>();
+			Label lab = ent.GetComponent<Label>();
 			lab.Text.FillColor = Color.White;
 			lab.Allign = Allignment.Middle;
 			lab.Offset = new Vector2f( 0, -8.0f );
 
-			UITransform trn = ent.GetComponent<UITransform>();
+			Transform trn = ent.GetComponent<Transform>();
 
-			trn.PixelSize = new Vector2f( tex.Size.X, tex.Size.Y / 2 );
+			trn.Size = new Vector2f( tex.Size.X, tex.Size.Y / 2 );
 			return ent;
 		}
 

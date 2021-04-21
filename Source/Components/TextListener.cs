@@ -21,12 +21,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.IO;
 using System.Text;
+using System.Xml;
 
 using SFML.Window;
+
 using MiCore;
-using System.IO;
-using System.Xml;
+using MiInput;
 
 namespace MiGfx
 {
@@ -49,6 +51,7 @@ namespace MiGfx
 			AllowNewline     = false;
 			Listen           = true;
 			EnteredText      = string.Empty;
+			CaretPosition   = 0;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -67,6 +70,7 @@ namespace MiGfx
 			AllowNewline     = t.AllowNewline;
 			Listen           = t.Listen;
 			EnteredText      = new string( t.EnteredText.ToCharArray() );
+			CaretPosition   = t.CaretPosition;
 		}
 		/// <summary>
 		///   Constructor setting initial entered text.
@@ -85,6 +89,7 @@ namespace MiGfx
 			AllowNewline     = text.Contains( "\n" );
 			Listen           = true;
 			EnteredText      = text ?? string.Empty;
+			CaretPosition   = 0;
 		}
 
 		/// <summary>
@@ -109,6 +114,18 @@ namespace MiGfx
 					m_text = value.Contains( "\n" ) && !AllowNewline ?
 					         value.Replace( "\r\n", " " ).Replace( "\n", " " ) :
 							 value;
+			}
+		}
+		/// <summary>
+		///   The index position of the caret in EnteredText.
+		/// </summary>
+		public uint CaretPosition
+		{
+			get { return m_pos; }
+			set
+			{
+				m_pos = EnteredText == null || EnteredText.Length == 0 ? 0 :
+					( value > EnteredText.Length ? (uint)EnteredText.Length : value );
 			}
 		}
 		/// <summary>
@@ -168,27 +185,59 @@ namespace MiGfx
 					EnteredText = EnteredText.Replace( "\r\n", " " ).Replace( "\n", " " );
 			}
 		}
-		
+
 		/// <summary>
-		///   Text entered event.
+		///   Subscribe to window events.
 		/// </summary>
-		/// <param name="e">
-		///   Event arguments.
-		/// </param>
-		protected override void OnTextEntered( TextEventArgs e )
+		public override void SubscribeEvents()
 		{
-			if( !Listen )
+			if( Parent?.Window == null )
 				return;
 
-			int len = EnteredText.Length;
+			Parent.Window.TextEntered += TextEntered;
+		}
+		/// <summary>
+		///   Subscribe to window events.
+		/// </summary>
+		public override void UnsubscribeEvents()
+		{
+			if( Parent?.Window == null )
+				return;
 
-			Logger.Log( "Entered: " + EnteredText );
+			Parent.Window.TextEntered -= TextEntered;
+		}
+
+		private void TextEntered( object sender, TextEventArgs e )
+		{
+			if( !Enabled || !Listen || ( Parent != null && !Parent.Enabled ) )
+				return;
+
+			CaretPosition = CaretPosition;
+			int len = EnteredText.Length;
 
 			// Backspace
 			if( e.Unicode == "\u0008" || e.Unicode == "\u0232" )
 			{
-				if( len > 0 )
-					EnteredText = EnteredText.Substring( 0, len - 1 );
+				if( len == 0 || CaretPosition == 0 )
+					return;
+
+				if( len - CaretPosition > 1 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+				{
+					EnteredText = EnteredText.Remove( (int)CaretPosition - 1, 2 );
+					CaretPosition--;
+					return;
+				}
+				else if( len > 1 && CaretPosition > 1 && EnteredText.Substring( (int)CaretPosition - 2, 2 ) == "\r\n" )
+				{
+					EnteredText = EnteredText.Remove( (int)CaretPosition - 2, 2 );
+					CaretPosition -= 2;
+					return;
+				}
+				else
+				{
+					EnteredText = EnteredText.Remove( (int)CaretPosition - 1, 1 );
+					CaretPosition--;
+				}
 
 				return;
 			}
@@ -198,8 +247,15 @@ namespace MiGfx
 				// Carriage Return, Newline, or both (all treated as newline)
 				if( e.Unicode == "\r\n" || e.Unicode == "\u000A" || e.Unicode == "\u000D" )
 				{
-					if( len > 0 && AllowNewline )
-						EnteredText += "\r\n";
+					if( AllowNewline )
+					{
+						string pre = EnteredText.Substring( 0, (int)CaretPosition );
+						string post = CaretPosition == EnteredText.Length ? string.Empty :
+									  EnteredText.Substring( (int)CaretPosition, len - (int)CaretPosition );
+
+						EnteredText = pre + "\r\n" + post;
+						CaretPosition += 2;
+					}
 				}
 				else if( e.Unicode.Trim().Length > 0 || ( len > 0 && e.Unicode == " " ) )
 				{
@@ -217,10 +273,204 @@ namespace MiGfx
 					if( e.Unicode == " " && !AllowSpace )
 						return;
 
-					EnteredText += e.Unicode;
+					string pre = EnteredText.Substring( 0, (int)CaretPosition );
+					string post = CaretPosition == EnteredText.Length ? string.Empty :
+								  EnteredText.Substring( (int)CaretPosition, len - (int)CaretPosition );
+
+					EnteredText = pre + e.Unicode + post;
+					CaretPosition += (uint)e.Unicode.Length;
 				}
 			}
 		}
+
+		/// <summary>
+		///   Refreshes visual elements.
+		/// </summary>
+		public override void Refresh()
+		{
+			int len = EnteredText.Length;
+
+			if( CaretPosition > len )
+				CaretPosition = (uint)len;
+		}
+
+		/// <summary>
+		///   Updates the elements' logic.
+		/// </summary>
+		/// <param name="dt">
+		///   Delta time.
+		/// </param>
+		protected override void OnUpdate( float dt )
+		{
+			bool left  = Input.Manager.JustPressed( InputDevice.Keyboard, "Left" ),
+			     right = Input.Manager.JustPressed( InputDevice.Keyboard, "Right" ),
+				 up    = Input.Manager.JustPressed( InputDevice.Keyboard, "Up" ),
+			     down  = Input.Manager.JustPressed( InputDevice.Keyboard, "Down" ),
+				 home  = Input.Manager.JustPressed( InputDevice.Keyboard, "Home" ),
+			     end   = Input.Manager.JustPressed( InputDevice.Keyboard, "End" ),
+				 del   = Input.Manager.JustPressed( InputDevice.Keyboard, "Delete" );
+
+			int len = EnteredText.Length;
+
+			if( len == 0 )
+				return;
+
+			// Delete
+			if( del && CaretPosition < len )
+			{
+				if( CaretPosition > 0 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+				{
+					CaretPosition--;
+					EnteredText = EnteredText.Remove( (int)CaretPosition, 2 );
+				}
+				else if( CaretPosition < len - 1 && EnteredText.Substring( (int)CaretPosition, 2 ) == "\r\n" )
+				{
+					EnteredText = EnteredText.Remove( (int)CaretPosition, 2 );
+				}
+				else
+				{
+					EnteredText = EnteredText.Remove( (int)CaretPosition, 1 );
+				}
+			}
+
+			// Left and Right
+			if( left && !right && CaretPosition > 0 )
+			{
+				CaretPosition--;
+
+				if( CaretPosition > 0 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+					CaretPosition--;
+			}
+			else if( right && !left && CaretPosition < len )
+			{
+				CaretPosition++;
+
+				if( len > CaretPosition && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+					CaretPosition++;
+			}
+
+			// Home and End
+			if( home && !end && CaretPosition > 0 )
+			{
+				while( CaretPosition > 0 )
+				{
+					if( EnteredText[ (int)CaretPosition - 1 ] == '\n' )
+						break;
+
+					CaretPosition--;
+				}
+			}
+			else if( end && !home && CaretPosition < len )
+			{
+				while( CaretPosition < len )
+				{
+					char c = EnteredText[ (int)CaretPosition ];
+
+					if( c == '\r' || c == '\n' )
+						break;
+
+					CaretPosition++;
+				}
+			}
+
+			// Up and Down
+			Label lab = Parent?.GetComponent<Label>();
+
+			if( lab == null )
+				return;
+
+			float xpos = lab.GetCharacterPosition( CaretPosition ).X;
+
+			if( up && !down && CaretPosition > 0 )
+			{
+				int lnfd = (int)CaretPosition;
+
+				if( lnfd == len )
+					lnfd--;
+
+				for( ; lnfd >= 0 && lnfd < len; lnfd-- )
+				{
+					if( EnteredText[ lnfd ] == '\n' )
+						break;
+				}
+
+				if( lnfd < 0 )
+					return;
+				if( lnfd == 0 || ( lnfd == 1 && EnteredText[ 0 ] == '\r' ) )
+				{
+					CaretPosition = 0;
+					return;
+				}
+
+				lnfd--;
+
+				if( lnfd >= 0 && EnteredText[ lnfd ] == '\r' )
+					lnfd--;
+
+				for( int i = lnfd; i >= 0; i-- )
+				{
+					float pos = lab.GetCharacterPosition( (uint)i ).X;
+
+					if( pos < xpos || ( EnteredText[ i ] == '\n' || EnteredText[ i ] == '\r' ) )
+					{
+						CaretPosition = (uint)i + 1;
+						return;
+					}
+
+					if( i == 0 )
+					{
+						CaretPosition = 0;
+						return;
+					}
+				}
+			}
+			else if( down && !up && CaretPosition < len )
+			{
+				int lnfd = (int)CaretPosition;
+
+				for( ; lnfd < len; lnfd++ )
+				{
+					if( EnteredText[ lnfd ] == '\r' || EnteredText[ lnfd ] == '\n' )
+						break;
+				}
+
+				if( lnfd >= len )
+					return;
+				if( lnfd == len - 1 || ( ( lnfd == len - 2 ) && EnteredText[ len - 1 ] == '\n' ) )
+				{
+					CaretPosition = (uint)len;
+					return;
+				}
+
+				lnfd++;
+
+				if( lnfd <= len && EnteredText[ lnfd ] == '\n' )
+					lnfd++;
+
+				for( int i = lnfd; i < len; i++ )
+				{
+					float pos = lab.GetCharacterPosition( (uint)i ).X;
+
+					if( pos > xpos )
+					{
+						CaretPosition = (uint)i - 1;
+						return;
+					}
+					if( EnteredText[ i ] == '\n' || EnteredText[ i ] == '\r' )
+					{
+						CaretPosition = (uint)i;
+						return;
+					}
+
+					if( i == len - 1 )
+					{
+						CaretPosition = (uint)len;
+						return;
+					}
+				}
+			}
+		}
+
 		/// <summary>
 		///   Attempts to deserialize the object from the stream.
 		/// </summary>
@@ -287,7 +537,6 @@ namespace MiGfx
 
 			return true;
 		}
-
 		/// <summary>
 		///   Attempts to load the object from the xml element.
 		/// </summary>
@@ -467,6 +716,6 @@ namespace MiGfx
 
 		string m_text;
 		bool   m_multi;
-		uint   m_max;
+		uint   m_max, m_pos;
 	}
 }

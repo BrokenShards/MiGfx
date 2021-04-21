@@ -302,6 +302,13 @@ namespace MiGfx
 				spr.Image = i;
 			}
 		}
+		/// <summary>
+		///   Called when disposing of the object.
+		/// </summary>
+		protected override void OnDispose()
+		{
+			m_timer?.Dispose();
+		}
 
 		/// <summary>
 		///   Loads the object from the stream.

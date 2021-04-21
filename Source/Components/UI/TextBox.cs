@@ -32,14 +32,6 @@ using MiCore;
 
 namespace MiGfx
 {
-	public static partial class FilePaths
-	{
-		/// <summary>
-		///   Default path to text box texture.
-		/// </summary>
-		public static readonly string TextBoxTexture = FolderPaths.UI + "TextBox.png";
-	}
-
 	/// <summary>
 	///   Textbox state info.
 	/// </summary>
@@ -316,7 +308,7 @@ namespace MiGfx
 			if( Parent == null )
 				return;
 
-			Parent.GetComponent<UILabel>().String           = new string( str.ToCharArray() );
+			Parent.GetComponent<Label>().String             = new string( str.ToCharArray() );
 			Parent.GetComponent<TextListener>().EnteredText = new string( str.ToCharArray() );
 		}
 
@@ -328,8 +320,9 @@ namespace MiGfx
 		/// </returns>
 		protected override string[] GetRequiredComponents()
 		{
-			return new string[] { nameof( UITransform ), nameof( Selectable ), nameof( UIClickable ),
-			                      nameof( TextListener ), nameof( UISprite ), nameof( UILabel ) };
+			return new string[] { nameof( Transform ), nameof( Selectable ), nameof( Clickable ),
+			                      nameof( TextListener ), nameof( Sprite ), nameof( Label ),
+			                      nameof( TextCaret ) };
 		}
 		/// <summary>
 		///   Gets the type names of components incompatible with this component type.
@@ -339,10 +332,94 @@ namespace MiGfx
 		/// </returns>
 		protected override string[] GetIncompatibleComponents()
 		{
-			return new string[] { nameof( Button ), nameof( UISpriteAnimator ), nameof( CheckBox ),
-			                      nameof( FillBar ), nameof( UISpriteArray ), };
+			return new string[] { nameof( Button ), nameof( SpriteAnimator ), nameof( CheckBox ),
+			                      nameof( FillBar ), nameof( SpriteArray ), };
 		}
 
+		/// <summary>
+		///   Called when the component is added to an entity.
+		/// </summary>
+		public override void OnAdd()
+		{
+			Sprite spr = Parent.GetComponent<Sprite>();
+			spr.Image = new ImageInfo( FolderPaths.UI + "TextBox.png" );
+
+			if( !spr.Image.IsTextureValid )
+				return;
+
+			Vector2u size = spr.Image.TextureSize;
+
+			Parent.GetComponent<Transform>().Size = new Vector2f( size.X, ( Parent.GetComponent<TextListener>().AllowNewline ? size.Y / 3u : size.Y / 6u ) );
+
+			Vector2f off = new Vector2f();
+
+			switch( Parent.GetComponent<Label>().Allign )
+			{
+				case Allignment.TopLeft:
+					off = new Vector2f( 12, 8 );
+					break;
+				case Allignment.Top:
+					off = new Vector2f( 0, 8 );
+					break;
+				case Allignment.TopRight:
+					off = new Vector2f( -12, 8 );
+					break;
+
+				case Allignment.Left:
+					off = new Vector2f( 12, 0 );
+					break;
+				case Allignment.Middle:
+					off = new Vector2f();
+					break;
+				case Allignment.Right:
+					off = new Vector2f( -12, 0 );
+					break;
+
+				case Allignment.BottomLeft:
+					off = new Vector2f( 12, -8 );
+					break;
+				case Allignment.Bottom:
+					off = new Vector2f( 0, -8 );
+					break;
+				case Allignment.BottomRight:
+					off = new Vector2f( -12, -8 );
+					break;
+			}
+
+			TextBox box = Parent.GetComponent<TextBox>();
+
+			box.SelectedData   = new TextBoxData( Color.White, new TextStyle( null, 36, 0, Color.White ), off );
+			box.DeselectedData = new TextBoxData( Color.White, new TextStyle( null, 36, 0, Color.White ), off );
+		}
+		/// <summary>
+		///   Refreshes components' visual elements.
+		/// </summary>
+		public override void Refresh()
+		{
+			CorrectData();
+
+			if( Parent == null )
+				return;
+
+			Sprite spr = Parent.GetComponent<Sprite>();
+			Label lab = Parent.GetComponent<Label>();
+
+			spr.Image.Color = DeselectedData.Color;
+			lab.Text        = DeselectedData.Text;
+			lab.Offset      = DeselectedData.TextOffset;
+			lab.String      = Parent.GetComponent<TextListener>().EnteredText;
+
+			Texture tex = spr.Image.Texture;
+
+			if( tex != null )
+			{
+				Vector2u size = tex.Size;
+				bool newline = Parent.GetComponent<TextListener>().AllowNewline;
+
+				spr.Image.Rect = newline ? new FloatRect( 0, size.Y / 3u, size.X, size.Y / 3u )
+										 : new FloatRect( 0, 0, size.X, size.Y / 6u );
+			}
+		}
 		/// <summary>
 		///   Updates the elements' logic.
 		/// </summary>
@@ -351,38 +428,33 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			CorrectData();
-
 			if( Parent == null )
 				return;
 
+			Sprite spr = Parent.GetComponent<Sprite>();
+			Label  lab = Parent.GetComponent<Label>();
+
 			bool selected = Parent.GetComponent<Selectable>().Selected;
 
-			UISprite    spr  = Parent.GetComponent<UISprite>();
-			UILabel     lab  = Parent.GetComponent<UILabel>();
-			TextBoxData data = selected ? SelectedData : DeselectedData;
+			if( !selected )
+				return;
 
-			spr.Image.Color = data.Color;
-			lab.Text        = data.Text;
-			lab.Offset      = data.TextOffset;
-			lab.String      = Parent.GetComponent<TextListener>().EnteredText;
+			spr.Image.Color = SelectedData.Color;
+			lab.Text        = SelectedData.Text;
+			lab.Offset      = SelectedData.TextOffset;
 
-			Texture tex = Assets.Manager.Texture.Get( spr.Image.Path );
+			Texture tex = spr.Image.Texture;
 
 			if( tex != null )
 			{
 				Vector2u size = tex.Size;
 				bool newline = Parent.GetComponent<TextListener>().AllowNewline;
 
-				FloatRect idle = newline ? new FloatRect( 0, size.Y / 3u,     size.X, size.Y / 3u )
-				                         : new FloatRect( 0, 0,               size.X, size.Y / 6u ),
-						  sele = newline ? new FloatRect( 0, size.Y / 3u * 2, size.X, size.Y / 3u )
+				spr.Image.Rect = newline ? new FloatRect( 0, size.Y / 3u * 2, size.X, size.Y / 3u )
 						                 : new FloatRect( 0, size.Y / 6u,     size.X, size.Y / 6u );
-
-				spr.Image.Rect = selected ? sele : idle;
 			}
 		}
-
+		
 		/// <summary>
 		///   Attempts to deserialize the object from the stream.
 		/// </summary>
@@ -569,8 +641,8 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating TextBox entity: Adding TextBox failed.", null, LogType.Error );
 			}
 
-			UISprite spr = ent.GetComponent<UISprite>();
-			spr.Image = new ImageInfo( FilePaths.TextBoxTexture );
+			Sprite spr = ent.GetComponent<Sprite>();
+			spr.Image = new ImageInfo( FolderPaths.UI + "TextBox.png" );
 
 			if( !spr.Image.IsTextureValid )
 			{
@@ -578,13 +650,12 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating TextBox entity: Loading Texture failed.", null, LogType.Error );
 			}
 
-			ent.GetComponent<UILabel>().Allign = allign;
+			ent.GetComponent<Label>().Allign = allign;
 			ent.GetComponent<TextListener>().AllowNewline = multi;
 
 			Vector2u size = spr.Image.TextureSize;
-			View view = window.GetView();
 
-			ent.GetComponent<UITransform>().Size = new Vector2f( size.X / view.Size.X, ( multi ? size.Y / 3u : size.Y / 6u ) / view.Size.Y );
+			ent.GetComponent<Transform>().Size = new Vector2f( size.X, ( multi ? size.Y / 3u : size.Y / 6u ) );
 
 			Vector2f off = new Vector2f();
 
@@ -623,8 +694,8 @@ namespace MiGfx
 
 			TextBox box = ent.GetComponent<TextBox>();
 
-			box.SelectedData   = new TextBoxData( Color.White, new TextStyle( FilePaths.DefaultFont, 36, 0, Color.White ), off );
-			box.DeselectedData = new TextBoxData( Color.White, new TextStyle( FilePaths.DefaultFont, 36, 0, Color.White ), off );
+			box.SelectedData   = new TextBoxData( Color.White, new TextStyle( null, 36, 0, Color.White ), off );
+			box.DeselectedData = new TextBoxData( Color.White, new TextStyle( null, 36, 0, Color.White ), off );
 
 			return ent;
 		}

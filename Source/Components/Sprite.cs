@@ -112,12 +112,9 @@ namespace MiGfx
 		}
 
 		/// <summary>
-		///   Updates the sprite geometry. Call this before drawing.
+		///   Refreshes components' visual elements.
 		/// </summary>
-		/// <param name="dt">
-		///   Delta time.
-		/// </param>
-		protected override void OnUpdate( float dt )
+		public override void Refresh()
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
@@ -125,6 +122,7 @@ namespace MiGfx
 				for( uint i = 0; i < m_verts.VertexCount; i++ )
 					m_verts[ i ] = Image.GetVertex( i, t.GlobalBounds );
 		}
+
 		/// <summary>
 		///   Draws the sprite to the render target.
 		/// </summary>
@@ -138,7 +136,7 @@ namespace MiGfx
 		{
 			if( Image != null )
 			{
-				Texture tex = Assets.Manager.Texture.Get( Image.Path );
+				Texture tex = Image.Texture;
 
 				if( tex != null )
 				{
@@ -263,7 +261,7 @@ namespace MiGfx
 		/// </summary>
 		protected override void OnDispose()
 		{
-			( (IDisposable)m_verts ).Dispose();
+			m_verts?.Dispose();
 		}
 
 		/// <summary>

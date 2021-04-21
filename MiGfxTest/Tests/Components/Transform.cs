@@ -45,7 +45,7 @@ namespace MiGfx.Test
 
 			t1.Scale = new Vector2f( 4.0f, 4.0f );
 
-			if( t1.GlobalSize != new Vector2f( 1.0f * 4.0f, 1.0f * 4.0f ) )
+			if( t1.ScaledSize != new Vector2f( 1.0f * 4.0f, 1.0f * 4.0f ) )
 				return Logger.LogReturn( "Failed: Transform scaled position is incorrect.", false );
 
 			if( !BinarySerializable.ToFile( t1, TransformPath, true ) )

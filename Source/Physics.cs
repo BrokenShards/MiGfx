@@ -242,5 +242,124 @@ namespace MiGfx
 			double len = Math.Sqrt( Math.Pow( diff.X, 2 ) + Math.Pow( diff.Y, 2 ) );
 			return len <= radius;
 		}
+
+		/// <summary>
+		///   Checks if the shape contains the given point.
+		/// </summary>
+		/// <param name="shape">
+		///   The shape information.
+		/// </param>
+		/// <param name="point">
+		///   The point to check.
+		/// </param>
+		/// <returns>
+		///   True if the shape is not null and contains the point, otherwise false.
+		/// </returns>
+		public static bool ShapeContainsPoint( Shape shape, Vector2f point )
+		{
+			if( shape == null )
+				return false;
+
+			float[] coords = new float[ shape.GetPointCount() * 2 ];
+
+			for( uint i = 0; i < shape.GetPointCount(); i++ )
+			{
+				Vector2f p = shape.GetPoint( i );
+
+				coords[ i * 2 ]         = p.X;
+				coords[ ( i * 2 ) + 1 ] = p.Y;
+			}
+
+			return ShapeContainsPoint( coords, point );
+		}
+		/// <summary>
+		///   Checks if the shape contains the given point.
+		/// </summary>
+		/// <param name="shape">
+		///   The shape information.
+		/// </param>
+		/// <param name="point">
+		///   The point to check.
+		/// </param>
+		/// <returns>
+		///   True if the shape is not null and contains the point, otherwise false.
+		/// </returns>
+		public static bool ShapeContainsPoint( ShapeRenderer shape, Vector2f point )
+		{
+			if( shape == null )
+				return false;
+
+			float[] coords = new float[ shape.PointCount * 2 ];
+
+			for( uint i = 0; i < shape.PointCount; i++ )
+			{
+				Vector2f p = shape.GetPoint( i );
+
+				coords[ i * 2 ] = p.X;
+				coords[ ( i * 2 ) + 1 ] = p.Y;
+			}
+
+			return ShapeContainsPoint( coords, point );
+		}
+		/// <summary>
+		///   Checks if the shape contains the given point.
+		/// </summary>
+		/// <param name="shape">
+		///   The shape information.
+		/// </param>
+		/// <param name="point">
+		///   The point to check.
+		/// </param>
+		/// <returns>
+		///   True if the shape is not null and contains the point, otherwise false.
+		/// </returns>
+		public static bool ShapeContainsPoint( BoxRenderer shape, Vector2f point )
+		{
+			if( shape == null )
+				return false;
+
+			uint count = 4;
+			float[] coords = new float[ count * 2 ];
+
+			for( uint i = 0; i < count; i++ )
+			{
+				Vector2f p = shape.GetPoint( i );
+
+				coords[ i * 2 ] = p.X;
+				coords[ ( i * 2 ) + 1 ] = p.Y;
+			}
+
+			return ShapeContainsPoint( coords, point );
+		}
+
+		/// <summary>
+		///   Checks if the shape contains the given point.
+		/// </summary>
+		/// <param name="coords">
+		///   The shape coordinates.
+		/// </param>
+		/// <param name="point">
+		///   The point to check.
+		/// </param>
+		/// <returns>
+		///   True if the coords are not null, have an even length, and contains the point,
+		///   otherwise false.
+		/// </returns>
+		public static bool ShapeContainsPoint( float[] coords, Vector2f point )
+		{
+			if( coords == null || coords.Length == 0 || coords.Length % 2 != 0 )
+				return false;
+
+			for( uint i = 0; i < coords.Length - 2; i += 2 )
+				if( ( ( point.Y - coords[ i + 1 ] ) * ( coords[ i + 2 ] - coords[ i ] ) - ( point.X - coords[ i ] ) * ( coords[ i + 3 ] - coords[ i + 1 ] ) ) < 0 )
+					return false;
+
+			uint j = (uint)coords.Length;
+
+			if( ( ( point.Y - coords[ j - 1 ] ) * ( coords[ 0 ] - coords[ j - 2 ] ) - ( point.X - coords[ j - 2 ] ) * ( coords[ 1 ] - coords[ j - 1 ] ) ) < 0 )
+				return false;
+
+			return true;
+		}
 	}
 }

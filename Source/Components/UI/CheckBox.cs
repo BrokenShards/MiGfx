@@ -32,14 +32,6 @@ using MiCore;
 
 namespace MiGfx
 {
-	public static partial class FilePaths
-	{
-		/// <summary>
-		///   Default check box texture.
-		/// </summary>
-		public static readonly string CheckBoxTexture = FolderPaths.UI + "CheckBox.png";
-	}
-
 	/// <summary>
 	///   Possible state of check box.
 	/// </summary>
@@ -148,8 +140,8 @@ namespace MiGfx
 		/// </returns>
 		protected override string[] GetRequiredComponents()
 		{
-			return new string[] { nameof( UITransform ), nameof( Selectable ), nameof( UIClickable ),
-			                      nameof( UISprite ) };
+			return new string[] { nameof( Transform ), nameof( Selectable ), nameof( Clickable ),
+			                      nameof( Sprite ) };
 		}
 		/// <summary>
 		///   Gets the type names of components incompatible with this component type.
@@ -160,9 +152,42 @@ namespace MiGfx
 		protected override string[] GetIncompatibleComponents()
 		{
 			return new string[] { nameof( Button ),  nameof( FillBar ), nameof( TextBox ),
-			                      nameof( UISpriteAnimator ), nameof( UISpriteArray ) };
+			                      nameof( SpriteAnimator ), nameof( SpriteArray ) };
 		}
 
+		/// <summary>
+		///   Called when the component is added to an entity.
+		/// </summary>
+		public override void OnAdd()
+		{
+			Sprite spr = Parent.GetComponent<Sprite>();
+			spr.Image = new ImageInfo( FolderPaths.UI + "CheckBox.png" );
+
+			if( spr.Image.IsTextureValid )
+			{
+				Vector2u size = spr.Image.TextureSize / 2;
+				Parent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y );
+			}
+		}
+		/// <summary>
+		///   Refreshes components' visual elements.
+		/// </summary>
+		public override void Refresh()
+		{
+			if( Parent == null )
+				return;
+
+			Sprite  spr = Parent.GetComponent<Sprite>();
+			Texture tex = spr.Image.Texture;
+
+			if( tex != null )
+			{
+				Vector2u size = tex.Size;
+				spr.Image.Rect = new FloatRect( 0, 0, size.X / 2, size.Y / 2 );
+			}
+						
+			spr.Image.Color = Colors[ 0 ];
+		}
 		/// <summary>
 		///   Updates the component logic.
 		/// </summary>
@@ -174,10 +199,10 @@ namespace MiGfx
 			if( Parent == null )
 				return;
 
-			Selectable  sel = Parent.GetComponent<Selectable>();
-			UIClickable clk = Parent.GetComponent<UIClickable>();
-			UISprite    spr = Parent.GetComponent<UISprite>();
-			Texture     tex = Assets.Manager.Texture.Get( spr.Image.Path );
+			Selectable sel = Parent.GetComponent<Selectable>();
+			Clickable  clk = Parent.GetComponent<Clickable>();
+			Sprite     spr = Parent.GetComponent<Sprite>();
+			Texture    tex = spr.Image.Texture;
 
 			if( clk.Clicked )
 				Checked = !Checked;
@@ -196,8 +221,6 @@ namespace MiGfx
 					spr.Image.Rect = new FloatRect( 0, size.Y / 2, size.X / 2, size.Y / 2 );
 				else if( State == CheckBoxState.SelectedChecked )
 					spr.Image.Rect = new FloatRect( size.X / 2, size.Y / 2, size.X / 2, size.Y / 2 );
-				else
-					spr.Image.Rect = new FloatRect( 0, 0, size.X / 2, size.Y / 2 );
 			}
 						
 			spr.Image.Color = Colors[ (int)State ];
@@ -409,8 +432,8 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating CheckBox entity: Adding CheckBox failed.", null, LogType.Error );
 			}
 
-			UISprite spr = ent.GetComponent<UISprite>();
-			spr.Image = new ImageInfo( FilePaths.CheckBoxTexture );
+			Sprite spr = ent.GetComponent<Sprite>();
+			spr.Image = new ImageInfo( FolderPaths.UI + "CheckBox.png" );
 
 			if( !spr.Image.IsTextureValid )
 			{
@@ -420,9 +443,8 @@ namespace MiGfx
 
 			if( window != null )
 			{
-				View view = window.GetView();
 				Vector2u size = spr.Image.TextureSize / 2;
-				ent.GetComponent<UITransform>().Size = new Vector2f( size.X / view.Size.X, size.Y / view.Size.Y );
+				ent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y );
 			}
 
 			return ent;

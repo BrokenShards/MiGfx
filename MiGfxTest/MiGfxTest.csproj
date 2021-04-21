@@ -75,10 +75,6 @@
     <Compile Include="Tests\Assets\FontManager.cs" />
     <Compile Include="Tests\Assets\SoundManager.cs" />
     <Compile Include="Tests\Assets\TextureManager.cs" />
-    <Compile Include="Tests\Components\UI\UILabel.cs" />
-    <Compile Include="Tests\Components\UI\UISprite.cs" />
-    <Compile Include="Tests\Components\UI\UISpriteAnimator.cs" />
-    <Compile Include="Tests\Components\UI\UISpriteArray.cs" />
     <Compile Include="Tests\Components\UI\Button.cs" />
     <Compile Include="Tests\Components\UI\CheckBox.cs" />
     <Compile Include="Tests\Components\UI\FillBar.cs" />

@@ -82,16 +82,6 @@ namespace MiGfx
 		{
 			return new string[] { nameof( Transform ) };
 		}
-		/// <summary>
-		///   Get the type names of the components incompatible with this component type.
-		/// </summary>
-		/// <returns>
-		///   The type names of the components incompatible with this component type.
-		/// </returns>
-		protected override string[] GetIncompatibleComponents()
-		{
-			return new string[] { nameof( UITransform ) };
-		}
 
 		/// <summary>
 		///   Checks if the given point is inside the collider.

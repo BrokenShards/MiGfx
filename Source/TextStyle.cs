@@ -41,7 +41,7 @@ namespace MiGfx
 		public TextStyle()
 		:	base()
 		{
-			FontPath     = FilePaths.DefaultFont;
+			FontPath     = FolderPaths.Fonts + "FallingSky.otf";
 			Size         = 20;
 			Style        = 0;
 			Outline      = 0.0f;
@@ -95,7 +95,7 @@ namespace MiGfx
 		public TextStyle( string font, uint size = 24, uint style = 0, Color? fill = null, float line = 0.0f, Color? outline = null )
 		:	base()
 		{
-			FontPath     = font ?? FilePaths.DefaultFont;
+			FontPath     = FolderPaths.Fonts + "FallingSky.otf";
 			Size         = size == 0 ? 20 : size;
 			Style        = style;
 			Outline      = line < 0.0f ? 0.0f : line;
@@ -321,23 +321,26 @@ namespace MiGfx
 
 			sb.Append( "<" );
 			sb.Append( nameof( TextStyle ) );
-			sb.Append( " " + nameof( FontPath ) + "=\"" );
+
+			sb.Append( " " );
+			sb.Append( nameof( FontPath ) );
+			sb.Append( "=\"" );
 			sb.Append( FontPath ?? string.Empty );
 			sb.AppendLine( "\"" );
 
-			sb.Append( " " + nameof( Size ) + "=\"" );
+			sb.Append( "           " + nameof( Size ) + "=\"" );
 			sb.Append( Size );
 			sb.AppendLine( "\"" );
 
-			sb.Append( " " + nameof( Style ) + "=\"" );
+			sb.Append( "           " + nameof( Style ) + "=\"" );
 			sb.Append( Style );
 			sb.AppendLine( "\"" );
 
-			sb.Append( " " + nameof( Outline ) + "=\"" );
+			sb.Append( "           " + nameof( Outline ) + "=\"" );
 			sb.Append( Outline );
 			sb.AppendLine( "\">" );
 
-			sb.AppendLine( Xml.ToString( FillColor, nameof( FillColor ), 1 ) );
+			sb.AppendLine( Xml.ToString( FillColor,    nameof( FillColor ), 1 ) );
 			sb.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) );
 
 			sb.Append( "</" );

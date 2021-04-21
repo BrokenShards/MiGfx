@@ -450,7 +450,7 @@
         </member>
         <member name="P:MiInput.Input.Joystick">
             <summary>
-              Array of joystick managers for each player.
+              Joystick manager.
             </summary>
         </member>
         <member name="P:MiInput.Input.FirstJoystick">
@@ -606,15 +606,12 @@
               True if the axis is valid for the given device and has just been released, otherwise false.
             </returns>
         </member>
-        <member name="M:MiInput.Input.IsPressed(System.String,System.UInt32)">
+        <member name="M:MiInput.Input.IsPressed(System.String)">
             <summary>
               Checks if the input mapped to action is pressed.
             </summary>
             <param name="action">
               The name of the mapped action.
-            </param>
-            <param name="player">
-              The player index.
             </param>
             <returns>
               True if index and action are valid, mapped and pressed, otherwise false.
@@ -930,19 +927,6 @@
             <param name="man">
               The manager to copy.
             </param>
-        </member>
-        <member name="M:MiInput.JoystickManager.#ctor(System.UInt32)">
-            <summary>
-              Constructor that sets player index.
-            </summary>
-            <param name="player">
-              The player index.
-            </param>
-        </member>
-        <member name="P:MiInput.JoystickManager.Player">
-            <summary>
-              The targeted index of the joystick to update from.
-            </summary>
         </member>
         <member name="P:MiInput.JoystickManager.IsConnected">
             <summary>
@@ -1467,19 +1451,6 @@
               The state to copy from.
             </param>
         </member>
-        <member name="M:MiInput.JoystickState.#ctor(System.UInt32)">
-            <summary>
-              Constructs a new state with a given player number.
-            </summary>
-            <param name="player">
-              The player number.
-            </param>
-        </member>
-        <member name="P:MiInput.JoystickState.Player">
-            <summary>
-              The targeted index of the joystick to update from.
-            </summary>
-        </member>
         <member name="M:MiInput.JoystickState.Update">
             <summary>
               Updates the object to the current state of the device.
@@ -1654,7 +1625,7 @@
               The string to parse.
             </param>
             <returns>
-              The keyboard key parsed from the string on success or null on failure.
+              The keyboard key parsed from the string on success or Key.KeyCount on failure.
             </returns>
         </member>
         <member name="M:MiInput.KeyboardManager.#ctor">
@@ -1699,7 +1670,7 @@
               True if the button name is valid and the button is pressed, otherwise false.
             </returns>
         </member>
-        <member name="M:MiInput.KeyboardManager.IsPressed(SFML.Window.Keyboard.Key)">
+        <member name="M:MiInput.KeyboardManager.IsPressed(MiInput.Key)">
             <summary>
               If the key is pressed.
             </summary>
@@ -1732,7 +1703,7 @@
               True if the button name is valid and the button has just been pressed, otherwise false.
             </returns>
         </member>
-        <member name="M:MiInput.KeyboardManager.JustPressed(SFML.Window.Keyboard.Key)">
+        <member name="M:MiInput.KeyboardManager.JustPressed(MiInput.Key)">
             <summary>
               If the key has just been pressed.
             </summary>
@@ -1765,7 +1736,7 @@
               True if the button name is valid and the button has just been released, otherwise false.
             </returns>
         </member>
-        <member name="M:MiInput.KeyboardManager.JustReleased(SFML.Window.Keyboard.Key)">
+        <member name="M:MiInput.KeyboardManager.JustReleased(MiInput.Key)">
             <summary>
               If the key has just been released.
             </summary>
@@ -1799,6 +1770,320 @@
             <returns>
               True if any keys have just been pressed and false otherwise.
             </returns>
+        </member>
+        <member name="T:MiInput.Key">
+            <summary>
+              Key codes
+            </summary>
+            <remarks>
+              This is just a clone of SFML's Keyboard.Key enum without the unknown and depreciated keys.
+            </remarks>
+        </member>
+        <member name="F:MiInput.Key.A">
+            <summary>The A key</summary>
+        </member>
+        <member name="F:MiInput.Key.B">
+            <summary>The B key</summary>
+        </member>
+        <member name="F:MiInput.Key.C">
+            <summary>The C key</summary>
+        </member>
+        <member name="F:MiInput.Key.D">
+            <summary>The D key</summary>
+        </member>
+        <member name="F:MiInput.Key.E">
+            <summary>The E key</summary>
+        </member>
+        <member name="F:MiInput.Key.F">
+            <summary>The F key</summary>
+        </member>
+        <member name="F:MiInput.Key.G">
+            <summary>The G key</summary>
+        </member>
+        <member name="F:MiInput.Key.H">
+            <summary>The H key</summary>
+        </member>
+        <member name="F:MiInput.Key.I">
+            <summary>The I key</summary>
+        </member>
+        <member name="F:MiInput.Key.J">
+            <summary>The J key</summary>
+        </member>
+        <member name="F:MiInput.Key.K">
+            <summary>The K key</summary>
+        </member>
+        <member name="F:MiInput.Key.L">
+            <summary>The L key</summary>
+        </member>
+        <member name="F:MiInput.Key.M">
+            <summary>The M key</summary>
+        </member>
+        <member name="F:MiInput.Key.N">
+            <summary>The N key</summary>
+        </member>
+        <member name="F:MiInput.Key.O">
+            <summary>The O key</summary>
+        </member>
+        <member name="F:MiInput.Key.P">
+            <summary>The P key</summary>
+        </member>
+        <member name="F:MiInput.Key.Q">
+            <summary>The Q key</summary>
+        </member>
+        <member name="F:MiInput.Key.R">
+            <summary>The R key</summary>
+        </member>
+        <member name="F:MiInput.Key.S">
+            <summary>The S key</summary>
+        </member>
+        <member name="F:MiInput.Key.T">
+            <summary>The T key</summary>
+        </member>
+        <member name="F:MiInput.Key.U">
+            <summary>The U key</summary>
+        </member>
+        <member name="F:MiInput.Key.V">
+            <summary>The V key</summary>
+        </member>
+        <member name="F:MiInput.Key.W">
+            <summary>The W key</summary>
+        </member>
+        <member name="F:MiInput.Key.X">
+            <summary>The X key</summary>
+        </member>
+        <member name="F:MiInput.Key.Y">
+            <summary>The Y key</summary>
+        </member>
+        <member name="F:MiInput.Key.Z">
+            <summary>The Z key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num0">
+            <summary>The 0 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num1">
+            <summary>The 1 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num2">
+            <summary>The 2 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num3">
+            <summary>The 3 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num4">
+            <summary>The 4 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num5">
+            <summary>The 5 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num6">
+            <summary>The 6 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num7">
+            <summary>The 7 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num8">
+            <summary>The 8 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Num9">
+            <summary>The 9 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Escape">
+            <summary>The Escape key</summary>
+        </member>
+        <member name="F:MiInput.Key.LControl">
+            <summary>The left Control key</summary>
+        </member>
+        <member name="F:MiInput.Key.LShift">
+            <summary>The left Shift key</summary>
+        </member>
+        <member name="F:MiInput.Key.LAlt">
+            <summary>The left Alt key</summary>
+        </member>
+        <member name="F:MiInput.Key.LSystem">
+            <summary>The left OS specific key: window (Windows and Linux), apple (MacOS X), ...</summary>
+        </member>
+        <member name="F:MiInput.Key.RControl">
+            <summary>The right Control key</summary>
+        </member>
+        <member name="F:MiInput.Key.RShift">
+            <summary>The right Shift key</summary>
+        </member>
+        <member name="F:MiInput.Key.RAlt">
+            <summary>The right Alt key</summary>
+        </member>
+        <member name="F:MiInput.Key.RSystem">
+            <summary>The right OS specific key: window (Windows and Linux), apple (MacOS X), ...</summary>
+        </member>
+        <member name="F:MiInput.Key.Menu">
+            <summary>The Menu key</summary>
+        </member>
+        <member name="F:MiInput.Key.LBracket">
+            <summary>The [ key</summary>
+        </member>
+        <member name="F:MiInput.Key.RBracket">
+            <summary>The ] key</summary>
+        </member>
+        <member name="F:MiInput.Key.Semicolon">
+            <summary>The ; key</summary>
+        </member>
+        <member name="F:MiInput.Key.Comma">
+            <summary>The , key</summary>
+        </member>
+        <member name="F:MiInput.Key.Period">
+            <summary>The . key</summary>
+        </member>
+        <member name="F:MiInput.Key.Quote">
+            <summary>The ' key</summary>
+        </member>
+        <member name="F:MiInput.Key.Slash">
+            <summary>The / key</summary>
+        </member>
+        <member name="F:MiInput.Key.Backslash">
+            <summary>The \ key</summary>
+        </member>
+        <member name="F:MiInput.Key.Tilde">
+            <summary>The ~ key</summary>
+        </member>
+        <member name="F:MiInput.Key.Equal">
+            <summary>The = key</summary>
+        </member>
+        <member name="F:MiInput.Key.Hyphen">
+            <summary>The - key</summary>
+        </member>
+        <member name="F:MiInput.Key.Space">
+            <summary>The Space key</summary>
+        </member>
+        <member name="F:MiInput.Key.Enter">
+            <summary>The Return key</summary>
+        </member>
+        <member name="F:MiInput.Key.Backspace">
+            <summary>The Backspace key</summary>
+        </member>
+        <member name="F:MiInput.Key.Tab">
+            <summary>The Tabulation key</summary>
+        </member>
+        <member name="F:MiInput.Key.PageUp">
+            <summary>The Page up key</summary>
+        </member>
+        <member name="F:MiInput.Key.PageDown">
+            <summary>The Page down key</summary>
+        </member>
+        <member name="F:MiInput.Key.End">
+            <summary>The End key</summary>
+        </member>
+        <member name="F:MiInput.Key.Home">
+            <summary>The Home key</summary>
+        </member>
+        <member name="F:MiInput.Key.Insert">
+            <summary>The Insert key</summary>
+        </member>
+        <member name="F:MiInput.Key.Delete">
+            <summary>The Delete key</summary>
+        </member>
+        <member name="F:MiInput.Key.Add">
+            <summary>The + key</summary>
+        </member>
+        <member name="F:MiInput.Key.Subtract">
+            <summary>The - key</summary>
+        </member>
+        <member name="F:MiInput.Key.Multiply">
+            <summary>The * key</summary>
+        </member>
+        <member name="F:MiInput.Key.Divide">
+            <summary>The / key</summary>
+        </member>
+        <member name="F:MiInput.Key.Left">
+            <summary>Left arrow</summary>
+        </member>
+        <member name="F:MiInput.Key.Right">
+            <summary>Right arrow</summary>
+        </member>
+        <member name="F:MiInput.Key.Up">
+            <summary>Up arrow</summary>
+        </member>
+        <member name="F:MiInput.Key.Down">
+            <summary>Down arrow</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad0">
+            <summary>The numpad 0 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad1">
+            <summary>The numpad 1 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad2">
+            <summary>The numpad 2 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad3">
+            <summary>The numpad 3 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad4">
+            <summary>The numpad 4 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad5">
+            <summary>The numpad 5 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad6">
+            <summary>The numpad 6 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad7">
+            <summary>The numpad 7 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad8">
+            <summary>The numpad 8 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Numpad9">
+            <summary>The numpad 9 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F1">
+            <summary>The F1 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F2">
+            <summary>The F2 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F3">
+            <summary>The F3 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F4">
+            <summary>The F4 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F5">
+            <summary>The F5 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F6">
+            <summary>The F6 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F7">
+            <summary>The F7 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F8">
+            <summary>The F8 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F9">
+            <summary>The F9 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F10">
+            <summary>The F10 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F11">
+            <summary>The F11 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F12">
+            <summary>The F12 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F13">
+            <summary>The F13 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F14">
+            <summary>The F14 key</summary>
+        </member>
+        <member name="F:MiInput.Key.F15">
+            <summary>The F15 key</summary>
+        </member>
+        <member name="F:MiInput.Key.Pause">
+            <summary>The Pause key</summary>
+        </member>
+        <member name="F:MiInput.Key.KeyCount">
+            <summary>The total number of keyboard keys</summary>
         </member>
         <member name="T:MiInput.KeyboardState">
             <summary>
@@ -1847,7 +2132,7 @@
               True if the key index is within range and the key is pressed, otherwise false.
             </returns>
         </member>
-        <member name="M:MiInput.KeyboardState.IsPressed(SFML.Window.Keyboard.Key)">
+        <member name="M:MiInput.KeyboardState.IsPressed(MiInput.Key)">
             <summary>
               If the key is pressed.
             </summary>

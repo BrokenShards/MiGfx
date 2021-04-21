@@ -20,14 +20,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using System;
 using System.IO;
+using System.Text;
 using System.Xml;
+
 using SFML.System;
 using SFML.Window;
 
 using MiCore;
 using MiInput;
-using System.Text;
+
+using Action = MiInput.Action;
 
 namespace MiGfx
 {
@@ -61,9 +65,10 @@ namespace MiGfx
 		public Clickable()
 		:	base()
 		{
-			Hovering = false;
-			Clicked  = false;
-			ClickState = ClickableState.Idle;
+			Hovering         = false;
+			Clicked          = false;
+			ClickState       = ClickableState.Idle;
+			m_timer          = new Clock();
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -74,9 +79,13 @@ namespace MiGfx
 		public Clickable( Clickable c )
 		:	base( c )
 		{
-			Hovering   = c.Hovering;
-			Clicked    = c.Clicked;
-			ClickState = c.ClickState;
+			m_hover          = c.m_hover;
+			m_click          = c.m_click;
+			ClickState       = c.ClickState;
+			m_timer          = new Clock();
+
+			m_onhover  = new EventHandler( c.m_onhover );
+			m_onclick  = new EventHandler( c.m_onclick );
 		}
 
 		/// <summary>
@@ -100,14 +109,69 @@ namespace MiGfx
 		/// </summary>
 		public bool Hovering
 		{
-			get; protected set;
+			get { return m_hover; }
+			protected set 
+			{
+				if( !m_hover && value )
+					OnHover();
+
+				m_hover = value;
+			}
 		}
 		/// <summary>
 		///   If the entity is being clicked.
 		/// </summary>
 		public bool Clicked
 		{
-			get; protected set;
+			get { return m_click; }
+			protected set
+			{
+				if( !m_click && value )
+					OnClick();
+
+				m_click = value;
+			}
+		}
+
+		/// <summary>
+		///   Occurs when the mouse hovers over the entity.
+		/// </summary>
+		public event EventHandler Hover
+		{
+			add
+			{
+				lock( m_onhoverLock )
+				{
+					m_onhover += value;
+				}
+			}
+			remove
+			{
+				lock( m_onhoverLock )
+				{
+					m_onhover -= value;
+				}
+			}
+		}
+		/// <summary>
+		///   Occurs when the mouse clicks the entity.
+		/// </summary>
+		public event EventHandler Click
+		{
+			add
+			{
+				lock( m_onclickLock )
+				{
+					m_onclick += value;
+				}
+			}
+			remove
+			{
+				lock( m_onclickLock )
+				{
+					m_onclick -= value;
+				}
+			}
 		}
 
 		/// <summary>
@@ -119,16 +183,6 @@ namespace MiGfx
 		protected override string[] GetRequiredComponents()
 		{
 			return new string[] { nameof( Transform ), nameof( Selectable ) };
-		}
-		/// <summary>
-		///   Gets the type names of components incompatible with this component type.
-		/// </summary>
-		/// <returns>
-		///   The type names of components incompatible with this component type.
-		/// </returns>
-		protected override string[] GetIncompatibleComponents()
-		{
-			return new string[] { nameof( UIClickable ) };
 		}
 
 		/// <summary>
@@ -159,11 +213,11 @@ namespace MiGfx
 			else
 				Hovering = s.Selected;
 
-			Action submit = Input.Manager.Actions[ 0 ]?.Get( "Submit" );
+			Action submit = Input.Manager.Actions?.Get( "Submit" );
 
 			bool sub = submit != null ? submit.JustPressed :
-					( Input.Manager.Keyboard.JustPressed( Keyboard.Key.Enter ) ||
-					  Input.Manager.Joystick[ 0 ].JustPressed( "A" ) );
+					( Input.Manager.Keyboard.JustPressed( Key.Enter ) ||
+					  Input.Manager.Joystick.JustPressed( "A" ) );
 
 			if( Input.Manager.LastDevice == InputDevice.Mouse )
 				Clicked = Hovering && Input.Manager.Mouse.JustPressed( Mouse.Button.Left );
@@ -275,5 +329,39 @@ namespace MiGfx
 		{
 			return new Clickable( this );
 		}
+
+		private void OnHover()
+		{
+			EventHandler handler;
+
+			lock( m_onhoverLock )
+			{
+				handler = m_onhover;
+			}
+
+			handler?.Invoke( this, EventArgs.Empty );
+		}
+		private void OnClick()
+		{
+			EventHandler handler;
+
+			lock( m_onclickLock )
+			{
+				handler = m_onclick;
+			}
+
+			handler?.Invoke( this, EventArgs.Empty );
+		}
+
+		private bool m_hover, 
+		             m_click;
+
+		private Clock m_timer;
+
+		private EventHandler m_onhover, 
+		                     m_onclick;
+
+		readonly object m_onhoverLock  = new object(),
+		                m_onclickLock  = new object();
 	}
 }
