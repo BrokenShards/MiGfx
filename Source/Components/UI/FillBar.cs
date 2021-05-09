@@ -42,10 +42,10 @@ namespace MiGfx
 		/// </summary>
 		public FillBarInfo()
 		{
-			Color = Color.White;
-			Orientation = Direction.Up;
+			Color          = Color.White;
+			Orientation    = Direction.Up;
 			FlipHorizontal = false;
-			FlipVertical = false;
+			FlipVertical   = false;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -58,13 +58,13 @@ namespace MiGfx
 		/// </exception>
 		public FillBarInfo( FillBarInfo i )
 		{
-			if( i == null )
-				throw new ArgumentNullException();
+			if( i is null )
+				throw new ArgumentNullException( nameof( i ) );
 
-			Color = i.Color;
-			Orientation = i.Orientation;
+			Color          = i.Color;
+			Orientation    = i.Orientation;
 			FlipHorizontal = i.FlipHorizontal;
-			FlipVertical = i.FlipVertical;
+			FlipVertical   = i.FlipVertical;
 		}
 		/// <summary>
 		///   Constructor that assigns values.
@@ -83,10 +83,10 @@ namespace MiGfx
 		/// </param>
 		public FillBarInfo( Color col, Direction dir = 0, bool hflip = false, bool vflip = false )
 		{
-			Color = col;
-			Orientation = dir;
+			Color          = col;
+			Orientation    = dir;
 			FlipHorizontal = hflip;
-			FlipVertical = vflip;
+			FlipVertical   = vflip;
 		}
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Unable to load FillBarInfo from null stream.", false, LogType.Error );
 
 			try
@@ -132,7 +132,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to load FillBarInfo from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Unable to load FillBarInfo from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -148,7 +148,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Unable to save FillBarInfo to null stream.", false, LogType.Error );
 
 			try
@@ -159,7 +159,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to save FillBarInfo to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Unable to save FillBarInfo to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -176,15 +176,15 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load FillBarInfo from a null XmlElement.", false, LogType.Error );
 
 			XmlElement color = element[ nameof( Color ) ];
-			Color? col = color != null ? Xml.ToColor( color ) : null;
+			Color? col = color is not null ? Xml.ToColor( color ) : null;
 
-			if( color != null && !col.HasValue )
+			if( color is not null && !col.HasValue )
 				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Color element.", false, LogType.Error );
-			else if( color == null )
+			else if( color is null )
 				col = Color.White;
 
 			Color = col.Value;
@@ -225,36 +225,17 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( nameof( ImageInfo ) );
-
-			sb.Append( " " );
-			sb.Append( nameof( Orientation ) );
-			sb.Append( "=\"" );
-			sb.Append( Orientation );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( FlipHorizontal ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipHorizontal );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( FlipVertical ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipVertical );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( nameof( ImageInfo ) );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( nameof( ImageInfo ) ).Append( ' ' )
+				.Append( nameof( Orientation ) ).Append( "=\"" ).Append( Orientation ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( FlipHorizontal ) ).Append( "=\"" ).Append( FlipHorizontal ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( FlipVertical ) ).Append( "=\"" ).Append( FlipVertical ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) )
+				
+				.Append( "</" ).Append( nameof( ImageInfo ) ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -268,11 +249,35 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( FillBarInfo other )
 		{
-			return other != null &&
+			return other is not null &&
 				   Color.Equals( other.Color ) &&
 				   Orientation == other.Orientation &&
 				   FlipHorizontal == other.FlipHorizontal &&
 				   FlipVertical == other.FlipVertical;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as FillBarInfo );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( Color, Orientation, FlipHorizontal, FlipVertical );
 		}
 	}
 
@@ -337,8 +342,8 @@ namespace MiGfx
 			Value    = s.Value;
 			Labeling = s.Labeling;
 
-			Background  = s.Background == null ? new FillBarInfo() : new FillBarInfo( s.Background );
-			Fill        = s.Fill       == null ? new FillBarInfo() : new FillBarInfo( s.Fill );
+			Background  = s.Background is null ? new FillBarInfo() : new FillBarInfo( s.Background );
+			Fill        = s.Fill       is null ? new FillBarInfo() : new FillBarInfo( s.Fill );
 			FillPadding = s.FillPadding;
 		}
 		/// <summary>
@@ -430,10 +435,7 @@ namespace MiGfx
 			get { return m_label; }
 			set
 			{
-				if( value < 0 || (int)value >= Enum.GetNames( typeof( LabelType ) ).Length )
-					m_label = 0;
-				else
-					m_label = value;
+				m_label = ( value < 0 || (int)value >= Enum.GetNames( typeof( LabelType ) ).Length ) ? 0 : value;
 			}
 		}
 
@@ -495,10 +497,10 @@ namespace MiGfx
 		/// </summary>
 		public override void OnAdd()
 		{
-			string path = FolderPaths.UI + "FillBar.png";
+			string path = $"{ FolderPaths.UI }FillBar.png";
 			Texture tex = Assets.Manager.Get<Texture>( path );
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Parent.GetComponent<SpriteArray>().TexturePath = path;
 
@@ -515,12 +517,12 @@ namespace MiGfx
 		/// </summary>
 		protected override void OnUpdate( float dt )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
-			if( Background == null )
+			if( Background is null )
 				Background = new FillBarInfo();
-			if( Fill == null )
+			if( Fill is null )
 				Fill = new FillBarInfo();
 
 			Transform   tr = Parent.GetComponent<Transform>();
@@ -528,26 +530,26 @@ namespace MiGfx
 
 			Texture tex = Assets.Manager.Get<Texture>( sa.TexturePath );
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Vector2u size = tex.Size;
 
-				SpriteInfo bginfo = new SpriteInfo( new FloatRect( 0, 0, size.X, size.Y / 2 ),
+				SpriteInfo bginfo = new( new FloatRect( 0, 0, size.X, size.Y / 2 ),
 									Background.Color, null, tr.Size, Background.Orientation,
 									Background.FlipHorizontal, Background.FlipVertical ),
-						   flinfo = new SpriteInfo(
+						   flinfo = new(
 									new FloatRect( FillPadding.X, FillPadding.Y + ( size.Y / 2 ),
 												 ( size.X - ( FillPadding.X * 2 ) ) * Progress,
 												 ( size.Y / 2 ) - ( FillPadding.Y * 2 ) ),
 									Fill.Color, FillPadding, tr.Size - ( FillPadding * 2 ),
 									Fill.Orientation, Fill.FlipHorizontal, Fill.FlipVertical );
 
-				if( Progress == 0.0f )
+				if( Progress is 0.0f )
 					flinfo.Color = new Color( 255, 255, 255, 0 );
 				else
 					flinfo.Size = new Vector2f( flinfo.Size.X * Progress, flinfo.Size.Y );
 
-				if( sa.Sprites.Count != 2 )
+				if( sa.Sprites.Count is not 2 )
 				{
 					sa.Sprites.Clear();
 					sa.Sprites.Add( bginfo );
@@ -563,16 +565,15 @@ namespace MiGfx
 			// Label
 			if( Parent.HasComponent<Label>() )
 			{
-				if( Labeling == LabelType.Percentage )
-					Parent.GetComponent<Label>().String = string.Format( "{0:0.#}", (double)( Progress * 100.0 ) ) + "%";
-				else if( Labeling == LabelType.Decimal )
-					Parent.GetComponent<Label>().String = string.Format( "{0:0.#}", (double)Progress );
-				else if( Labeling == LabelType.Value )
-					Parent.GetComponent<Label>().String = Value.ToString();
-				else if( Labeling == LabelType.ValueMax )
-					Parent.GetComponent<Label>().String = Value.ToString() + "/" + Max.ToString();
-				else
-					Parent.GetComponent<Label>().String = string.Empty;
+				Parent.GetComponent<Label>().String = Labeling switch
+				{
+					LabelType.Percentage => string.Format( "{0:0.#}", (double)( Progress * 100.0 ) ) + '%',
+					LabelType.Decimal    => string.Format( "{0:0.#}", (double)Progress ),
+					LabelType.Value      => Value.ToString(),
+					LabelType.ValueMax   => Value.ToString() + "/" + Max.ToString(),
+
+					_ => string.Empty
+				};
 			}
 		}
 				
@@ -610,7 +611,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading FillBar: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading FillBar: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -628,9 +629,9 @@ namespace MiGfx
 		{
 			if( !base.SaveToStream( sw ) )
 				return false;
-			if( Background == null )
+			if( Background is null )
 				Background = new FillBarInfo();
-			if( Fill == null )
+			if( Fill is null )
 				Fill = new FillBarInfo();
 
 			if( !Background.SaveToStream( sw ) )
@@ -646,7 +647,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving FillBar: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving FillBar: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -665,7 +666,7 @@ namespace MiGfx
 			if( !base.LoadFromXml( element ) )
 				return false;
 
-			Labeling   = LabelType.Percentage;
+			Labeling    = LabelType.Percentage;
 			Background  = new FillBarInfo();
 			Fill        = new FillBarInfo();
 			FillPadding = new Vector2f();
@@ -681,9 +682,9 @@ namespace MiGfx
 			if( !element.HasAttribute( nameof( Value ) ) )
 				return Logger.LogReturn( "Failed loading FillBar: No Value xml attribute.", false, LogType.Error );
 
-			if( bg == null )
+			if( bg is null )
 				return Logger.LogReturn( "Failed loading FillBar: No Background xml element.", false, LogType.Error );
-			if( fl == null )
+			if( fl is null )
 				return Logger.LogReturn( "Failed loading FillBar: No Fill xml element.", false, LogType.Error );
 
 			if( !Background.LoadFromXml( bg ) )
@@ -710,7 +711,7 @@ namespace MiGfx
 			Max   = max;
 			Value = val;
 
-			if( pd != null )
+			if( pd is not null )
 			{
 				Vector2f? padding = Xml.ToVec2f( pd );
 
@@ -731,69 +732,27 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " );
-			sb.Append( nameof( Min ) );
-			sb.Append( "=\"" );
-			sb.Append( Min );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " );
-			sb.Append( nameof( Max ) );
-			sb.Append( "=\"" );
-			sb.Append( Max );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " );
-			sb.Append( nameof( Value ) );
-			sb.Append( "=\"" );
-			sb.Append( Value );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " );
-			sb.Append( nameof( Labeling ) );
-			sb.Append( "=\"" );
-			sb.Append( Labeling.ToString() );
-			sb.AppendLine( "\">" );
-
-			sb.Append( "\t<" );
-			sb.Append( nameof( Background ) );
-			sb.Append( ">" );
-			sb.AppendLine( XmlLoadable.ToString( Background, 2 ) );
-			sb.Append( "\t</" );
-			sb.Append( nameof( Background ) );
-			sb.Append( ">" );
-
-			sb.Append( "\t<" );
-			sb.Append( nameof( Fill ) );
-			sb.Append( ">" );
-			sb.AppendLine( XmlLoadable.ToString( Fill, 2 ) );
-			sb.AppendLine( Xml.ToString( FillPadding, nameof( FillPadding ), 2 ) );
-			sb.Append( "\t</" );
-			sb.Append( nameof( Fill ) );
-			sb.Append( ">" );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.Append( ">" );
-
-			return sb.ToString();
+			return new StringBuilder().Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Min ) ).Append( "=\"" ).Append( Min ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Max ) ).Append( "=\"" ).Append( Max ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Value ) ).Append( "=\"" ).Append( Value ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Labeling ) ).Append( "=\"" ).Append( Labeling.ToString() ).AppendLine( "\">" )
+				.AppendLine()
+				.Append( "\t<" ).Append( nameof( Background ) ).AppendLine( ">" )
+				.AppendLine( XmlLoadable.ToString( Background, 2 ) )
+				.Append( "\t</" ).Append( nameof( Background ) ).AppendLine( ">" )
+				.Append( "\t<" ).Append( nameof( Fill ) ).AppendLine( ">" )
+				.AppendLine( XmlLoadable.ToString( Fill, 2 ) )
+				.AppendLine( Xml.ToString( FillPadding, nameof( FillPadding ), 2 ) )
+				.Append( "\t</" ).Append( nameof( Fill ) ).AppendLine( ">" )
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -822,6 +781,30 @@ namespace MiGfx
 				   ( Background?.Equals( other.Background ) ?? false ) && Labeling == other.Labeling &&
 				   ( Fill?.Equals( other.Fill ) ?? false ) &&
 				   FillPadding.Equals( other.FillPadding );
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as FillBar );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Min, Max, Value, Background, Labeling, Fill, FillPadding );
 		}
 
 		/// <summary>
@@ -853,7 +836,7 @@ namespace MiGfx
 		/// </returns>
 		public static MiEntity Create( string id = null, RenderWindow window = null, long val = 0, long min = 0, long max = 100, Color? col = null, LabelType lt = 0 )
 		{
-			MiEntity ent = new MiEntity( id, window );
+			MiEntity ent = new( id, window );
 
 			if( !ent.AddComponent( new FillBar( val, min, max ) ) )
 			{
@@ -866,15 +849,15 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Adding UILabel failed.", null, LogType.Error );
 			}
 
-			Texture tex = Assets.Manager.Get<Texture>( FolderPaths.UI + "FillBar.png" );
+			Texture tex = Assets.Manager.Get<Texture>( $"{ FolderPaths.UI }FillBar.png" );
 
-			if( tex == null )
+			if( tex is null )
 			{
 				ent.Dispose();
 				return Logger.LogReturn<MiEntity>( "Failed creating FillBar entity: Loading Texture failed.", null, LogType.Error );
 			}
 
-			ent.GetComponent<SpriteArray>().TexturePath = FolderPaths.UI + "FillBar.png";
+			ent.GetComponent<SpriteArray>().TexturePath = $"{ FolderPaths.UI }FillBar.png";
 
 			FillBar fb = ent.GetComponent<FillBar>();
 			fb.Labeling = lt;

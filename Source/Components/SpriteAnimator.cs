@@ -58,10 +58,7 @@ namespace MiGfx
 		/// <param name="a"></param>
 		public SpriteAnimator( SpriteAnimator a )
 		:	base( a )
-		{
-			if( a == null )
-				throw new ArgumentNullException();
-			 
+		{			 
 			Animations = new AnimationSet( a.Animations );
 			Playing    = a.Playing;
 			Loop       = a.Loop;
@@ -144,7 +141,7 @@ namespace MiGfx
 			get { return m_selected; }
 			set
 			{
-				if( Animations != null && value >= 0 && value < Animations.Count )
+				if( Animations is not null && value >= 0 && value < Animations.Count )
 					m_selected = value;
 
 				FrameIndex = 0;
@@ -201,7 +198,7 @@ namespace MiGfx
 					if( FrameIndex < 0 )
 						FrameIndex = 0;
 					else if( FrameIndex >= a.Count )
-						FrameIndex = (uint)( a.Count == 0 ? 0 : a.Count - 1 );
+						FrameIndex = (uint)( a.Count is 0 ? 0 : a.Count - 1 );
 
 					f = CurrentAnimation?.Get( FrameIndex );
 				}
@@ -294,7 +291,7 @@ namespace MiGfx
 
 			Frame current = CurrentFrame;
 
-			if( Parent != null && current != null )
+			if( Parent is not null && current is not null )
 			{
 				Sprite spr = Parent.GetComponent<Sprite>();
 				ImageInfo i = spr.Image;
@@ -332,7 +329,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading SpriteAnimator from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading SpriteAnimator from stream: { e.Message }", false, LogType.Error );
 			}
 
 			if( !Animations.LoadFromStream( br ) )
@@ -365,7 +362,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving SpriteAnimator to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving SpriteAnimator to stream: { e.Message }", false, LogType.Error );
 			}
 
 			if( !Animations.SaveToStream( bw ) )
@@ -394,7 +391,7 @@ namespace MiGfx
 
 			XmlElement aset = element[ nameof( AnimationSet ) ];
 
-			if( aset == null )
+			if( aset is null )
 				return Logger.LogReturn( "Failed loading SpriteAnimator: No AnimationSet element.", false, LogType.Error );
 			if( !Animations.LoadFromXml( aset ) )
 				return Logger.LogReturn( "Failed loading SpriteAnimator: Loading AnimationSet failed.", false, LogType.Error );
@@ -420,7 +417,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading SpriteAnimator: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading SpriteAnimator: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -434,48 +431,21 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );			
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Loop ) );
-			sb.Append( "=\"" );
-			sb.Append( Loop );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Multiplier ) );
-			sb.Append( "=\"" );
-			sb.Append( Multiplier );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Selected ) );
-			sb.Append( "=\"" );
-			sb.Append( Selected );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( XmlLoadable.ToString( Animations, 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Loop ) ).Append( "=\"" ).Append( Loop ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Multiplier ) ).Append( "=\"" ).Append( Multiplier ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Selected ) ).Append( "=\"" ).Append( Selected ).AppendLine( "\">" )
+				
+				.AppendLine( XmlLoadable.ToString( Animations, 1 ) )
+				
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -489,10 +459,35 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( SpriteAnimator other )
 		{
-			return other      != null && Animations.Equals( other.Animations ) &&
+			return base.Equals( other ) &&
+			       Animations.Equals( other.Animations ) &&
 			       Loop       == other.Loop &&
 			       Multiplier == other.Multiplier &&
 				   m_selected == other.m_selected;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as SpriteAnimator );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Animations, Loop, Multiplier, m_selected );
 		}
 
 		/// <summary>

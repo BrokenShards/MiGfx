@@ -88,8 +88,8 @@ namespace MiGfx
 		/// </param>
 		public Frame( Frame f )
 		{
-			if( f == null )
-				throw new ArgumentNullException();
+			if( f is null )
+				throw new ArgumentNullException( nameof( f ) );
 
 			Rect   = f.Rect;
 			Length = f.Length;
@@ -133,7 +133,7 @@ namespace MiGfx
 		/// </param>
 		public void Apply( ref ImageInfo i )
 		{
-			if( i == null )
+			if( i is null )
 				return;
 
 			i.Rect           = Rect;
@@ -154,7 +154,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load Frame from null stream.", false, LogType.Error );
 
 			try
@@ -168,7 +168,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Frame from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Frame from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -184,7 +184,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save Frame to null stream.", false, LogType.Error );
 
 			try
@@ -198,7 +198,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Frame to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Frame to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -215,7 +215,7 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load Frame from a null XmlElement.", false, LogType.Error );
 			if( !element.HasAttribute( nameof( Length ) ) )
 				return Logger.LogReturn( "Failed loading Frame: Missing Length attribute.", false, LogType.Error );
@@ -227,7 +227,7 @@ namespace MiGfx
 			XmlElement rect = element[ nameof( Rect ) ],
 			           col  = element[ nameof( Color ) ];
 
-			if( rect == null )
+			if( rect is null )
 				return Logger.LogReturn( "Failed loading Frame: No Rect element.", false, LogType.Error );
 
 			FloatRect? r = Xml.ToFRect( rect );
@@ -259,7 +259,7 @@ namespace MiGfx
 
 			Rect = r.Value;
 
-			if( col != null )
+			if( col is not null )
 			{
 				Color? c = Xml.ToColor( col );
 
@@ -275,7 +275,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Frame: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Frame: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -289,40 +289,21 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( Frame ) );
-			sb.Append( " " );
-			sb.Append( nameof( Length ) );
-			sb.Append( "=\"" );
-			sb.Append( Length.AsSeconds() );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "       " );
-			sb.Append( nameof( Orientation ) );
-			sb.Append( "=\"" );
-			sb.Append( Orientation.ToString() );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "       " );
-			sb.Append( nameof( FlipHorizontal ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipHorizontal );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "       " );
-			sb.Append( nameof( FlipVertical ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipVertical );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ),  1 ) );
-			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( nameof( Frame ) );
-			sb.AppendLine( ">" );
+			sb.Append( '<' ).Append( nameof( Frame ) ).Append( ' ' )
+				.Append( nameof( Length ) ).Append( "=\"" ).Append( Length.AsSeconds() ).AppendLine( "\"" )
+				.Append( "       " )
+				.Append( nameof( Orientation ) ).Append( "=\"" ).Append( Orientation.ToString() ).AppendLine( "\"" )
+				.Append( "       " )
+				.Append( nameof( FlipHorizontal ) ).Append( "=\"" ).Append( FlipHorizontal ).AppendLine( "\"" )
+				.Append( "       " )
+				.Append( nameof( FlipVertical ) ).Append( "=\"" ).Append( FlipVertical ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( Rect,  nameof( Rect ),  1 ) )
+				.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) )
+				
+				.Append( "</" ).Append( nameof( Frame ) ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -345,6 +326,30 @@ namespace MiGfx
 				   Orientation    == other.Orientation &&
 				   FlipHorizontal == other.FlipHorizontal &&
 				   FlipVertical   == other.FlipVertical;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Frame );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( Rect, Length, Color, Orientation, FlipHorizontal, FlipVertical );
 		}
 	}
 }

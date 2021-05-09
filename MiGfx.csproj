@@ -1,151 +1,262 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{12DDFD76-8249-43E8-A4D0-AF314D0C6647}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiGfx</RootNamespace>
-    <AssemblyName>MiGfx</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Michael Furlong</Authors>
+    <Copyright>Copyright (c) Michael Furlong 2021</Copyright>
+    <PackageLicenseFile>licence.md</PackageLicenseFile>
+    <PackageReleaseNotes>### Version 1.0.0
+- MiGfx now targets .Net 5 and has updated code style for C#9.
+- Now depends on MiCore 1.0.0.
+- Now depends on MiInput 1.0.0.
+
+### Version 0.12.0
+- Added new `TextCaret` component that provides a text cursor for text boxes `TextBox` now requires
+  the `TextCaret` because of this.
+- `TextListener` now contains the text cursor index and handles left, right, home and end movement
+  keys along with the delete key.
+- Added `BoxRenderer` and `ShapeRenderer` components for drawing boxes or regular shapes that can
+  be coloured, textured and have an outline.
+- Added new function `Physics.ShapeContainsPoint(Shape,Vector2f)` with variations for checking 
+  if a point is inside a shape.
+- Now modifying `Transform.Position` will also modify child entities that have a `Transform`. This
+  behaviour was intended to start with as it allows children to follow their parent when moved.
+- Added `SpriteArray.SpriteBounds` to easily get a rectangle containing all sprites.
+- Now path strings in `FolderPaths` and `FilePaths` use the correct system directory separator.
+- `FilePaths.Executable` and `FolderPaths.Executable` no longer modify directory separators and now
+  properly handle and strip the `file:` URI.
+- `FolderPaths.Executable` is now guaranteed to end with the system directory separator character.
+- Updated MiCore to version 0.10.0.
+- Updated MiInput to version 0.11.0.
+
+### Version 0.11.0
+- Added `BoxCollider` and `CircleCollider` components along with `Physics` class for managing
+  geometry collision.
+- Fixed issue where `Label` and `UILabel` allignment was not working.
+- `AssetManager&lt;T&gt;` no longer requires the asset type to be disposable and no longer disposes of
+  assets on removal. Use `DisposableAssetManager&lt;T&gt;` if you would like the old functionality that
+  manages disposable assets.
+- `Paths.ToWindows(string)` and `Paths.FromWindows(string)` have been moved to MiCore.
+- Added `AnimationDB`, `TextStyleDB` and `TilesetDB` databases.
+- Now `AnimationSet` just stores the IDs of its animations rather than entire objects and retrieves
+  the actual animations from `AnimationDB`.
+- Updated MiCore to version 0.9.0.
+- Updated MiInput to version 0.10.0.
+
+### Version 0.10.0
+- `AssetManager&lt;T&gt;` now implements `IEnumerable&lt;KeyValuePair&lt;string, T&gt;&gt;` so loaded assets can be
+  iterated through.
+- Added `SpriteArray` component for drawing multiple sprites from the same texture.
+- `FillBar` now contains a minimum value, maximum value and a current value rather than just one
+  property for progress, because of this `FillBar.Progress` now uses these values to calculate the
+  current progress.
+- `FillBar` now uses the entities `SpriteArray` for drawing.
+- Added `FillBar.LabelType` and `FillBar.Labeling` to more easily customise how the label displays
+  the fill bar value.
+- Added `FillBar.Create(string, RenderWindow, long, long, long, Color?, LabelType)` for easily
+  constructing FillBar entities.
+- Fixed issue where `ImageInfo` was flipping horizontal texture coordinates unintentionally.
+- Added `ImageInfo.FlipHorizontal` and `ImageInfo.FlipVertical` that will flip the texture 
+  coordinates of the vertex returned by `ImageInfo.GetVertex(uint, Transform)`.
+- Added `Frame.Orientation`, `Frame.FlipHorizontal` and `Frame.FlipVertical` to allow animation of
+  those properties.
+- Error logs are now more consistant and concise.
+
+### Version 0.9.0
+- Changed SFML source to latest official SFML.Net repository.
+- Removed `UIElement` and `UIManager` in favour of `MiComponent` and `MiEntity`. Now all `UIElement`
+  classes inherit from `MiComponent` and are used in `MiEntity` objects.
+- Added `FillBar` component that provides a bar that can be filled to show progress.
+- Added `Clickable` component that responds to mouse hovering and mouse clicks within an entities
+  `Transform`.
+- Added `Selectable` component that allows entities to be selected along with the `Selector`
+  component that allows an entity to manage which component is selected within its children.
+- Added `TextListener` component that listens for text entered events and keeps track of them in
+  `TextListener.EnteredText`.
+- Replaced `Label.Center` with `Label.Allign` to give more text allignment options.
+- `Button` and `CheckBox` now rely on `Sprite.Image` and calculate the texture rect for each state 
+  from it every frame, because of this, they just hold a texure modifier color rather than an
+  `ImageInfo` object.
+- Added property `Assets.Disposed` to check if the internal asset managers have been disposed of and 
+  `Assets.Recreate()` to recreate them if they have so they can be used agai.
+- `AssetManager.RemoveAll()` and `Assets.RemoveAll()` have been renamed to `AssetManager.Clear()`
+  and `Assets.Clear()` for consistency.
+- Updated MiCore to version 0.5.0.
+- Updated MiInput to version 0.9.0.
+
+### Version 0.8.0
+- Renamed to `MiGfx` and updated to use `MiCore` and `MiInput` libraries.
+
+### Version 0.7.0
+- All `IXmlLoadable` classes now have tests, properly check for existing attributes and return 
+  errors when suitable and now use `nameof( Class )` for attribute and element names. Unimportant xml
+  attributes and elements can now also be ommitted, for example `Transform.LoadFromXml(XmlElement)`
+  no longer requires the `Scale` element to exist.
+- Fixed issue where `Sprite.LoadFromXml(XmlElement)` was failing loading the `Transform`.
+- Added `Xml` helper class for loading and saving common objects to and from xml strings.
+- Removed `Slider` UI element for now.
+- Updated SFInput to version 0.7.0.
+- Updated SharpSerial to version 0.6.0.
+
+### Version 0.6.0
+- `TextBox` now implements the missing `LoadFromStream(BinaryReader)`, `SaveToStream(BinaryWriter)`
+  and `Equals(TextBox)` methods.
+- Now all graphical classes that implement `IBinarySerializable`/`BinarySerializable` also 
+  implement `IXmlLoadable`. This enables modifiable objects or objects in development to be 
+  implemented and easily changed in xml, then exported to a binary file for release.
+- `SoundManager` now properly disposes of its music track on dispose.
+- The test project now uses SharpTest for testing.
+- Updated SFInput to version 0.6.0.
+- Updated SharpSerial to version 0.5.0.
+
+### Version 0.5.1
+- Visual tests with user input have been implemented for graphical classes.
+- Added a default texture for `UI.Slider`.
+- Updated SFInput to version 0.5.2.
+- Updated project to copy `XInputInterface.dll` to the build directory.
+
+### Version 0.5.0
+- SharpUI has now been merged into SharpGfx and thus now depends on SFInput and XInputDotNetPure.
+- The UI code is now all documented, implements `IEquatable&lt;T&gt;`, and has tests.
+
+### Version 0.4.1
+- Added previously missed `AnimatedSprite` test.
+- Fixed an issue where `AnimatedSprite.Equals` was returning incorrect values.
+
+### Version 0.4.0
+- Added a sanity test project.
+- Fixed issue where Animations were not serializing and deserializing correctly.
+- Now all classes inherit from `System.IEquatable&lt;T&gt;` for easy equality comparison for the test 
+  project.
+- Updated SharpID to version 0.3.0.
+- Updated SharpLogger to version 0.3.1.
+- Updated SharpSerial to version 0.3.0.
+
+### Version 0.3.0
+- SharpAsset has now been merged with SharpGfx.
+
+### Version 0.2.1
+- Now the xml documentation is built with the binary and is included in releases.
+- Updated SharpAsset to version 0.2.1.
+- Updated SharpID to version 0.2.1.
+- Updated SharpLogger to version 0.1.1.
+- Updated SharpSerial to version 0.2.1.
+
+### Version 0.2.0
+- Now SharpAsset is used for asset caching.
+
+### Version 0.1.0
+- Initial release.</PackageReleaseNotes>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MiGfx.xml</DocumentationFile>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MiGfx.xml</DocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="MiCore, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dependencies\MiCore.dll</HintPath>
-    </Reference>
-    <Reference Include="MiInput">
-      <HintPath>Dependencies\MiInput.dll</HintPath>
-    </Reference>
-    <Reference Include="SFML.Audio, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\SFML.Audio.2.5.0\lib\netstandard2.0\SFML.Audio.dll</HintPath>
-    </Reference>
-    <Reference Include="SFML.Graphics, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\SFML.Graphics.2.5.0\lib\netstandard2.0\SFML.Graphics.dll</HintPath>
-    </Reference>
-    <Reference Include="SFML.System, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\SFML.System.2.5.0\lib\netstandard2.0\SFML.System.dll</HintPath>
-    </Reference>
-    <Reference Include="SFML.Window, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\SFML.Window.2.5.0\lib\netstandard2.0\SFML.Window.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="XInputDotNetPure">
-      <HintPath>Dependencies\XInputDotNetPure.dll</HintPath>
-    </Reference>
+    <Compile Remove="Dependencies\**" />
+    <Compile Remove="MiGfxTest\**" />
+    <EmbeddedResource Remove="Dependencies\**" />
+    <EmbeddedResource Remove="MiGfxTest\**" />
+    <None Remove="Dependencies\**" />
+    <None Remove="MiGfxTest\**" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\Animation.cs" />
-    <Compile Include="Source\AnimationSet.cs" />
-    <Compile Include="Source\Components\BoxCollider.cs" />
-    <Compile Include="Source\Components\ShapeRenderer.cs" />
-    <Compile Include="Source\Components\BoxRenderer.cs" />
-    <Compile Include="Source\Components\CircleCollider.cs" />
-    <Compile Include="Source\Components\Collider.cs" />
-    <Compile Include="Source\Components\Clickable.cs" />
-    <Compile Include="Source\Components\UI\TextCaret.cs" />
-    <Compile Include="Source\Databases\TextStyleDB.cs" />
-    <Compile Include="Source\Physics.cs" />
-    <Compile Include="Source\SpriteInfo.cs" />
-    <Compile Include="Source\Components\UI\FillBar.cs" />
-    <Compile Include="Source\Components\Selector.cs" />
-    <Compile Include="Source\Components\SpriteAnimator.cs" />
-    <Compile Include="Source\Assets\AssetManager.cs" />
-    <Compile Include="Source\Assets\Assets.cs" />
-    <Compile Include="Source\Assets\FontManager.cs" />
-    <Compile Include="Source\Assets\Path.cs" />
-    <Compile Include="Source\Assets\SoundManager.cs" />
-    <Compile Include="Source\Assets\TextureManager.cs" />
-    <Compile Include="Source\Components.cs" />
-    <Compile Include="Source\Components\SpriteArray.cs" />
-    <Compile Include="Source\Components\TextListener.cs" />
-    <Compile Include="Source\Databases\TilesetDB.cs" />
-    <Compile Include="Source\Databases\AnimationDB.cs" />
-    <Compile Include="Source\Frame.cs" />
-    <Compile Include="Source\ImageInfo.cs" />
-    <Compile Include="Source\Components\Sprite.cs" />
-    <Compile Include="Source\TextStyle.cs" />
-    <Compile Include="Source\Tileset.cs" />
-    <Compile Include="Source\Components\Transform.cs" />
-    <Compile Include="Source\Components\UI\Button.cs" />
-    <Compile Include="Source\Components\UI\CheckBox.cs" />
-    <Compile Include="Source\Components\Selectable.cs" />
-    <Compile Include="Source\Components\Label.cs" />
-    <Compile Include="Source\Components\UI\TextBox.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitattributes" />
-    <None Include=".gitignore" />
-    <None Include="Assets\Fonts\FallingSky.otf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Remove="Assets\Fonts\FallingSky.otf" />
+    <None Remove="Assets\UI\Button.fw.png" />
+    <None Remove="Assets\UI\Button.png" />
+    <None Remove="Assets\UI\ButtonShort.fw.png" />
+    <None Remove="Assets\UI\ButtonShort.png" />
+    <None Remove="Assets\UI\ButtonSquare.fw.png" />
+    <None Remove="Assets\UI\ButtonSquare.png" />
+    <None Remove="Assets\UI\ButtonThick.fw.png" />
+    <None Remove="Assets\UI\ButtonThick.png" />
+    <None Remove="Assets\UI\CheckBox.fw.png" />
+    <None Remove="Assets\UI\CheckBox.png" />
+    <None Remove="Assets\UI\FillBar.fw.png" />
+    <None Remove="Assets\UI\FillBar.png" />
+    <None Remove="Assets\UI\Slider.fw.png" />
+    <None Remove="Assets\UI\Slider.png" />
+    <None Remove="Assets\UI\TextBox.fw.png" />
+    <None Remove="Assets\UI\TextBox.png" />
+    <None Include="licence.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
-    <None Include="licence.md" />
-    <None Include="packages.config" />
-    <None Include="readme.md" />
   </ItemGroup>
+
   <ItemGroup>
+    <Content Include="Assets\Fonts\FallingSky.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\Button.fw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\UI\Button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\ButtonShort.fw.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\ButtonShort.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\UI\ButtonSquare.fw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\UI\ButtonSquare.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\ButtonThick.fw.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\ButtonThick.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\UI\CheckBox.fw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\UI\CheckBox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\FillBar.fw.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\FillBar.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\UI\Slider.fw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\UI\Slider.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\UI\TextBox.fw.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\UI\TextBox.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>echo Copying XInputInterface to the build directory if needed.
-xcopy "$(ProjectDir)Dependencies\XInputInterface.dll" /K /D /Y</PostBuildEvent>
-  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SFML.Net" Version="2.5.0" />
+    <PackageReference Include="ShardSoft.MiCore" Version="1.0.0" />
+    <PackageReference Include="ShardSoft.MiInput" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="XInputDotNetPure">
+      <HintPath>Dependencies\XInputDotNetPure.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

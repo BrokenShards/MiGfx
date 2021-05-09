@@ -137,7 +137,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Collider from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Collider from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -162,7 +162,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Collider to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Collider to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -206,6 +206,30 @@ namespace MiGfx
 		public bool Equals( Collider other )
 		{
 			return base.Equals( other ) && StaticCollider == other.StaticCollider;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Collider );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), StaticCollider );
 		}
 	}
 }

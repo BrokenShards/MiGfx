@@ -54,8 +54,8 @@ namespace MiGfx
 		/// </param>
 		public ButtonData( ButtonData b )
 		{
-			if( b == null )
-				throw new ArgumentNullException();
+			if( b is null )
+				throw new ArgumentNullException( nameof( b ) );
 
 			Color      = b.Color;
 			Text       = new TextStyle( b.Text );
@@ -104,10 +104,10 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader sr )
 		{
-			if( sr == null )
+			if( sr is null )
 				return Logger.LogReturn( "Cannot load ButtonData from null stream.", false, LogType.Error );
 
-			if( Text == null )
+			if( Text is null )
 				Text = new TextStyle();
 
 			if( !Text.LoadFromStream( sr ) )
@@ -120,7 +120,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading ButtonData from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading ButtonData from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -136,10 +136,10 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter sw )
 		{
-			if( sw == null )
+			if( sw is null )
 				return Logger.LogReturn( "Cannot save ButtonData to null stream.", false, LogType.Error );
 
-			if( Text == null )
+			if( Text is null )
 				Text = new TextStyle();
 
 			if( !Text.SaveToStream( sw ) )
@@ -154,7 +154,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving ButtonData to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving ButtonData to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -171,7 +171,7 @@ namespace MiGfx
 		/// </returns>
 		public virtual bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load ButtonData from a null XmlElement.", false, LogType.Error );
 
 			Text = new TextStyle();
@@ -180,19 +180,19 @@ namespace MiGfx
 					   txt = element[ nameof( TextStyle ) ],
 					   off = element[ nameof( TextOffset ) ];
 
-			if( txt == null )
+			if( txt is null )
 				return Logger.LogReturn( "Failed loading ButtonData: No TextStyle xml element.", false, LogType.Error );
 
-			Vector2f?  o = off != null ? Xml.ToVec2f( off ) : null;
-			Color?     c = col != null ? Xml.ToColor( col ) : null;
+			Vector2f?  o = off is not null ? Xml.ToVec2f( off ) : null;
+			Color?     c = col is not null ? Xml.ToColor( col ) : null;
 
 
-			if( col != null && !c.HasValue )
+			if( col is not null && !c.HasValue )
 				return Logger.LogReturn( "Failed loading ButtonData: Unable to parse Color xml element.", false, LogType.Error );
 			else if( !c.HasValue )
 				c = Color.White;
 
-			if( off != null && !o.HasValue )
+			if( off is not null && !o.HasValue )
 				return Logger.LogReturn( "Failed loading ButtonData: Unable to parse TextOffset xml element.", false, LogType.Error );
 			else if( !o.HasValue )
 				o = new Vector2f();
@@ -213,21 +213,13 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( nameof( ButtonData ) );
-			sb.AppendLine( ">" );
-
-			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
-			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
-			sb.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( nameof( ButtonData ) );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder().Append( '<' ).Append( nameof( ButtonData ) ).AppendLine( ">" )
+				
+				.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) )
+				.AppendLine( XmlLoadable.ToString( Text, 1 ) )
+				.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) )
+				
+				.Append( "</" ).Append( nameof( ButtonData ) ).AppendLine( ">" ).ToString();
 		}
 
 		/// <summary>
@@ -241,8 +233,34 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( ButtonData other )
 		{
-			return other != null && Color.Equals( other.Color ) &&
-				   Text.Equals( other.Text ) && TextOffset == other.TextOffset;
+			return other is not null &&
+			       Color.Equals( other.Color ) &&
+				   Text.Equals( other.Text ) &&
+				   TextOffset == other.TextOffset;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as ButtonData );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( Color, Text, TextOffset );
 		}
 	}
 
@@ -299,20 +317,20 @@ namespace MiGfx
 		public override void OnAdd()
 		{
 			Sprite spr = Parent.GetComponent<Sprite>();
-			spr.Image = new ImageInfo( FolderPaths.UI + "Button.png" );
+			spr.Image = new ImageInfo( Path.Combine( FolderPaths.UI, "Button.png" ) );
 
 			if( spr.Image.IsTextureValid )
 			{
 				Vector2u size = spr.Image.TextureSize;
-				size.Y /= 3;
-
-				Parent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y );
+				Parent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y / 3 );
 			}
 
-			foreach( var b in Parent.GetComponent<Button>().Data )
+			ButtonData[] bd = Parent.GetComponent<Button>().Data;
+
+			for( int i = 0; i < bd.Length; i++ )
 			{
-				b.Text.FillColor = Color.White;
-				b.TextOffset = new Vector2f( 0, -8.0f );
+				bd[ i ].Text.FillColor = Color.White;
+				bd[ i ].TextOffset = new Vector2f( 0, -8.0f );
 			}
 
 			Label lab  = Parent.GetComponent<Label>();
@@ -324,13 +342,13 @@ namespace MiGfx
 		/// </summary>
 		public override void Refresh()
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Sprite  spr = Parent.GetComponent<Sprite>();
 			Texture tex = spr.Image.Texture;
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Vector2u size = tex.Size;
 				spr.Image.Rect = new FloatRect( 0, 0, size.X, size.Y / 3u );
@@ -350,7 +368,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Sprite  spr = Parent.GetComponent<Sprite>();
@@ -359,13 +377,13 @@ namespace MiGfx
 			ClickableState state = Parent.GetComponent<Clickable>().ClickState;
 			int s = (int)state;
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Vector2u size = tex.Size;
 
-				if( state == ClickableState.Hover )
+				if( state is ClickableState.Hover )
 					spr.Image.Rect = new FloatRect( 0, size.Y / 3u, size.X, size.Y / 3u );
-				else if( state == ClickableState.Click )
+				else if( state is ClickableState.Click )
 					spr.Image.Rect = new FloatRect( 0, size.Y / 3u * 2, size.X, size.Y / 3u );
 			}
 
@@ -416,8 +434,8 @@ namespace MiGfx
 			if( !base.LoadFromStream( sr ) )
 				return false;
 
-			foreach( ButtonData bd in Data )
-				if( !bd.LoadFromStream( sr ) )
+			for( int i = 0; i < Data.Length; i++ )
+				if( !Data[ i ].LoadFromStream( sr ) )
 					return Logger.LogReturn( "Failed loading Button's ButtonData from stream.", false, LogType.Error );
 
 			return true;
@@ -436,8 +454,8 @@ namespace MiGfx
 			if( !base.SaveToStream( sw ) )
 				return false;
 
-			foreach( ButtonData bd in Data )
-				if( !bd.SaveToStream( sw ) )
+			for( int i = 0; i < Data.Length; i++ )
+				if( !Data[ i ].SaveToStream( sw ) )
 					return Logger.LogReturn( "Failed saving Button's ButtonData to stream.", false, LogType.Error );
 
 			return true;
@@ -481,29 +499,17 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "        " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\">" );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "        " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\">" );
 
 			for( int i = 0; i < Data.Length; i++ )
 				sb.AppendLine( XmlLoadable.ToString( Data[ i ], 1 ) );
 
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
+			sb.Append( "</" ).Append( TypeName ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -527,6 +533,30 @@ namespace MiGfx
 					return false;
 
 			return true;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Button );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Data );
 		}
 
 		/// <summary>
@@ -557,7 +587,7 @@ namespace MiGfx
 		/// </returns>
 		public static MiEntity Create( string id = null, RenderWindow window = null, string str = null )
 		{
-			MiEntity ent = new MiEntity( id, window );
+			MiEntity ent = new( id, window );
 
 			if( !ent.AddComponent( new Button(), true ) )
 			{
@@ -566,7 +596,7 @@ namespace MiGfx
 			}
 
 			Sprite spr = ent.GetComponent<Sprite>();
-			spr.Image = new ImageInfo( FolderPaths.UI + "Button.png" );
+			spr.Image = new ImageInfo( $"{ FolderPaths.UI }Button.png" );
 
 			if( !spr.Image.IsTextureValid )
 			{
@@ -574,18 +604,18 @@ namespace MiGfx
 				return Logger.LogReturn<MiEntity>( "Failed creating Button entity: Loading Texture failed.", null, LogType.Error );
 			}
 
-			if( window != null )
+			if( window is not null )
 			{
 				Vector2u size = spr.Image.TextureSize;
-				size.Y /= 3;
-
-				ent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y );
+				ent.GetComponent<Transform>().Size = new Vector2f( size.X, size.Y / 3 );
 			}
 
-			foreach( var b in ent.GetComponent<Button>().Data )
+			ButtonData[] bd = ent.GetComponent<Button>().Data;
+
+			for ( int i = 0; i < bd.Length; i++ )
 			{
-				b.Text.FillColor = Color.White;
-				b.TextOffset = new Vector2f( 0, -8.0f );
+				bd[ i ].Text.FillColor = Color.White;
+				bd[ i ].TextOffset = new Vector2f( 0, -8.0f );
 			}
 
 			Label lab = ent.GetComponent<Label>();

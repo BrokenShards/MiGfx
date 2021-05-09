@@ -215,7 +215,7 @@ namespace MiGfx
 			Vector2f pos = m_text.FindCharacterPos( index );
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( t != null )
+			if( t is not null )
 			{
 				pos.X *= t.Scale.X;
 				pos.Y *= t.Scale.Y;
@@ -244,14 +244,14 @@ namespace MiGfx
 		/// </summary>
 		public override void Refresh()
 		{
-			if( Text == null )
+			if( Text is null )
 				Text = new TextStyle();
 
 			Text.Apply( ref m_text );
 
 			Transform trn = Parent?.GetComponent<Transform>();
 
-			if( trn == null || Parent?.Window == null )
+			if( trn is null || Parent?.Window is null )
 				return;
 
 			m_text.Scale = trn.Scale;
@@ -261,8 +261,8 @@ namespace MiGfx
 			
 			FloatRect pb = trn.GlobalBounds;
 
-			Vector2f pos  = new Vector2f( pb.Left,  pb.Top ),
-			         size = new Vector2f( pb.Width, pb.Height );
+			Vector2f pos  = new( pb.Left,  pb.Top ),
+			         size = new( pb.Width, pb.Height );
 
 			FloatRect lb = m_text.GetLocalBounds();
 
@@ -352,7 +352,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Label from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Label from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -381,7 +381,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Label to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Label to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -408,7 +408,7 @@ namespace MiGfx
 			XmlElement sty = element[ nameof( TextStyle ) ],
 			           off = element[ nameof( Offset ) ];
 
-			if( sty == null )
+			if( sty is null )
 				return Logger.LogReturn( "Failed loading Label: No TextStyle xml element.", false, LogType.Error );
 			if( !Text.LoadFromXml( sty ) )
 				return Logger.LogReturn( "Failed loading Label: Loading TextStyle failed.", false, LogType.Error );
@@ -421,7 +421,7 @@ namespace MiGfx
 				Allign = a;
 			}
 
-			if( off != null )
+			if( off is not null )
 			{
 				Vector2f? o = Xml.ToVec2f( off );
 
@@ -441,45 +441,23 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "       " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "       " );
-			sb.Append( nameof( String ) );
-			sb.Append( "=\"" );
-			sb.Append( String );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "       " );
-			sb.Append( nameof( Allignment ) );
-			sb.Append( "=\"" );
-			sb.Append( Allign.ToString() );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "       " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "       " )
+				.Append( nameof( String ) ).Append( "=\"" ).Append( String ).AppendLine( "\"" )
+				.Append( "       " )
+				.Append( nameof( Allignment ) ).Append( "=\"" ).Append( Allign.ToString() ).AppendLine( "\">" )
+				
+				.AppendLine( XmlLoadable.ToString( Text, 1 ) );
 
 			if( !Offset.Equals( default ) )
 				sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
 
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return sb.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -499,6 +477,30 @@ namespace MiGfx
 				   String.Equals( other.String ) &&
 				   Allign == other.Allign;
 		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Label );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Text, Offset, String, Allign );
+		}
 
 		/// <summary>
 		///   Gets the type name.
@@ -510,7 +512,7 @@ namespace MiGfx
 		{
 			string name = string.Empty;
 
-			using( Label a = new Label() )
+			using( Label a = new() )
 				name = a.TypeName;
 
 			return name;

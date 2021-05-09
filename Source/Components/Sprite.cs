@@ -52,8 +52,8 @@ namespace MiGfx
 		public Sprite( Sprite s )
 		:	base( s )
 		{
-			if( s == null )
-				throw new ArgumentNullException();
+			if( s is null )
+				throw new ArgumentNullException( nameof( s ) );
 
 			Image   = new ImageInfo( s.Image );
 			m_verts = new VertexArray( PrimitiveType.Quads, 4 );
@@ -118,7 +118,7 @@ namespace MiGfx
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( Image != null && t != null )
+			if( Image is not null && t is not null )
 				for( uint i = 0; i < m_verts.VertexCount; i++ )
 					m_verts[ i ] = Image.GetVertex( i, t.GlobalBounds );
 		}
@@ -134,19 +134,19 @@ namespace MiGfx
 		/// </param>
 		protected override void OnDraw( RenderTarget target, RenderStates states )
 		{
-			if( Image != null )
+			if( Image is not null )
 			{
 				Texture tex = Image.Texture;
 
-				if( tex != null )
+				if( tex is not null )
 				{
 					states.Texture = tex;
 
 					FloatRect rect = Image.Rect;
 
-					if( rect.Width == 0 )
+					if( rect.Width is 0 )
 						rect.Width = states.Texture.Size.X - rect.Left;
-					if( rect.Height == 0 )
+					if( rect.Height is 0 )
 						rect.Height = states.Texture.Size.Y - rect.Top;
 
 					Image.Rect = rect;
@@ -189,7 +189,7 @@ namespace MiGfx
 			if( !base.SaveToStream( bw ) )
 				return false;
 
-			if( Image == null )
+			if( Image is null )
 				Image = new ImageInfo();
 
 			if( !Image.SaveToStream( bw ) )
@@ -215,7 +215,7 @@ namespace MiGfx
 			Image = new ImageInfo();
 			XmlElement info = element[ nameof( ImageInfo ) ];
 
-			if( info == null )
+			if( info is null )
 				return Logger.LogReturn( "Failed loading Sprite: No ImageInfo element.", false, LogType.Error );
 			if( !Image.LoadFromXml( info ) )
 				return Logger.LogReturn( "Failed loading Sprite: Parsing ImageInfo failed.", false, LogType.Error );
@@ -230,30 +230,15 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "        " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( XmlLoadable.ToString( Image, 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "        " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\">" )
+				
+				.AppendLine( XmlLoadable.ToString( Image, 1 ) )
+				
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -275,8 +260,32 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( Sprite other )
 		{
-			return other != null && 
+			return base.Equals( other ) &&
 			       Image.Equals( other.Image );
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Sprite );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Image );
 		}
 
 		/// <summary>

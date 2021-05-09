@@ -40,13 +40,13 @@ namespace MiGfx.Test
 
 			Texture tex = Assets.Manager.Texture.Get( Test.AnimationTexturePath );
 
-			if( tex == null )
+			if( tex is null )
 				return Logger.LogReturn( "Failed: Unable to load test texture.", false );
 
 			Vector2u texsize = tex.Size;
 
 			// Create a new Sprite with an ImageInfo that tells it which texture to draw.
-			SpriteArray s1 = new SpriteArray() { TexturePath = Test.AnimationTexturePath };
+			SpriteArray s1 = new() { TexturePath = Test.AnimationTexturePath };
 
 			s1.Sprites.Add( new SpriteInfo( new FloatRect( 0, 0, texsize.X / 3.0f, texsize.Y ) ) );
 			s1.Sprites.Add( new SpriteInfo( new FloatRect( texsize.X / 3.0f, 0, texsize.X / 3.0f, texsize.Y ) ) );
@@ -68,15 +68,15 @@ namespace MiGfx.Test
 			{ }
 
 			// Ensure object loaded and is the same.
-			if( s2 == null )
+			if( s2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize SpriteArray from file.", false );
 			if( !s2.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Deserialized SpriteArray has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + s1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ s1 }";
 			SpriteArray x = XmlLoadable.FromXml<SpriteArray>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load SpriteArray from xml.", false );
 			if( !x.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded SpriteArray has incorrect values.", false );
@@ -93,12 +93,12 @@ namespace MiGfx.Test
 
 			Texture tex = Assets.Manager.Texture.Get( Test.AnimationTexturePath );
 
-			if( tex == null )
+			if( tex is null )
 				return Logger.LogReturn( "Failed: Unable to load test texture.", false );
 
 			Vector2u texsize = tex.Size;
 
-			using( MiEntity ent = new MiEntity( "tester", window ) )
+			using( MiEntity ent = new( "tester", window ) )
 			{
 				if( !ent.AddNewComponent<SpriteArray>() )
 					return Logger.LogReturn( "Failed: Unable to add SpriteArray to entity.", false ); ;
@@ -121,7 +121,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is SpriteArray displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -138,7 +138,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: SpriteArray did not display correctly (user input).", false );
 			}
 

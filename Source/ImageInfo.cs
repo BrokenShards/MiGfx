@@ -83,8 +83,8 @@ namespace MiGfx
 		/// </exception>
 		public ImageInfo( ImageInfo i )
 		{
-			if( i == null )
-				throw new ArgumentNullException();
+			if( i is null )
+				throw new ArgumentNullException( nameof( i ) );
 			
 			OverrideTexture = i.OverrideTexture;
 			Path            = new string( i.Path.ToCharArray() );
@@ -175,7 +175,7 @@ namespace MiGfx
 		/// </summary>
 		public bool IsTextureValid
 		{
-			get { return Texture != null; }
+			get { return Texture is not null; }
 		}
 		/// <summary>
 		///   Gets the size of the texture if valid.
@@ -192,7 +192,7 @@ namespace MiGfx
 		{
 			Texture tex = Texture;
 
-			if( tex == null )
+			if( tex is null )
 				Rect = Logger.LogReturn( "SetFullRect failed because of invalid texture path; Rect has been reset.", new FloatRect(), LogType.Warning );
 			else
 				Rect = new FloatRect( 0.0f, 0.0f, tex.Size.X, tex.Size.Y );
@@ -237,39 +237,34 @@ namespace MiGfx
 
 			if( FlipHorizontal )
 			{
-				if( index == 0 )
-					index = 1;
-				else if( index == 1 )
-					index = 0;
-				else if( index == 2 )
-					index = 3;
-				else if( index == 3 )
-					index = 2;
+				index = index switch
+				{
+					0 => 1,
+					1 => 0,
+					2 => 3,
+					3 => 2,
+					_ => ~0U
+				};
 			}
 			if( FlipVertical )
 			{
-				if( index == 0 )
-					index = 3;
-				else if( index == 1 )
-					index = 2;
-				else if( index == 2 )
-					index = 1;
-				else if( index == 3 )
-					index = 0;
+				index = index switch
+				{
+					0 => 3,
+					1 => 2,
+					2 => 1,
+					3 => 0,
+					_ => ~0U
+				};
 			}
 
-			switch( Orientation )
+			texindex = Orientation switch
 			{
-				case Direction.Left:
-					texindex++;
-					break;
-				case Direction.Down:
-					texindex += 2;
-					break;
-				case Direction.Right:
-					texindex += 3;
-					break;
-			}
+				Direction.Left  => texindex + 1,
+				Direction.Down  => texindex + 2,
+				Direction.Right => texindex + 3,
+				_ => ~0U
+			};
 
 			if( texindex >= 4 )
 				texindex %= 4;
@@ -295,7 +290,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load ImageInfo from null stream.", false, LogType.Error );
 
 			try
@@ -309,7 +304,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading ImageInfo from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading ImageInfo from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -325,7 +320,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save ImageInfo to null stream.", false, LogType.Error );
 
 			try
@@ -338,7 +333,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving ImageInfo to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving ImageInfo to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -355,24 +350,24 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load ImageInfo from a null XmlElement.", false, LogType.Error );
 			
 			XmlElement rect   = element[ nameof( Rect ) ],
 					   color  = element[ nameof( Color ) ];
 
-			if( rect == null )
+			if( rect is null )
 				return Logger.LogReturn( "Failed loading ImageInfo: No Rect element.", false, LogType.Error );
 
 			FloatRect? rec = Xml.ToFRect( rect );
-			Color?     col = color != null ? Xml.ToColor( color ) : null;
+			Color?     col = color is not null ? Xml.ToColor( color ) : null;
 
 			if( !rec.HasValue )
 				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Rect element.", false, LogType.Error );
 
-			if( color != null && !col.HasValue )
+			if( color is not null && !col.HasValue )
 				return Logger.LogReturn( "Failed loading ImageInfo: Unable to parse Color element.", false, LogType.Error );
-			else if( color == null )
+			else if( color is null )
 				col = Color.White;
 
 			Rect  = rec.Value;
@@ -418,41 +413,21 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( ImageInfo ) );
-
-			sb.Append( " " );
-			sb.Append( nameof( Path ) );
-			sb.Append( "=\"" );
-			sb.Append( Path );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Orientation ) );
-			sb.Append( "=\"" );
-			sb.Append( Orientation.ToString() );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( FlipHorizontal ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipHorizontal );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( FlipVertical ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipVertical );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( Rect,  nameof( Rect ), 1 ) );
-			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( nameof( ImageInfo ) );
-			sb.AppendLine( ">" );
+			sb.Append( '<' ).Append( nameof( ImageInfo ) ).Append( ' ' )
+				.Append( nameof( Path ) ).Append( "=\"" ).Append( Path ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Orientation ) ).Append( "=\"" ).Append( Orientation.ToString() ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( FlipHorizontal ) ).Append( "=\"" ).Append( FlipHorizontal ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( FlipVertical ) ).Append( "=\"" ).Append( FlipVertical ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( Rect,  nameof( Rect ), 1 ) )
+				.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) )
+				
+				.Append( "</" ).Append( nameof( ImageInfo ) ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -476,6 +451,30 @@ namespace MiGfx
 				   Orientation    == other.Orientation &&
 				   FlipHorizontal == other.FlipHorizontal &&
 				   FlipVertical   == other.FlipVertical;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as ImageInfo );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( OverrideTexture, Path, Rect, Color, Orientation, FlipHorizontal, FlipVertical );
 		}
 	}
 }

@@ -141,7 +141,7 @@ namespace MiGfx
 		public Vector2f GetPoint( uint index )
 		{
 			if( index >= PointCount )
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException( nameof( index ) );
 
 			return m_circ.GetPoint( index );
 		}
@@ -189,7 +189,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading ShapeRenderer from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading ShapeRenderer from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -227,7 +227,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving ShapeRenderer to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving ShapeRenderer to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -250,7 +250,7 @@ namespace MiGfx
 			           fill = element[ nameof( FillColor ) ],
 					   outl = element[ nameof( OutlineColor ) ];
 
-			if( rect != null )
+			if( rect is not null )
 			{
 				IntRect? ir = Xml.ToIRect( rect );
 
@@ -259,7 +259,7 @@ namespace MiGfx
 
 				TextureRect = ir.Value;
 			}
-			if( fill != null )
+			if( fill is not null )
 			{
 				Color? c = Xml.ToColor( fill );
 
@@ -268,7 +268,7 @@ namespace MiGfx
 
 				FillColor = c.Value;
 			}
-			if( outl != null )
+			if( outl is not null )
 			{
 				Color? c = Xml.ToColor( outl );
 
@@ -315,56 +315,25 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "               " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "               " );
-			sb.Append( nameof( Radius ) );
-			sb.Append( "=\"" );
-			sb.Append( Radius );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "               " );
-			sb.Append( nameof( PointCount ) );
-			sb.Append( "=\"" );
-			sb.Append( PointCount );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "               " );
-			sb.Append( nameof( Texture ) );
-			sb.Append( "=\"" );
-			sb.Append( Texture );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "               " );
-			sb.Append( nameof( OutlineThickness ) );
-			sb.Append( "=\"" );
-			sb.Append( OutlineThickness );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( TextureRect,  nameof( TextureRect ),  1 ) );
-			sb.AppendLine( Xml.ToString( FillColor,    nameof( FillColor ),    1 ) );
-			sb.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "               " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "               " )
+				.Append( nameof( Radius ) ).Append( "=\"" ).Append( Radius ).AppendLine( "\"" )
+				.Append( "               " )
+				.Append( nameof( PointCount ) ).Append( "=\"" ).Append( PointCount ).AppendLine( "\"" )
+				.Append( "               " )
+				.Append( nameof( Texture ) ).Append( "=\"" ).Append( Texture ).AppendLine( "\"" )
+				.Append( "               " )
+				.Append( nameof( OutlineThickness ) ).Append( "=\"" ).Append( OutlineThickness ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( TextureRect,  nameof( TextureRect ),  1 ) )
+				.AppendLine( Xml.ToString( FillColor,    nameof( FillColor ),    1 ) )
+				.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) )
+				
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -440,6 +409,31 @@ namespace MiGfx
 				   OutlineThickness == other.OutlineThickness &&
 				   Radius           == other.Radius &&
 				   PointCount       == other.PointCount;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as ShapeRenderer );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Texture, TextureRect, FillColor, 
+			                         OutlineColor, OutlineThickness, Radius, PointCount );
 		}
 
 		string m_tex;

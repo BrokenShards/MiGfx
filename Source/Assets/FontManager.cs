@@ -58,9 +58,10 @@ namespace MiGfx
 
 				Unload( path );
 			}
+
 			try
 			{
-				Font fnt = new Font( path );
+				Font fnt = new( path );
 				m_assets.Add( path, fnt );
 			}
 			catch

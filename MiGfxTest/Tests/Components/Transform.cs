@@ -34,9 +34,9 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Transform Tests..." );
 
-			Transform t1 = new Transform();
+			Transform t1 = new();
 
-			if( t1.Position != default( Vector2f ) )
+			if( t1.Position != default )
 				return Logger.LogReturn( "Failed: Transform initial position is not zero.", false );
 			if( t1.Size != new Vector2f( 1.0f, 1.0f ) )
 				return Logger.LogReturn( "Failed: Transform initial size is not one.", false );
@@ -60,15 +60,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( t2 == null )
+			if( t2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Transform from file.", false );
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + t1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ t1 }";
 			Transform x = XmlLoadable.FromXml<Transform>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load Transform from xml.", false );
 			if( !x.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded Transform has incorrect values.", false );

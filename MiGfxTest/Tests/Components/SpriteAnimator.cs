@@ -41,7 +41,7 @@ namespace MiGfx.Test
 
 			AnimationDB db = DatabaseManager.Instance.Get<AnimationDB, Animation>();
 
-			SpriteAnimator a1 = new SpriteAnimator();
+			SpriteAnimator a1 = new();
 
 			foreach( var v in db )
 				if( !a1.Animations.Add( v.Key ) )
@@ -59,15 +59,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( a2 == null )
+			if( a2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize SpriteAnimator from file.", false );
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized SpriteAnimator has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + a1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ a1 }";
 			SpriteAnimator x = XmlLoadable.FromXml<SpriteAnimator>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load SpriteAnimator from xml.", false );
 			if( !x.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded SpriteAnimator has incorrect values.", false );
@@ -82,10 +82,10 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running SpriteAnimator Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			using( MiEntity ent = new MiEntity( "tester", window ) )
+			using( MiEntity ent = new( "tester", window ) )
 			{
 				if( !ent.AddNewComponent<SpriteAnimator>() )
 					return Logger.LogReturn( "Failed: Unable to add SpriteAnimator to test entity.", false );
@@ -99,7 +99,7 @@ namespace MiGfx.Test
 
 				Texture tex = Assets.Manager.Texture.Get( spr.Image.Path );
 
-				if( tex == null )
+				if( tex is null )
 					return Logger.LogReturn( "Failed: Unable to load texture.", false );
 
 				Vector2u texsize = tex.Size;
@@ -118,7 +118,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is colour changing square displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -135,7 +135,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: SpriteAnimator did not display correctly (user input).", false );
 			}
 

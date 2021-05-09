@@ -27,10 +27,8 @@ using System.Xml;
 
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 
 using MiCore;
-using MiGfx;
 
 namespace MiGfx
 {
@@ -124,7 +122,7 @@ namespace MiGfx
 		public Vector2f GetPoint( uint index )
 		{
 			if( index >= m_rect.GetPointCount() )
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException( nameof( index ) );
 
 			return m_rect.GetPoint( index );
 		}
@@ -134,14 +132,14 @@ namespace MiGfx
 		/// </summary>
 		public override void Refresh()
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Transform t = Parent.GetComponent<Transform>();
 
 			FloatRect bounds = t.GlobalBounds;
 
-			m_rect.Position = new SFML.System.Vector2f( bounds.Left, bounds.Top );
+			m_rect.Position = new Vector2f( bounds.Left, bounds.Top );
 			m_rect.Size     = t.Size;
 			m_rect.Scale    = t.Scale;
 		}
@@ -170,7 +168,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading BoxRenderer from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading BoxRenderer from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -206,7 +204,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving BoxRenderer to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving BoxRenderer to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -229,7 +227,7 @@ namespace MiGfx
 			           fill = element[ nameof( FillColor ) ],
 					   outl = element[ nameof( OutlineColor ) ];
 
-			if( rect != null )
+			if( rect is not null )
 			{
 				IntRect? r = Xml.ToIRect( rect );
 
@@ -238,7 +236,7 @@ namespace MiGfx
 
 				TextureRect = r.Value;
 			}
-			if( fill != null )
+			if( fill is not null )
 			{
 				Color? c = Xml.ToColor( fill );
 
@@ -247,7 +245,7 @@ namespace MiGfx
 
 				FillColor = c.Value;
 			}
-			if( outl != null )
+			if( outl is not null )
 			{
 				Color? c = Xml.ToColor( outl );
 
@@ -278,44 +276,20 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( Texture ) );
-			sb.Append( "=\"" );
-			sb.Append( Texture );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( OutlineThickness ) );
-			sb.Append( "=\"" );
-			sb.Append( OutlineThickness );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( TextureRect,  nameof( TextureRect ),  1 ) );
-			sb.AppendLine( Xml.ToString( FillColor,    nameof( FillColor ),    1 ) );
-			sb.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder().Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( Texture ) ).Append( "=\"" ).Append( Texture ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( OutlineThickness ) ).Append( "=\"" ).Append( OutlineThickness ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( TextureRect,  nameof( TextureRect ),  1 ) )
+				.AppendLine( Xml.ToString( FillColor,    nameof( FillColor ),    1 ) )
+				.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) )
+				
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -389,6 +363,30 @@ namespace MiGfx
 				   FillColor.Equals( other.FillColor ) &&
 				   OutlineColor.Equals( other.OutlineColor ) &&
 				   OutlineThickness == m_rect.OutlineThickness;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as BoxRenderer );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Texture, TextureRect, FillColor, OutlineColor, OutlineThickness );
 		}
 
 		string m_tex;

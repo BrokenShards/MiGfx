@@ -35,7 +35,7 @@ namespace MiGfx
 	/// <summary>
 	///   A component that listens for text input events.
 	/// </summary>
-	public class TextListener : MiComponent
+	public class TextListener : MiComponent, IEquatable<TextListener>
 	{
 		/// <summary>
 		///   Constructor.
@@ -51,7 +51,7 @@ namespace MiGfx
 			AllowNewline     = false;
 			Listen           = true;
 			EnteredText      = string.Empty;
-			CaretPosition   = 0;
+			CaretPosition    = 0;
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -70,7 +70,7 @@ namespace MiGfx
 			AllowNewline     = t.AllowNewline;
 			Listen           = t.Listen;
 			EnteredText      = new string( t.EnteredText.ToCharArray() );
-			CaretPosition   = t.CaretPosition;
+			CaretPosition    = t.CaretPosition;
 		}
 		/// <summary>
 		///   Constructor setting initial entered text.
@@ -89,7 +89,7 @@ namespace MiGfx
 			AllowNewline     = text.Contains( "\n" );
 			Listen           = true;
 			EnteredText      = text ?? string.Empty;
-			CaretPosition   = 0;
+			CaretPosition    = 0;
 		}
 
 		/// <summary>
@@ -108,7 +108,7 @@ namespace MiGfx
 			get { return m_text; }
 			set
 			{
-				if( value == null )
+				if( value is null )
 					m_text = string.Empty;
 				else
 					m_text = value.Contains( "\n" ) && !AllowNewline ?
@@ -124,7 +124,7 @@ namespace MiGfx
 			get { return m_pos; }
 			set
 			{
-				m_pos = EnteredText == null || EnteredText.Length == 0 ? 0 :
+				m_pos = EnteredText is null || EnteredText.Length is 0 ? 0 :
 					( value > EnteredText.Length ? (uint)EnteredText.Length : value );
 			}
 		}
@@ -181,7 +181,7 @@ namespace MiGfx
 			{
 				m_multi = value;
 
-				if( EnteredText != null && EnteredText.Contains( "\n" ) && !AllowNewline )
+				if( EnteredText is not null && EnteredText.Contains( "\n" ) && !AllowNewline )
 					EnteredText = EnteredText.Replace( "\r\n", " " ).Replace( "\n", " " );
 			}
 		}
@@ -191,7 +191,7 @@ namespace MiGfx
 		/// </summary>
 		public override void SubscribeEvents()
 		{
-			if( Parent?.Window == null )
+			if( Parent?.Window is null )
 				return;
 
 			Parent.Window.TextEntered += TextEntered;
@@ -201,7 +201,7 @@ namespace MiGfx
 		/// </summary>
 		public override void UnsubscribeEvents()
 		{
-			if( Parent?.Window == null )
+			if( Parent?.Window is null )
 				return;
 
 			Parent.Window.TextEntered -= TextEntered;
@@ -209,25 +209,25 @@ namespace MiGfx
 
 		private void TextEntered( object sender, TextEventArgs e )
 		{
-			if( !Enabled || !Listen || ( Parent != null && !Parent.Enabled ) )
+			if( !Enabled || !Listen || ( Parent is not null && !Parent.Enabled ) )
 				return;
 
 			CaretPosition = CaretPosition;
 			int len = EnteredText.Length;
 
 			// Backspace
-			if( e.Unicode == "\u0008" || e.Unicode == "\u0232" )
+			if( e.Unicode is "\u0008" or "\u0232" )
 			{
-				if( len == 0 || CaretPosition == 0 )
+				if( len is 0 || CaretPosition is 0 )
 					return;
 
-				if( len - CaretPosition > 1 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+				if( len - CaretPosition > 1 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) is "\r\n" )
 				{
 					EnteredText = EnteredText.Remove( (int)CaretPosition - 1, 2 );
 					CaretPosition--;
 					return;
 				}
-				else if( len > 1 && CaretPosition > 1 && EnteredText.Substring( (int)CaretPosition - 2, 2 ) == "\r\n" )
+				else if( len > 1 && CaretPosition > 1 && EnteredText.Substring( (int)CaretPosition - 2, 2 ) is "\r\n" )
 				{
 					EnteredText = EnteredText.Remove( (int)CaretPosition - 2, 2 );
 					CaretPosition -= 2;
@@ -242,22 +242,22 @@ namespace MiGfx
 				return;
 			}
 
-			if( MaxCharacters == 0 || len < MaxCharacters )
+			if( MaxCharacters is 0 || len < MaxCharacters )
 			{
 				// Carriage Return, Newline, or both (all treated as newline)
-				if( e.Unicode == "\r\n" || e.Unicode == "\u000A" || e.Unicode == "\u000D" )
+				if( e.Unicode is "\r\n" or "\u000A" or "\u000D" )
 				{
 					if( AllowNewline )
 					{
-						string pre = EnteredText.Substring( 0, (int)CaretPosition );
+						string pre  = EnteredText.Substring( 0, (int)CaretPosition );
 						string post = CaretPosition == EnteredText.Length ? string.Empty :
-									  EnteredText.Substring( (int)CaretPosition, len - (int)CaretPosition );
+									  EnteredText[ (int)CaretPosition..len ];
 
-						EnteredText = pre + "\r\n" + post;
+						EnteredText = $"{ pre }\r\n{ post }";
 						CaretPosition += 2;
 					}
 				}
-				else if( e.Unicode.Trim().Length > 0 || ( len > 0 && e.Unicode == " " ) )
+				else if( e.Unicode.Trim().Length > 0 || ( len > 0 && e.Unicode is " " ) )
 				{
 					if( char.IsLetter( e.Unicode, 0 ) && !AllowLetters )
 						return;
@@ -273,9 +273,9 @@ namespace MiGfx
 					if( e.Unicode == " " && !AllowSpace )
 						return;
 
-					string pre = EnteredText.Substring( 0, (int)CaretPosition );
+					string pre  = EnteredText.Substring( 0, (int)CaretPosition );
 					string post = CaretPosition == EnteredText.Length ? string.Empty :
-								  EnteredText.Substring( (int)CaretPosition, len - (int)CaretPosition );
+								  EnteredText[ (int)CaretPosition..len ];
 
 					EnteredText = pre + e.Unicode + post;
 					CaretPosition += (uint)e.Unicode.Length;
@@ -312,18 +312,18 @@ namespace MiGfx
 
 			int len = EnteredText.Length;
 
-			if( len == 0 )
+			if( len is 0 )
 				return;
 
 			// Delete
 			if( del && CaretPosition < len )
 			{
-				if( CaretPosition > 0 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+				if( CaretPosition > 0 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) is "\r\n" )
 				{
 					CaretPosition--;
 					EnteredText = EnteredText.Remove( (int)CaretPosition, 2 );
 				}
-				else if( CaretPosition < len - 1 && EnteredText.Substring( (int)CaretPosition, 2 ) == "\r\n" )
+				else if( CaretPosition < len - 1 && EnteredText.Substring( (int)CaretPosition, 2 ) is "\r\n" )
 				{
 					EnteredText = EnteredText.Remove( (int)CaretPosition, 2 );
 				}
@@ -338,14 +338,14 @@ namespace MiGfx
 			{
 				CaretPosition--;
 
-				if( CaretPosition > 0 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+				if( CaretPosition > 0 && EnteredText.Substring( (int)CaretPosition - 1, 2 ) is "\r\n" )
 					CaretPosition--;
 			}
 			else if( right && !left && CaretPosition < len )
 			{
 				CaretPosition++;
 
-				if( len > CaretPosition && EnteredText.Substring( (int)CaretPosition - 1, 2 ) == "\r\n" )
+				if( len > CaretPosition && EnteredText.Substring( (int)CaretPosition - 1, 2 ) is "\r\n" )
 					CaretPosition++;
 			}
 
@@ -354,7 +354,7 @@ namespace MiGfx
 			{
 				while( CaretPosition > 0 )
 				{
-					if( EnteredText[ (int)CaretPosition - 1 ] == '\n' )
+					if( EnteredText[ (int)CaretPosition - 1 ] is '\n' )
 						break;
 
 					CaretPosition--;
@@ -366,7 +366,7 @@ namespace MiGfx
 				{
 					char c = EnteredText[ (int)CaretPosition ];
 
-					if( c == '\r' || c == '\n' )
+					if( c is '\r' or '\n' )
 						break;
 
 					CaretPosition++;
@@ -376,7 +376,7 @@ namespace MiGfx
 			// Up and Down
 			Label lab = Parent?.GetComponent<Label>();
 
-			if( lab == null )
+			if( lab is null )
 				return;
 
 			float xpos = lab.GetCharacterPosition( CaretPosition ).X;
@@ -390,13 +390,13 @@ namespace MiGfx
 
 				for( ; lnfd >= 0 && lnfd < len; lnfd-- )
 				{
-					if( EnteredText[ lnfd ] == '\n' )
+					if( EnteredText[ lnfd ] is '\n' )
 						break;
 				}
 
 				if( lnfd < 0 )
 					return;
-				if( lnfd == 0 || ( lnfd == 1 && EnteredText[ 0 ] == '\r' ) )
+				if( lnfd is 0 || ( lnfd is 1 && EnteredText[ 0 ] is '\r' ) )
 				{
 					CaretPosition = 0;
 					return;
@@ -404,20 +404,20 @@ namespace MiGfx
 
 				lnfd--;
 
-				if( lnfd >= 0 && EnteredText[ lnfd ] == '\r' )
+				if( lnfd >= 0 && EnteredText[ lnfd ] is '\r' )
 					lnfd--;
 
 				for( int i = lnfd; i >= 0; i-- )
 				{
 					float pos = lab.GetCharacterPosition( (uint)i ).X;
 
-					if( pos < xpos || ( EnteredText[ i ] == '\n' || EnteredText[ i ] == '\r' ) )
+					if( pos < xpos || ( EnteredText[ i ] is '\n' or '\r' ) )
 					{
 						CaretPosition = (uint)i + 1;
 						return;
 					}
 
-					if( i == 0 )
+					if( i is 0 )
 					{
 						CaretPosition = 0;
 						return;
@@ -430,13 +430,13 @@ namespace MiGfx
 
 				for( ; lnfd < len; lnfd++ )
 				{
-					if( EnteredText[ lnfd ] == '\r' || EnteredText[ lnfd ] == '\n' )
+					if( EnteredText[ lnfd ] is '\r' or '\n' )
 						break;
 				}
 
 				if( lnfd >= len )
 					return;
-				if( lnfd == len - 1 || ( ( lnfd == len - 2 ) && EnteredText[ len - 1 ] == '\n' ) )
+				if( lnfd == len - 1 || ( ( lnfd == len - 2 ) && EnteredText[ len - 1 ] is '\n' ) )
 				{
 					CaretPosition = (uint)len;
 					return;
@@ -444,7 +444,7 @@ namespace MiGfx
 
 				lnfd++;
 
-				if( lnfd <= len && EnteredText[ lnfd ] == '\n' )
+				if( lnfd <= len && EnteredText[ lnfd ] is '\n' )
 					lnfd++;
 
 				for( int i = lnfd; i < len; i++ )
@@ -456,7 +456,7 @@ namespace MiGfx
 						CaretPosition = (uint)i - 1;
 						return;
 					}
-					if( EnteredText[ i ] == '\n' || EnteredText[ i ] == '\r' )
+					if( EnteredText[ i ] is '\n' or '\r' )
 					{
 						CaretPosition = (uint)i;
 						return;
@@ -499,7 +499,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading TextListener: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading TextListener: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -532,7 +532,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving TextListener: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving TextListener: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -563,7 +563,7 @@ namespace MiGfx
 
 			XmlNode txt = element[ nameof( EnteredText ) ];
 
-			if( txt != null )
+			if( txt is not null )
 				EnteredText = txt.Value;
 
 			try
@@ -587,7 +587,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading TextListener: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading TextListener: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -601,84 +601,32 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( MaxCharacters ) );
-			sb.Append( "=\"" );
-			sb.Append( MaxCharacters );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( AllowLetters ) );
-			sb.Append( "=\"" );
-			sb.Append( AllowLetters );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( AllowNumbers ) );
-			sb.Append( "=\"" );
-			sb.Append( AllowNumbers );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( AllowSymbols ) );
-			sb.Append( "=\"" );
-			sb.Append( AllowSymbols );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( AllowPunctuation ) );
-			sb.Append( "=\"" );
-			sb.Append( AllowPunctuation );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( AllowSpace ) );
-			sb.Append( "=\"" );
-			sb.Append( AllowSpace );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( AllowNewline ) );
-			sb.Append( "=\"" );
-			sb.Append( AllowNewline );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "              " );
-			sb.Append( nameof( Listen ) );
-			sb.Append( "=\"" );
-			sb.Append( Listen );
-			sb.AppendLine( "\">" );
-
-			sb.Append( "\t<" );
-			sb.Append( nameof( EnteredText ) );
-			sb.Append( ">" );
-			sb.Append( EnteredText );
-			sb.Append( "</" );
-			sb.Append( nameof( EnteredText ) );
-			sb.Append( ">" );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( MaxCharacters ) ).Append( "=\"" ).Append( MaxCharacters ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( AllowLetters ) ).Append( "=\"" ).Append( AllowLetters ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( AllowNumbers ) ).Append( "=\"" ).Append( AllowNumbers ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( AllowSymbols ) ).Append( "=\"" ).Append( AllowSymbols ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( AllowPunctuation ) ).Append( "=\"" ).Append( AllowPunctuation ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( AllowSpace ) ).Append( "=\"" ).Append( AllowSpace ).AppendLine( "\"" )
+				.Append( "              " )
+				.Append( nameof( AllowNewline ) ).Append( "=\"" ).Append( AllowNewline ).AppendLine( "\"" )				
+				.Append( "              " )
+				.Append( nameof( Listen ) ).Append( "=\"" ).Append( Listen ).AppendLine( "\">" )
+				
+				.Append( "\t<" ).Append( nameof( EnteredText ) ).Append( '>' )
+				.Append( EnteredText )
+				.Append( "</" ).Append( nameof( EnteredText ) ).Append( '>' )
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -701,6 +649,31 @@ namespace MiGfx
 				   AllowSpace       == other.AllowSpace &&
 				   AllowNewline     == other.AllowNewline && 
 				   Listen           == other.Listen;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as TextListener );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), MaxCharacters, AllowLetters, AllowNumbers,
+			                         AllowSymbols, AllowPunctuation, AllowSpace, AllowNewline );
 		}
 
 		/// <summary>

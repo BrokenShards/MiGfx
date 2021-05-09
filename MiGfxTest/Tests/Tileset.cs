@@ -34,7 +34,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Tileset Tests..." );
 
-			Tileset t1 = new Tileset( "test", null, new Vector2u( 64, 64 ), new Vector2u( 4, 4 ), new Vector2u( 4, 4 ) )
+			Tileset t1 = new( "test", null, new Vector2u( 64, 64 ), new Vector2u( 4, 4 ), new Vector2u( 4, 4 ) )
 			{
 				Texture = "texture"
 			};
@@ -51,15 +51,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( t2 == null )
+			if( t2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Tileset from file.", false );
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Tileset has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + t1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ t1 }";
 			Tileset x = XmlLoadable.FromXml<Tileset>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load Tileset from xml.", false );
 			if( !x.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded Tileset has incorrect values.", false );

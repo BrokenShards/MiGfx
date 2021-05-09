@@ -45,11 +45,11 @@ namespace MiGfx
 		{
 			get
 			{
-				if( _instance == null )
+				if( _instance is null )
 				{
 					lock( _syncRoot )
 					{
-						if( _instance == null )
+						if( _instance is null )
 						{
 							_instance = new Assets();
 						}
@@ -197,6 +197,6 @@ namespace MiGfx
 		}
 
 		private static volatile Assets _instance;
-		private static readonly object _syncRoot = new object();
+		private static readonly object _syncRoot = new();
 	}
 }

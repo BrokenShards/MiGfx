@@ -28,7 +28,7 @@ namespace MiGfx.Test
 	public class SoundManagerTest : TestModule
 	{
 		// The path of the Sound to load.
-		static readonly string SoundPath = FolderPaths.Sounds + "test.wav";
+		static readonly string SoundPath = $"{ FolderPaths.Sounds }test.wav";
 
 		protected override bool OnTest()
 		{
@@ -48,7 +48,7 @@ namespace MiGfx.Test
 			SoundBuffer tex2 = Assets.Manager.Sound.Get( SoundPath );
 
 			// If the asset is null, either the file does not exist or loading from the file failed.
-			if( tex == null )
+			if( tex is null )
 				return Logger.LogReturn( "Failed: Unable to load SoundBuffer from path.", false );
 
 			//

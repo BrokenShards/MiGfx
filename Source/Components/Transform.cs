@@ -141,13 +141,13 @@ namespace MiGfx
 				Vector2f diff = value - m_pos;
 				m_pos = value;
 
-				if( Parent == null || !Parent.HasChildren )
+				if( Parent is null || !Parent.HasChildren )
 					return;
 
 				MiEntity[] children = Parent.GetChildrenWithComponent<Transform>();
 
-				foreach( MiEntity e in children )
-					e.GetComponent<Transform>().Position += diff;
+				for( int i = 0; i < children.Length; i++ )
+					children[ i ].GetComponent<Transform>().Position += diff;
 			}
 		}
 		/// <summary>
@@ -195,13 +195,11 @@ namespace MiGfx
 			get
 			{
 				if( !Relative )
-				{
 					return Position;
-				}
 
 				View view = Parent?.Window?.GetView();
 
-				if( view == null )
+				if( view is null )
 					throw new InvalidOperationException( "Transform cannot calculate absolute position without a valid parent and window." );
 
 				return view.Center - ( view.Size / 2.0f ) + Position;
@@ -216,7 +214,7 @@ namespace MiGfx
 
 				View view = Parent?.Window?.GetView();
 
-				if( view == null )
+				if( view is null )
 					throw new InvalidOperationException( "Transform cannot assign absolute position without a valid parent and window." );
 
 				Position = view.Center - ( view.Size / 2.0f ) + value;
@@ -297,10 +295,10 @@ namespace MiGfx
 			{
 				View view = Parent?.Window?.GetView();
 
-				if( view == null )
+				if( view is null )
 					throw new InvalidOperationException( "Transform cannot calculate absolute position without a valid parent and window." );
 
-				Position = Position - ( view.Center - ( view.Size / 2.0f ) );
+				Position -= ( view.Center - ( view.Size / 2.0f ) );
 				Relative = true;
 			}
 		}
@@ -316,8 +314,8 @@ namespace MiGfx
 				return;
 
 			FloatRect bounds = GlobalBounds;
-			Vector2f  pos    = new Vector2f( bounds.Left,  bounds.Top ),
-			          size   = new Vector2f( bounds.Width, bounds.Height );
+			Vector2f  pos    = new( bounds.Left,  bounds.Top ),
+			          size   = new( bounds.Width, bounds.Height );
 
 			switch( org )
 			{
@@ -379,7 +377,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Transform: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Transform: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -408,7 +406,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Transform: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Transform: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -437,9 +435,9 @@ namespace MiGfx
 			Vector2f? pos = Xml.ToVec2f( position ),
 					  siz = Xml.ToVec2f( size );
 
-			if( position == null )
+			if( position is null )
 				return Logger.LogReturn( "Failed loading Transform: No Position element.", false, LogType.Error );
-			if( size == null )
+			if( size is null )
 				return Logger.LogReturn( "Failed loading Transform: No Size element.", false, LogType.Error );
 
 			if( !pos.HasValue )
@@ -465,9 +463,9 @@ namespace MiGfx
 				Origin = a;
 			}
 
-			if( scale != null )
+			if( scale is not null )
 			{
-				Vector2f? scl = scale != null ? Xml.ToVec2f( scale ) : null;
+				Vector2f? scl = Xml.ToVec2f( scale );
 
 				if( !scl.HasValue )
 					return Logger.LogReturn( "Failed loading Transform: Unable to parse scale.", false, LogType.Error );
@@ -485,44 +483,24 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" ); 
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled ); 
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Relative ) );
-			sb.Append( "=\"" );
-			sb.Append( Relative );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Origin ) );
-			sb.Append( "=\"" );
-			sb.Append( Origin );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( Position, nameof( Position ), 1 ) );
-			sb.AppendLine( Xml.ToString( Size,     nameof( Size ), 1 ) );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Relative ) ).Append( "=\"" ).Append( Relative ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Origin ) ).Append( "=\"" ).Append( Origin ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( Position, nameof( Position ), 1 ) )
+				.AppendLine( Xml.ToString( Size,     nameof( Size ), 1 ) );
 
 			if( Scale.X != 1.0f || Scale.Y != 1.0f )
 				sb.AppendLine( Xml.ToString( Scale, nameof( Scale ), 1 ) );
 
-			sb.Append( "</" ); sb.Append( TypeName ); sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return sb.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -536,11 +514,36 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( Transform other )
 		{
-			return Origin     == other.Origin &&
+			return Origin == other.Origin &&
 			       Position.Equals( other.Position ) &&
 				   Size.Equals( other.Size ) &&
 				   Scale.Equals( other.Scale );
 		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Transform );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Origin, Position, Size, Scale );
+		}
+
 		/// <summary>
 		///   Clones this object.
 		/// </summary>
@@ -568,13 +571,13 @@ namespace MiGfx
 		/// </returns>
 		public static MiEntity[] GetEntitiesInArea( MiEntity root, FloatRect area )
 		{
-			List<MiEntity> ents = new List<MiEntity>();
+			List<MiEntity> ents = new();
 
 			MiEntity[] children = root.GetChildrenWithComponent<Transform>();
 
-			foreach( MiEntity c in children )
+			for( int i = 0; i < children.Length; i++ )
 			{
-				FloatRect b = c.GetComponent<Transform>().GlobalBounds;
+				FloatRect b = children[ i ].GetComponent<Transform>().GlobalBounds;
 
 				if( b.Left > area.Left + area.Width ||
 					area.Left > b.Left + b.Width ||
@@ -582,7 +585,7 @@ namespace MiGfx
 					area.Top > b.Top + b.Height )
 					continue;
 
-				ents.Add( c );
+				ents.Add( children[ i ] );
 			}
 
 			return ents.ToArray();
@@ -602,13 +605,13 @@ namespace MiGfx
 		/// </returns>
 		public static MiEntity[] GetAllEntitiesInArea( MiEntity root, FloatRect area )
 		{
-			List<MiEntity> ents = new List<MiEntity>();
+			List<MiEntity> ents = new();
 
 			MiEntity[] children = root.GetAllChildrenWithComponent<Transform>();
 
-			foreach( MiEntity c in children )
+			for( int i = 0; i < children.Length; i++ )
 			{
-				FloatRect b = c.GetComponent<Transform>().GlobalBounds;
+				FloatRect b = children[ i ].GetComponent<Transform>().GlobalBounds;
 
 				if( b.Left > area.Left + area.Width ||
 					area.Left > b.Left + b.Width ||
@@ -616,7 +619,7 @@ namespace MiGfx
 					area.Top > b.Top + b.Height )
 					continue;
 
-				ents.Add( c );
+				ents.Add( children[ i ] );
 			}
 
 			return ents.ToArray();

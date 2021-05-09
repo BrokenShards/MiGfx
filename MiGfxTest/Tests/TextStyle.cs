@@ -34,7 +34,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running TextStyle Tests..." );
 
-			TextStyle t1 = new TextStyle( "font.ttf", 33, 0, Color.Red, 1, Color.Blue );
+			TextStyle t1 = new( "font.ttf", 33, 0, Color.Red, 1, Color.Blue );
 
 			if( !BinarySerializable.ToFile( t1, TextStylePath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize TextStyle to file.", false );
@@ -48,15 +48,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( t2 == null )
+			if( t2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize TextStyle from file.", false );
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextStyle has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + t1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ t1 }";
 			TextStyle x = XmlLoadable.FromXml<TextStyle>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load TextStyle from xml.", false );
 			if( !x.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded TextStyle has incorrect values.", false );

@@ -41,7 +41,7 @@ namespace MiGfx.Test
 			// parent entities Transform.
 
 			// Create a new Sprite with an ImageInfo that tells it which texture to draw.
-			Sprite s1 = new Sprite( new ImageInfo( Test.SpriteTexturePath ) );
+			Sprite s1 = new( new ImageInfo( Test.SpriteTexturePath ) );
 
 			// Write object to a binary file.
 			if( !BinarySerializable.ToFile( s1, SpritePath, true ) )
@@ -59,15 +59,15 @@ namespace MiGfx.Test
 			{ }
 
 			// Ensure object loaded and is the same.
-			if( s2 == null )
+			if( s2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Sprite from file.", false );
 			if( !s2.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Sprite has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + s1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ s1 }";
 			Sprite x = XmlLoadable.FromXml<Sprite>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load Sprite from xml.", false );
 			if( !x.Equals( s1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded Sprite has incorrect values.", false );
@@ -81,10 +81,10 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Sprite Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = new MiEntity( "tester", window );
+			MiEntity ent = new( "tester", window );
 
 			using( ent )
 			{
@@ -100,11 +100,10 @@ namespace MiGfx.Test
 				trn.Size = new Vector2f( 200, 200 );
 				trn.Position = window.GetView().Center;
 				
-
 				Logger.Log( "Is yellow square displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -120,7 +119,7 @@ namespace MiGfx.Test
 							o = 0;
 
 						spr.Image.Orientation = (Direction)o;
-						Logger.Log( "Sprite Orientation: " + spr.Image.Orientation.ToString() );
+						Logger.Log( $"Sprite Orientation: { spr.Image.Orientation }" );
 					}
 					else if( Input.Manager.Keyboard.JustPressed( "Left" ) )
 					{
@@ -131,18 +130,18 @@ namespace MiGfx.Test
 							o = Enum.GetNames( typeof( Direction ) ).Length - 1;
 
 						spr.Image.Orientation = (Direction)o;
-						Logger.Log( "Sprite Orientation: " + spr.Image.Orientation.ToString() );
+						Logger.Log( $"Sprite Orientation: { spr.Image.Orientation }" );
 					}
 
 					if( Input.Manager.Keyboard.JustPressed( "H" ) )
 					{
 						spr.Image.FlipHorizontal = !spr.Image.FlipHorizontal;
-						Logger.Log( "Sprite FlipHorizontal: " + spr.Image.FlipHorizontal.ToString() );
+						Logger.Log( $"Sprite FlipHorizontal: { spr.Image.FlipHorizontal }" );
 					}
 					else if( Input.Manager.Keyboard.JustPressed( "V" ) )
 					{
 						spr.Image.FlipVertical = !spr.Image.FlipVertical;
-						Logger.Log( "Sprite FlipVertical: " + spr.Image.FlipVertical.ToString() );
+						Logger.Log( $"Sprite FlipVertical: { spr.Image.FlipVertical }" );
 					}
 
 					if( Input.Manager.Keyboard.JustPressed( "Y" ) )
@@ -155,7 +154,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: Sprite did not display correctly (user input).", false );
 			}
 

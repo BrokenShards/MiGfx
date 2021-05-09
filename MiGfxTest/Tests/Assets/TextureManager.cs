@@ -28,7 +28,7 @@ namespace MiGfx.Test
 	public class TextureManagerTest : TestModule
 	{
 		// The path of the texture to load.
-		static readonly string TexturePath = FolderPaths.Textures + "test.png";
+		static readonly string TexturePath = $"{ FolderPaths.Textures }test.png";
 
 		protected override bool OnTest()
 		{
@@ -48,7 +48,7 @@ namespace MiGfx.Test
 			Texture tex2 = Assets.Manager.Texture.Get( TexturePath );
 
 			// If the asset is null, either the file does not exist or loading from the file failed.
-			if( tex == null )
+			if( tex is null )
 				return Logger.LogReturn( "Failed: Unable to load texture from path.", false );
 
 			//

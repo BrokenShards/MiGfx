@@ -112,7 +112,7 @@ namespace MiGfx
 			{
 				Transform t = Parent?.GetComponent<Transform>();
 
-				if( t == null )
+				if( t is null )
 					return float.NaN;
 
 				FloatRect gb = t.GlobalBounds;
@@ -130,9 +130,9 @@ namespace MiGfx
 			{
 				Transform t = Parent?.GetComponent<Transform>();
 
-				Vector2f size = new Vector2f( RadiusMultiplier, RadiusMultiplier );
+				Vector2f size = new( RadiusMultiplier, RadiusMultiplier );
 
-				if( t == null )
+				if( t is null )
 					return new FloatRect( Offset, size );
 
 				FloatRect gb = t.GlobalBounds;
@@ -162,13 +162,13 @@ namespace MiGfx
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( t == null )
+			if( t is null )
 				return false;
 
 			FloatRect b = Bounds;
 			float radius = Radius * RadiusMultiplier;
 
-			Vector2f center = new Vector2f( b.Left + ( b.Width / 2.0f ), b.Top + ( b.Height / 2.0f ) );
+			Vector2f center = new( b.Left + ( b.Width / 2.0f ), b.Top + ( b.Height / 2.0f ) );
 			center += new Vector2f( Offset.X * ( radius * 2 ), Offset.Y * ( radius * 2 ) );
 
 			return Physics.CircleContainsPoint( center, RadiusMultiplier * Math.Min( t.Scale.X, t.Scale.Y ), point );
@@ -189,13 +189,13 @@ namespace MiGfx
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( t == null )
+			if( t is null )
 				return false;
 			
 			FloatRect b = Bounds;
 			float radius = Radius * RadiusMultiplier;
 
-			Vector2f center = new Vector2f( b.Left + ( b.Width / 2.0f ), b.Top + ( b.Height / 2.0f ) );
+			Vector2f center = new( b.Left + ( b.Width / 2.0f ), b.Top + ( b.Height / 2.0f ) );
 			center += new Vector2f( Offset.X * ( radius * 2 ), Offset.Y * ( radius * 2 ) );
 
 			return Physics.LineIntersectsCircle( center, radius, l1, l2 );
@@ -213,13 +213,13 @@ namespace MiGfx
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( t == null )
+			if( t is null )
 				return false;
 
 			FloatRect b = Bounds;
 			float radius = Radius * RadiusMultiplier;
 
-			Vector2f center = new Vector2f( b.Left + ( b.Width / 2.0f ), b.Top + ( b.Height / 2.0f ) );
+			Vector2f center = new( b.Left + ( b.Width / 2.0f ), b.Top + ( b.Height / 2.0f ) );
 			center += new Vector2f( Offset.X * ( radius * 2 ), Offset.Y * ( radius * 2 ) );
 
 			return Physics.RectIntersectsCircle( rect, center, RadiusMultiplier * Math.Min( t.Scale.X, t.Scale.Y ) );
@@ -260,7 +260,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading CircleCollider from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading CircleCollider from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -286,7 +286,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving CircleCollider to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving CircleCollider to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -310,7 +310,7 @@ namespace MiGfx
 
 			XmlElement off = element[ nameof( Offset ) ];
 
-			if( off != null )
+			if( off is not null )
 			{
 				Vector2f? o = Xml.ToVec2f( off );
 
@@ -337,43 +337,21 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( RadiusMultiplier ) );
-			sb.Append( "=\"" );
-			sb.Append( RadiusMultiplier );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( StaticCollider ) );
-			sb.Append( "=\"" );
-			sb.Append( StaticCollider );
-			sb.AppendLine( "\">" );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( RadiusMultiplier ) ).Append( "=\"" ).Append( RadiusMultiplier ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( StaticCollider ) ).Append( "=\"" ).Append( StaticCollider ).AppendLine( "\">" );
 
 			if( !Offset.Equals( default ) )
 				sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
 
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return sb.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -391,6 +369,31 @@ namespace MiGfx
 				   Offset.Equals( other.Offset ) &&
 				   RadiusMultiplier == other.RadiusMultiplier;
 		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as CircleCollider );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Offset, RadiusMultiplier );
+		}
+
 		/// <summary>
 		///   Deep coppies this object.
 		/// </summary>

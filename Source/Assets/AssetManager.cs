@@ -21,11 +21,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Collections;
-
-using MiCore;
 
 namespace MiGfx
 {
@@ -50,7 +47,7 @@ namespace MiGfx
 		/// </summary>
 		public bool Empty
 		{
-			get { return Count == 0; }
+			get { return Count is 0; }
 		}
 		/// <summary>
 		///   The amount of assets the manager contains.
@@ -181,14 +178,14 @@ namespace MiGfx
 			string result = path;
 
 			if( result.StartsWith( "file:///" ) || result.StartsWith( "file:\\\\\\" ) )
-				result = result.Substring( 8 );
+				result = result[ 8.. ];
 			else if( result.StartsWith( "file://" ) || result.StartsWith( "file:\\\\" ) )
-				result = result.Substring( 7 );
+				result = result[ 7.. ];
 
 			if( result.Length > 0 )
 			{
 				if( result.StartsWith( "/" ) || result.StartsWith( "\\" ) )
-					result = result.Substring( 1 );
+					result = result[ 1.. ];
 
 				string alpha = "abcdefghijklmnopqrstuvwxyz";
 
@@ -264,6 +261,7 @@ namespace MiGfx
 		public virtual void Dispose()
 		{
 			Clear();
+			GC.SuppressFinalize( this );
 		}
 	}
 }

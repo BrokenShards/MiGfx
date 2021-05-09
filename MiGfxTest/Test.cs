@@ -29,10 +29,10 @@ namespace MiGfx.Test
 {
 	partial class Test
 	{
-		public static readonly string SpriteTexturePath    = FolderPaths.Textures + "test.png";
-		public static readonly string AnimationTexturePath = FolderPaths.Textures + "test_anim.png";
+		public static readonly string SpriteTexturePath    = $"{ FolderPaths.Textures }test.png";
+		public static readonly string AnimationTexturePath = $"{ FolderPaths.Textures }test_anim.png";
 
-		static void Main( string[] args )
+		static void Main( string[] _ )
 		{
 			Logger.LogToConsole = true;
 			Logger.LogToFile    = false;
@@ -43,52 +43,51 @@ namespace MiGfx.Test
 			
 			if( Components.Register() )
 			{
-				using( RenderWindow window = new RenderWindow( new VideoMode( 800, 600, 32 ), "MiGfx Test", Styles.Close ) )
-				{
-					if( !new FontManagerTest().RunTest() )
-						result = false;
-					if( !new SoundManagerTest().RunTest() )
-						result = false;
-					if( !new TextureManagerTest().RunTest() )
-						result = false;
+				using RenderWindow window = new( new VideoMode( 800, 600, 32 ), "MiGfx Test", Styles.Close );
 
-					if( !new FrameTest().RunTest( window ) )
-						result = false;
-					if( !new AnimationTest().RunTest( window ) )
-						result = false;
-					if( !new AnimationSetTest().RunTest( window ) )
-						result = false;
+				if( !new FontManagerTest().RunTest() )
+					result = false;
+				if( !new SoundManagerTest().RunTest() )
+					result = false;
+				if( !new TextureManagerTest().RunTest() )
+					result = false;
 
-					if( !new ImageInfoTest().RunTest( window ) )
-						result = false;
-					if( !new TextStyleTest().RunTest( window ) )
-						result = false;
+				if( !new FrameTest().RunTest( window ) )
+					result = false;
+				if( !new AnimationTest().RunTest( window ) )
+					result = false;
+				if( !new AnimationSetTest().RunTest( window ) )
+					result = false;
 
-					if( !new TilesetTest().RunTest( window ) )
-						result = false;
-					if( !new TransformTest().RunTest( window ) )
-						result = false;
+				if( !new ImageInfoTest().RunTest( window ) )
+					result = false;
+				if( !new TextStyleTest().RunTest( window ) )
+					result = false;
 
-					if( !new SpriteTest().RunTest( window ) )
-						result = false;
-					if( !new SpriteArrayTest().RunTest( window ) )
-						result = false;
-					if( !new SpriteAnimatorTest().RunTest( window ) )
-						result = false;
-					if( !new LabelTest().RunTest( window ) )
-						result = false;
+				if( !new TilesetTest().RunTest( window ) )
+					result = false;
+				if( !new TransformTest().RunTest( window ) )
+					result = false;
 
-					if( !new ButtonTest().RunTest( window ) )
-						result = false;
-					if( !new CheckBoxTest().RunTest( window ) )
-						result = false;
-					if( !new FillBarTest().RunTest( window ) )
-						result = false;
-					if( !new TextBoxTest().RunTest( window ) )
-						result = false;
+				if( !new SpriteTest().RunTest( window ) )
+					result = false;
+				if( !new SpriteArrayTest().RunTest( window ) )
+					result = false;
+				if( !new SpriteAnimatorTest().RunTest( window ) )
+					result = false;
+				if( !new LabelTest().RunTest( window ) )
+					result = false;
 
-					window.Close();
-				}
+				if( !new ButtonTest().RunTest( window ) )
+					result = false;
+				if( !new CheckBoxTest().RunTest( window ) )
+					result = false;
+				if( !new FillBarTest().RunTest( window ) )
+					result = false;
+				if( !new TextBoxTest().RunTest( window ) )
+					result = false;
+
+				window.Close();
 			}
 			else
 				Logger.Log( "Failed registering components." );

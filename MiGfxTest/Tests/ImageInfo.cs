@@ -35,7 +35,7 @@ namespace MiGfx.Test
 			Logger.Log( "Running ImageInfo Tests..." );
 
 			// Create image info with a texture, rect, orientation and color.
-			ImageInfo i1 = new ImageInfo( "image.png", new FloatRect( 0, 0, 40, 40 ), Color.Blue );
+			ImageInfo i1 = new( "image.png", new FloatRect( 0, 0, 40, 40 ), Color.Blue );
 
 			// Write object to a binary file.
 			if( !BinarySerializable.ToFile( i1, ImageInfoPath, true ) )
@@ -52,18 +52,18 @@ namespace MiGfx.Test
 			{ }
 
 			// Ensure object loaded and is the same.
-			if( i2 == null )
+			if( i2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize ImageInfo from file.", false );
 			if( !i2.Equals( i1 ) )
 				return Logger.LogReturn( "Failed: Deserialized ImageInfo has incorrect values.", false );
 
 			// Create an xml file string from ToString().
-			string xml = Xml.Header + "\r\n" + i1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ i1 }";
 			// Load object from xml string.
 			ImageInfo x = XmlLoadable.FromXml<ImageInfo>( xml );
 
 			// Ensure object loaded and is the same.
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load ImageInfo from xml.", false );
 			if( !x.Equals( i1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded ImageInfo has incorrect values.", false );

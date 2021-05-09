@@ -37,7 +37,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Button Tests..." );
 
-			Button b1 = new Button();
+			Button b1 = new();
 
 			if( !BinarySerializable.ToFile( b1, ButtonPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Button to file.", false );
@@ -51,15 +51,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( b2 == null )
+			if( b2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Button from file.", false );
 			if( !b2.Equals( b1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Button has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + b1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ b1 }";
 			Button x = XmlLoadable.FromXml<Button>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load Button from xml.", false );
 
 			if( !x.Equals( b1 ) )
@@ -74,10 +74,10 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Button Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = new MiEntity( "selector", window );
+			MiEntity ent = new( "selector", window );
 
 			using( ent )
 			{
@@ -89,7 +89,7 @@ namespace MiGfx.Test
 
 				MiEntity but = Button.Create( "tester", window, "Test Button" );
 
-				if( but == null )
+				if( but is null )
 					return Logger.LogReturn( "Failed: Unable to create button.", false );
 
 				Transform tran = but.GetComponent<Transform>();
@@ -105,7 +105,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is button displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -122,7 +122,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: Button did not display correctly (user input).", false );
 			}
 

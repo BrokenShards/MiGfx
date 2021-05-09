@@ -69,7 +69,7 @@ namespace MiGfx
 		{
 			get
 			{
-				if( Parent == null || SelectedIndex < 0 || SelectedIndex >= Parent.ChildCount )
+				if( Parent is null || SelectedIndex < 0 || SelectedIndex >= Parent.ChildCount )
 					return null;
 
 				return Parent.GetChild( SelectedIndex );
@@ -96,7 +96,7 @@ namespace MiGfx
 		/// </returns>
 		public bool Select( int index )
 		{
-			if( Parent == null || !Parent.HasChildren || index >= Parent.ChildCount )
+			if( Parent is null || !Parent.HasChildren || index >= Parent.ChildCount )
 				return false;
 
 			if( index < -1 )
@@ -131,10 +131,10 @@ namespace MiGfx
 		/// </returns>
 		public bool Select( MiEntity ent )
 		{
-			if( Parent == null || !Parent.HasChildren )
+			if( Parent is null || !Parent.HasChildren )
 				return false;
 
-			if( ent == null )
+			if( ent is null )
 			{
 				SelectedIndex = -1;
 				return true;
@@ -153,7 +153,7 @@ namespace MiGfx
 		/// </returns>
 		public bool SelectNext()
 		{
-			if( Parent == null || !Parent.HasChildren )
+			if( Parent is null || !Parent.HasChildren )
 				return false;
 
 			if( SelectedIndex < -1 )
@@ -180,7 +180,7 @@ namespace MiGfx
 		/// </returns>
 		public bool SelectPrevious()
 		{
-			if( Parent == null || !Parent.HasChildren )
+			if( Parent is null || !Parent.HasChildren )
 				return false;
 
 			int initial = SelectedIndex - 1;
@@ -208,7 +208,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Parent != null )
+			if( Parent is not null )
 				foreach( MiEntity ent in Parent )
 					if( ent.HasComponent<Selectable>() )
 						ent.GetComponent<Selectable>().Selector = this;
@@ -234,7 +234,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Selector from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Selector from stream: { e.Message }", false, LogType.Error );
 			}
 			
 			return true;
@@ -259,7 +259,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Selector to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Selector to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -297,30 +297,14 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( SelectedIndex ) );
-			sb.Append( "=\"" );
-			sb.Append( SelectedIndex );
-			sb.AppendLine( "\"/>" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( SelectedIndex ) ).Append( "=\"" ).Append( SelectedIndex ).Append( "\"/>" )
+				.ToString();
 		}
 
 		/// <summary>

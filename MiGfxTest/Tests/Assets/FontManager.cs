@@ -28,7 +28,7 @@ namespace MiGfx.Test
 	public class FontManagerTest : TestModule
 	{
 		// The path of the Font to load.
-		static readonly string FontPath = FolderPaths.Fonts + "FallingSky.otf";
+		static readonly string FontPath = $"{ FolderPaths.Fonts }FallingSky.otf";
 
 		protected override bool OnTest()
 		{
@@ -48,7 +48,7 @@ namespace MiGfx.Test
 			Font fnt2 = Assets.Manager.Font.Get( FontPath );
 
 			// If the asset is null, either the file does not exist or loading from the file failed.
-			if( fnt == null )
+			if( fnt is null )
 				return Logger.LogReturn( "Failed: Unable to load Font from path.", false );
 
 			//

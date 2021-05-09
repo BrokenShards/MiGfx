@@ -99,7 +99,7 @@ namespace MiGfx
 			{
 				Transform t = Parent?.GetComponent<Transform>();
 
-				if( t == null )
+				if( t is null )
 					return new FloatRect( Offset, Size );
 
 				FloatRect gb = t.GlobalBounds;
@@ -133,7 +133,7 @@ namespace MiGfx
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( t == null )
+			if( t is null )
 				return false;
 
 			return Bounds.Contains( point.X, point.Y );
@@ -167,7 +167,7 @@ namespace MiGfx
 		{
 			Transform t = Parent?.GetComponent<Transform>();
 
-			if( t == null )
+			if( t is null )
 				return false;
 
 			return Bounds.Intersects( rect );
@@ -208,7 +208,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading BoxCollider from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading BoxCollider from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -234,7 +234,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving BoxCollider to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving BoxCollider to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -259,7 +259,7 @@ namespace MiGfx
 			XmlElement off = element[ nameof( Offset ) ],
 			           siz = element[ nameof( Size ) ];
 
-			if( off != null )
+			if( off is not null )
 			{
 				Vector2f? o = Xml.ToVec2f( off );
 
@@ -268,7 +268,7 @@ namespace MiGfx
 
 				Offset = o.Value;
 			}
-			if( siz != null )
+			if( siz is not null )
 			{
 				Vector2f? s = Xml.ToVec2f( siz );
 
@@ -288,37 +288,20 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "             " );
-			sb.Append( nameof( StaticCollider ) );
-			sb.Append( "=\"" );
-			sb.Append( StaticCollider );
-			sb.AppendLine( "\">" );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "             " )
+				.Append( nameof( StaticCollider ) ).Append( "=\"" ).Append( StaticCollider ).AppendLine( "\">" );
 
 			if( !Offset.Equals( default ) )
 				sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
 			
-			sb.AppendLine( Xml.ToString( Size, nameof( Size ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
+			sb.AppendLine( Xml.ToString( Size, nameof( Size ), 1 ) )
+				.Append( "</" ).Append( TypeName ).AppendLine( ">" );
 
 			return sb.ToString();
 		}
@@ -337,6 +320,30 @@ namespace MiGfx
 			return base.Equals( other ) &&
 				   Offset.Equals( other.Offset ) &&
 				   Size.Equals( other.Size );
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as BoxCollider );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Offset, Size );
 		}
 		/// <summary>
 		///   Deep coppies this object.

@@ -46,56 +46,56 @@ namespace MiGfx
 		/// <summary>
 		///   Base assets folder.
 		/// </summary>
-		public static readonly string Assets = Executable + "Assets" + Separator;
+		public static readonly string Assets = $"{ Executable }Assets{ Separator }";
 
 		/// <summary>
 		///   Textures folder.
 		/// </summary>
-		public static readonly string Textures = Assets + "Textures" + Separator;
+		public static readonly string Textures = $"{ Assets }Textures{ Separator }";
 		/// <summary>
 		///   Fonts folder.
 		/// </summary>
-		public static readonly string Fonts = Assets + "Fonts" + Separator;
+		public static readonly string Fonts = $"{ Assets }Fonts{ Separator }";
 		/// <summary>
 		///   Sprites folder.
 		/// </summary>
-		public static readonly string Sprites = Assets + "Sprites" + Separator;
+		public static readonly string Sprites = $"{ Assets }Sprites{ Separator }";
 		/// <summary>
 		///   Tilesets folder.
 		/// </summary>
-		public static readonly string Tilesets = Assets + "Tilesets" + Separator;
+		public static readonly string Tilesets = $"{ Assets }Tilesets{ Separator }";
 
 		/// <summary>
 		///   Sounds folder.
 		/// </summary>
-		public static readonly string Sounds = Assets + "Sounds" + Separator;
+		public static readonly string Sounds = $"{ Assets }Sounds{ Separator }";
 		/// <summary>
 		///   Music folder.
 		/// </summary>
-		public static readonly string Music = Assets + "Music" + Separator;
+		public static readonly string Music = $"{ Assets }Music{ Separator }";
 
 		/// <summary>
 		///   GUI assets folder.
 		/// </summary>
-		public static readonly string UI = Assets + "UI" + Separator;
+		public static readonly string UI = $"{ Assets }UI{ Separator }";
 
 		/// <summary>
 		///   Settings folder.
 		/// </summary>
-		public static readonly string Settings = Executable + "Settings" + Separator;
+		public static readonly string Settings = $"{ Executable }Settings{ Separator }";
 
 		/// <summary>
 		///   Game data folder.
 		/// </summary>
-		public static readonly string Data = Executable + "Data" + Separator;
+		public static readonly string Data = $"{ Executable }Data{ Separator }";
 		/// <summary>
 		///   Database folder.
 		/// </summary>
-		public static readonly string Databases = Data + "Databases" + Separator;
+		public static readonly string Databases = $"{ Data }Databases{ Separator }";
 		/// <summary>
 		///   Tilemaps folder.
 		/// </summary>
-		public static readonly string Tilemaps = Data + "Tilemaps" + Separator;
+		public static readonly string Tilemaps = $"{ Data }Tilemaps{ Separator }";
 
 		/// <summary>
 		///   Creates the entire folder structure.
@@ -130,7 +130,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Unable to create folder structure: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Unable to create folder structure: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -149,12 +149,12 @@ namespace MiGfx
 		{
 			get
 			{
-				string path = Assembly.GetExecutingAssembly().CodeBase;
+				string path = Assembly.GetExecutingAssembly().Location;
 
 				if( path.StartsWith( "file:///" ) || path.StartsWith( "file:\\\\\\" ) )
-					path = path.Substring( 8 );
+					path = path[ 8.. ];
 				else if( path.StartsWith( "file://" ) || path.StartsWith( "file:\\\\" ) )
-					path = path.Substring( 7 );
+					path = path[ 7.. ];
 
 				return path;
 			}

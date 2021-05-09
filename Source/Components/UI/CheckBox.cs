@@ -161,7 +161,7 @@ namespace MiGfx
 		public override void OnAdd()
 		{
 			Sprite spr = Parent.GetComponent<Sprite>();
-			spr.Image = new ImageInfo( FolderPaths.UI + "CheckBox.png" );
+			spr.Image = new ImageInfo( $"{ FolderPaths.UI }CheckBox.png" );
 
 			if( spr.Image.IsTextureValid )
 			{
@@ -174,16 +174,16 @@ namespace MiGfx
 		/// </summary>
 		public override void Refresh()
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Sprite  spr = Parent.GetComponent<Sprite>();
 			Texture tex = spr.Image.Texture;
 
-			if( tex != null )
+			if( tex is not null )
 			{
-				Vector2u size = tex.Size;
-				spr.Image.Rect = new FloatRect( 0, 0, size.X / 2, size.Y / 2 );
+				Vector2u size = tex.Size / 2;
+				spr.Image.Rect = new FloatRect( 0, 0, size.X, size.Y );
 			}
 						
 			spr.Image.Color = Colors[ 0 ];
@@ -196,7 +196,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Selectable sel = Parent.GetComponent<Selectable>();
@@ -211,16 +211,17 @@ namespace MiGfx
 					( Checked ? CheckBoxState.SelectedChecked : CheckBoxState.SelectedUnchecked ) :
 					( Checked ? CheckBoxState.Checked : CheckBoxState.Unchecked );
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Vector2u size = tex.Size;
 
-				if( State == CheckBoxState.Checked )
-					spr.Image.Rect = new FloatRect( size.X / 2, 0, size.X / 2, size.Y / 2 );
-				else if( State == CheckBoxState.SelectedUnchecked )
-					spr.Image.Rect = new FloatRect( 0, size.Y / 2, size.X / 2, size.Y / 2 );
-				else if( State == CheckBoxState.SelectedChecked )
-					spr.Image.Rect = new FloatRect( size.X / 2, size.Y / 2, size.X / 2, size.Y / 2 );
+				spr.Image.Rect = State switch
+				{
+					CheckBoxState.Checked           => new FloatRect( size.X / 2, 0,          size.X / 2, size.Y / 2 ),
+					CheckBoxState.SelectedUnchecked => new FloatRect( 0,          size.Y / 2, size.X / 2, size.Y / 2 ),
+					CheckBoxState.SelectedChecked   => new FloatRect( size.X / 2, size.Y / 2, size.X / 2, size.Y / 2 ),
+					_                               => new FloatRect( 0, 0, size.X / 2, size.Y / 2 )
+				};
 			}
 						
 			spr.Image.Color = Colors[ (int)State ];
@@ -249,7 +250,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Checkbox: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Checkbox: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -272,17 +273,17 @@ namespace MiGfx
 			{
 				sw.Write( Checked );
 
-				foreach( Color i in Colors )
+				for( int i = 0; i < Colors.Length; i++ )
 				{
-					sw.Write( i.R );
-					sw.Write( i.G );
-					sw.Write( i.B );
-					sw.Write( i.A );
+					sw.Write( Colors[ i ].R );
+					sw.Write( Colors[ i ].G );
+					sw.Write( Colors[ i ].B );
+					sw.Write( Colors[ i ].A );
 				}
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Checkbox: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Checkbox: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -327,7 +328,7 @@ namespace MiGfx
 				}
 				catch( Exception e )
 				{
-					return Logger.LogReturn( "Failed loading CheckBox: " + e.Message, false, LogType.Error );
+					return Logger.LogReturn( $"Failed loading CheckBox: { e.Message }", false, LogType.Error );
 				}
 			}
 
@@ -342,35 +343,19 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "          " );
-			sb.Append( nameof( Checked ) );
-			sb.Append( "=\"" );
-			sb.Append( Checked );
-			sb.AppendLine( "\">" );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "          " )
+				.Append( nameof( Checked ) ).Append( "=\"" ).Append( Checked ).AppendLine( "\">" );
 
 			for( int i = 0; i < Colors.Length; i++ )
 				sb.AppendLine( Xml.ToString( Colors[ i ], nameof( Color ), 1 ) );
 
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
+			sb.Append( "</" ).Append( TypeName ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -394,6 +379,30 @@ namespace MiGfx
 					return false;
 
 			return true;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as CheckBox );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), Checked, Colors );
 		}
 
 		/// <summary>
@@ -424,7 +433,7 @@ namespace MiGfx
 		/// </returns>
 		public static MiEntity Create( string id = null, RenderWindow window = null, bool check = false )
 		{
-			MiEntity ent = new MiEntity( id, window );
+			MiEntity ent = new( id, window );
 
 			if( !ent.AddComponent( new CheckBox( check ), true ) )
 			{
@@ -433,7 +442,7 @@ namespace MiGfx
 			}
 
 			Sprite spr = ent.GetComponent<Sprite>();
-			spr.Image = new ImageInfo( FolderPaths.UI + "CheckBox.png" );
+			spr.Image = new ImageInfo( $"{ FolderPaths.UI }CheckBox.png" );
 
 			if( !spr.Image.IsTextureValid )
 			{

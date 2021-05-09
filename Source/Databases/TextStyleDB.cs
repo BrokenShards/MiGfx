@@ -43,7 +43,7 @@ namespace MiGfx
 		{
 			get
 			{
-				return FolderPaths.Databases + "textstyle.db";
+				return $"{ FolderPaths.Databases }textstyle.db";
 			}
 		}
 	}

@@ -65,10 +65,10 @@ namespace MiGfx
 		public Clickable()
 		:	base()
 		{
-			Hovering         = false;
-			Clicked          = false;
-			ClickState       = ClickableState.Idle;
-			m_timer          = new Clock();
+			Hovering   = false;
+			Clicked    = false;
+			ClickState = ClickableState.Idle;
+			m_timer    = new Clock();
 		}
 		/// <summary>
 		///   Copy constructor.
@@ -79,10 +79,10 @@ namespace MiGfx
 		public Clickable( Clickable c )
 		:	base( c )
 		{
-			m_hover          = c.m_hover;
-			m_click          = c.m_click;
-			ClickState       = c.ClickState;
-			m_timer          = new Clock();
+			m_hover    = c.m_hover;
+			m_click    = c.m_click;
+			ClickState = c.ClickState;
+			m_timer    = new Clock();
 
 			m_onhover  = new EventHandler( c.m_onhover );
 			m_onclick  = new EventHandler( c.m_onclick );
@@ -196,18 +196,18 @@ namespace MiGfx
 			Transform  t = Parent?.GetComponent<Transform>();
 			Selectable s = Parent?.GetComponent<Selectable>();
 
-			if( !Enabled || Parent?.Window == null || t == null || s == null )
+			if( !Enabled || Parent?.Window is null || t is null || s is null )
 			{
 				ClickState = ClickableState.Idle;
 				return;
 			}
 
-			if( Input.Manager.LastDevice == InputDevice.Mouse )
+			if( Input.Manager.LastDevice is InputDevice.Mouse )
 			{
-				Vector2f mpos = Parent.Window.MapPixelToCoords( Input.Manager.Mouse.GetPosition( Parent.Window ) );
+				Vector2f mpos = Parent.Window.MapPixelToCoords( MouseManager.GetPosition( Parent.Window ) );
 				Hovering = t.GlobalBounds.Contains( mpos.X, mpos.Y );
 
-				if( s.Selector?.Parent != null )
+				if( s.Selector?.Parent is not null )
 					s.Selected = Hovering;
 			}
 			else
@@ -215,11 +215,11 @@ namespace MiGfx
 
 			Action submit = Input.Manager.Actions?.Get( "Submit" );
 
-			bool sub = submit != null ? submit.JustPressed :
+			bool sub = submit is not null ? submit.JustPressed :
 					( Input.Manager.Keyboard.JustPressed( Key.Enter ) ||
 					  Input.Manager.Joystick.JustPressed( "A" ) );
 
-			if( Input.Manager.LastDevice == InputDevice.Mouse )
+			if( Input.Manager.LastDevice is InputDevice.Mouse )
 				Clicked = Hovering && Input.Manager.Mouse.JustPressed( Mouse.Button.Left );
 			else
 				Clicked = s.Selected && sub;
@@ -284,24 +284,11 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"/>" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).Append( "\"/>" ).ToString();
 		}
 
 		/// <summary>
@@ -318,6 +305,30 @@ namespace MiGfx
 			return base.Equals( other ) &&
 				   ClickState == other.ClickState;
 		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Clickable );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), ClickState );
+		}
 
 		/// <summary>
 		///   Clones this object.
@@ -328,6 +339,15 @@ namespace MiGfx
 		public override object Clone()
 		{
 			return new Clickable( this );
+		}
+
+		/// <summary>
+		///   Disposes of internal objects.
+		/// </summary>
+		protected override void OnDispose()
+		{
+			m_timer?.Dispose();
+			m_timer = null;
 		}
 
 		private void OnHover()
@@ -358,10 +378,10 @@ namespace MiGfx
 
 		private Clock m_timer;
 
-		private EventHandler m_onhover, 
+		private EventHandler m_onhover,
 		                     m_onclick;
 
-		readonly object m_onhoverLock  = new object(),
-		                m_onclickLock  = new object();
+		readonly object m_onhoverLock = new(),
+		                m_onclickLock = new();
 	}
 }

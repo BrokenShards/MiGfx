@@ -120,7 +120,7 @@ namespace MiGfx
 		/// </summary>
 		public override void Refresh()
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Label        lab = Parent.GetComponent<Label>();
@@ -129,7 +129,7 @@ namespace MiGfx
 
 			float curheight;
 			{
-				Text text = new Text();
+				Text text = new();
 				lab.Text.Apply( ref text );
 				text.Scale = trn.Scale;
 				text.DisplayedString = "|";
@@ -151,14 +151,14 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Label lab = Parent.GetComponent<Label>();
 
 			if( m_timer.ElapsedTime.AsSeconds() >= BlinkRate )
 			{
-				if( m_curs.OutlineColor.A == 0 )
+				if( m_curs.OutlineColor.A is 0 )
 					m_curs.OutlineColor = lab.Text.FillColor;
 				else
 					m_curs.OutlineColor = new Color( m_curs.OutlineColor.R, m_curs.OutlineColor.G, m_curs.OutlineColor.B, 0 );
@@ -177,7 +177,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnDraw( RenderTarget target, RenderStates states )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			m_curs.Draw( target, states );
@@ -212,7 +212,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading TextCaret: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading TextCaret: { e.Message }", false, LogType.Error );
 			}
 
 			m_timer.Restart();
@@ -239,7 +239,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving TextCaret: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving TextCaret: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -288,36 +288,16 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( Thickness ) );
-			sb.Append( "=\"" );
-			sb.Append( Thickness );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "           " );
-			sb.Append( nameof( BlinkRate ) );
-			sb.Append( "=\"" );
-			sb.Append( BlinkRate );
-			sb.AppendLine( "\"/>" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( Thickness ) ).Append( "=\"" ).Append( Thickness ).AppendLine( "\"" )
+				.Append( "           " )
+				.Append( nameof( BlinkRate ) ).Append( "=\"" ).Append( BlinkRate ).Append( "\"/>" )
+				.ToString();
 		}
 
 		/// <summary>
@@ -332,6 +312,30 @@ namespace MiGfx
 		public bool Equals( TextCaret other )
 		{
 			return base.Equals( other ) && BlinkRate == other.BlinkRate;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as TextCaret );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), BlinkRate );
 		}
 		/// <summary>
 		///   Clones this object.

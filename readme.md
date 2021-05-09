@@ -5,7 +5,7 @@ A basic C# graphics library for use with SFML.Net.
 - SFML.Net `https://github.com/SFML/SFML.Net.git`
 - MiCore `https://github.com/BrokenShards/MiCore.git`
 - MiInput `https://github.com/BrokenShards/MiInput.git`
-- XInputDotNetPure `https://github.com/speps/XInputDotNet.git`
+- XInputDotNetPure `https://github.com/BrokenShards/XInputDotNet.git`
 
 ## TODO
 - Implement UI containers/grouping/layouting.
@@ -14,6 +14,11 @@ A basic C# graphics library for use with SFML.Net.
 - Write tests for BoxRenderer and ShapeRenderer.
 
 ## Changelog
+
+### Version 1.0.0
+- MiGfx now targets .Net 5 and has updated code style for C#9.
+- Now depends on MiCore 1.0.0.
+- Now depends on MiInput 1.0.0.
 
 ### Version 0.12.0
 - Added new `TextCaret` component that provides a text cursor for text boxes `TextBox` now requires

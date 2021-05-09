@@ -52,10 +52,10 @@ namespace MiGfx
 		/// </param>
 		public Animation( Animation a )
 		{
-			if( a == null )
-				throw new ArgumentNullException();
+			if( a is null )
+				throw new ArgumentNullException( nameof( a ) );
 
-			ID = a.ID + "_Copy";
+			ID = $"{ a.ID }_Copy";
 			m_frames = new List<Frame>( a.m_frames.Count );
 
 			foreach( Frame f in a.m_frames )
@@ -172,7 +172,7 @@ namespace MiGfx
 		/// </summary>
 		public bool Empty
 		{
-			get { return Count == 0; }
+			get { return Count is 0; }
 		}
 		/// <summary>
 		///   The amount of frames in the animation.
@@ -190,8 +190,8 @@ namespace MiGfx
 			{
 				Time time = Time.Zero;
 
-				foreach( Frame f in m_frames )
-					time += f.Length;
+				for( int i = 0; i < Count; i++ )
+					time += m_frames[ i ].Length;
 
 				return time;
 			}
@@ -212,7 +212,7 @@ namespace MiGfx
 		public Frame Get( uint index )
 		{
 			if( index < 0 || index >= Count )
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException( nameof( index ) );
 
 			return m_frames[ (int)index ];
 		}
@@ -231,7 +231,7 @@ namespace MiGfx
 		public void Set( uint index, Frame f )
 		{
 			if( index < 0 || index >= Count )
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException( nameof( index ) );
 
 			m_frames[ (int)index ] = f;
 		}
@@ -247,8 +247,8 @@ namespace MiGfx
 		/// </exception>
 		public void Add( Frame f )
 		{
-			if( f == null )
-				throw new ArgumentNullException();
+			if( f is null )
+				throw new ArgumentNullException( nameof( f ) );
 
 			m_frames.Add( f );
 		}
@@ -263,8 +263,8 @@ namespace MiGfx
 		/// </exception>
 		public void Add( params Frame[] fs )
 		{
-			if( fs == null )
-				throw new ArgumentNullException();
+			if( fs is null )
+				throw new ArgumentNullException( nameof( fs ) );
 
 			try
 			{
@@ -306,7 +306,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load Animation from null stream.", false, LogType.Error );
 
 			try
@@ -314,11 +314,11 @@ namespace MiGfx
 				ID = br.ReadString();
 				uint count = br.ReadUInt32();
 
-				m_frames = count == 0 ? new List<Frame>() : new List<Frame>( (int)count );
+				m_frames = count is 0 ? new List<Frame>() : new List<Frame>( (int)count );
 
 				for( int i = 0; i < count; i++ )
 				{
-					Frame f = new Frame();
+					Frame f = new();
 
 					if( !f.LoadFromStream( br ) )
 						return Logger.LogReturn( "Failed loading Animation's Frame from stream.", false, LogType.Error );
@@ -328,7 +328,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Animation from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Animation from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -344,7 +344,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save Animation to null stream.", false, LogType.Error );
 
 			try
@@ -358,7 +358,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Animation to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Animation to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -375,7 +375,7 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load Animation from a null XmlElement.", false, LogType.Error );
 
 			RemoveAll();
@@ -389,7 +389,7 @@ namespace MiGfx
 
 				foreach( XmlNode f in frames )
 				{
-					Frame frame = new Frame();
+					Frame frame = new();
 
 					if( !frame.LoadFromXml( (XmlElement)f ) )
 						return Logger.LogReturn( "Failed loading Animation's Frame from xml.", false, LogType.Error );
@@ -399,7 +399,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Animation: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Animation: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -413,22 +413,15 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( Animation ) );
-			sb.Append( " " );
-			sb.Append( nameof( ID ) );
-			sb.Append( "=\"" );
-			sb.Append( ID );
-			sb.AppendLine( "\">" );
+			sb.Append( '<' ).Append( nameof( Animation ) ).Append( ' ' )
+				.Append( nameof( ID ) ).Append( "=\"" ).Append( ID ).AppendLine( "\">" );
 
-			foreach( Frame f in m_frames )
-				sb.AppendLine( XmlLoadable.ToString( f, 1 ) );
+			for( int i = 0; i < Count; i++ )
+				sb.AppendLine( XmlLoadable.ToString( m_frames[ i ], 1 ) );
 
-			sb.Append( "</" );
-			sb.Append( nameof( Animation ) );
-			sb.AppendLine( ">" );
+			sb.Append( "</" ).Append( nameof( Animation ) ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -444,7 +437,7 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( Animation other )
 		{
-			if( other == null || ID != other.ID || Count != other.Count )
+			if( other is null || ID != other.ID || Count != other.Count )
 				return false;
 
 			for( int i = 0; i < Count; i++ )
@@ -452,6 +445,30 @@ namespace MiGfx
 					return false;
 
 			return true;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Animation );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( m_id, m_frames );
 		}
 
 		string m_id;

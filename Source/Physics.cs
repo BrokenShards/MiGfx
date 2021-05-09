@@ -38,7 +38,7 @@ namespace MiGfx
 		public static Vector2f Gravity
 		{
 			get; set;
-		} = new Vector2f( 0, -9.807f );
+		} = new( 0, -9.807f );
 
 		/// <summary>
 		///   Checks if a line intersects another line.

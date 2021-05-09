@@ -43,7 +43,7 @@ namespace MiGfx
 		{
 			get
 			{
-				return FolderPaths.Databases + "animation.db";
+				return $"{ FolderPaths.Databases }animation.db";
 			}
 		}
 	}

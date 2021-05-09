@@ -63,8 +63,8 @@ namespace MiGfx
 		/// </exception>
 		public Tileset( Tileset t )
 		{
-			if( t == null )
-				throw new ArgumentNullException();
+			if( t is null )
+				throw new ArgumentNullException( nameof( t ) );
 
 			ID       = t.ID + "_Copy";
 			Texture  = new string( t.Texture.ToCharArray() );
@@ -94,7 +94,7 @@ namespace MiGfx
 		{
 			ID = id;
 			
-			if( path != null )
+			if( path is not null )
 			{
 				if( !LoadTexture( path, size, off, pad ) )
 					Texture = string.Empty;
@@ -115,7 +115,7 @@ namespace MiGfx
 		{
 			get
 			{
-				return Assets.Manager.Texture.Get( Texture ) != null;
+				return Assets.Manager.Texture.Get( Texture ) is not null;
 			}
 		}
 
@@ -132,12 +132,12 @@ namespace MiGfx
 			get { return m_cellsize; }
 			set
 			{
-				if( value.X == 0 )
+				if( value.X is 0 )
 					m_cellsize.X = 1;
 				else
 					m_cellsize.X = value.X;
 
-				if( value.Y == 0 )
+				if( value.Y is 0 )
 					m_cellsize.Y = 1;
 				else
 					m_cellsize.Y = value.Y;
@@ -231,19 +231,19 @@ namespace MiGfx
 
 			Texture tex = Assets.Manager.Texture.Get( path );
 
-			if( tex == null )
+			if( tex is null )
 				return false;
 
 			Texture = path;
 
-			if( off != null )
+			if( off is not null )
 				Offset = (Vector2u)off;
-			if( pad != null )
+			if( pad is not null )
 				Padding = (Vector2u)pad;
 
 			try
 			{
-				if( size != null )
+				if( size is not null )
 					CellSize = (Vector2u)size;
 			}
 			catch
@@ -267,8 +267,8 @@ namespace MiGfx
 		{
 			uint ccount = CellCount;
 
-			if( ccount == 0 || index >= ccount )
-				throw new ArgumentOutOfRangeException();
+			if( ccount is 0 || index >= ccount )
+				throw new ArgumentOutOfRangeException( nameof( index ) );
 
 			Vector2u size = Offset + CellSize + Padding;
 
@@ -293,7 +293,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load Tileset from null stream.", false, LogType.Error );
 
 			try
@@ -306,7 +306,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading Tileset from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading Tileset from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -322,7 +322,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save Tileset to null stream.", false, LogType.Error );
 
 			try
@@ -335,7 +335,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving Tileset to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving Tileset to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -352,7 +352,7 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load Tileset from a null XmlElement.", false, LogType.Error );
 
 			string id  = element.GetAttribute( nameof( ID ) ),
@@ -364,23 +364,23 @@ namespace MiGfx
 
 			if( string.IsNullOrWhiteSpace( id ) )
 				return Logger.LogReturn( "Failed loading Tileset: No ID attribute.", false, LogType.Error );
-			if( size == null )
+			if( size is null )
 				return Logger.LogReturn( "Failed loading Tileset: No CellSize element.", false, LogType.Error );
 
 			ID      = id;
 			Texture = string.IsNullOrWhiteSpace( tex ) ? string.Empty : tex;
 
 			Vector2u? s = Xml.ToVec2u( size ),
-			          o = off != null ? Xml.ToVec2u( off ) : null,
-					  p = pad != null ? Xml.ToVec2u( pad ) : null;
+			          o = off is not null ? Xml.ToVec2u( off ) : null,
+					  p = pad is not null ? Xml.ToVec2u( pad ) : null;
 
 			if( !s.HasValue )
 				return Logger.LogReturn( "Failed loading Tileset: Unable to parse CellSize.", false, LogType.Error );
-			if( off != null && !o.HasValue )
+			if( off is not null && !o.HasValue )
 				return Logger.LogReturn( "Failed loading Tileset: Unable to parse Offset.", false, LogType.Error );
 			if( !o.HasValue )
 				o = new Vector2u( 0, 0 );
-			if( pad != null && !p.HasValue )
+			if( pad is not null && !p.HasValue )
 				return Logger.LogReturn( "Failed loading Tileset: Unable to parse Padding.", false, LogType.Error );
 			if( !p.HasValue )
 				p = new Vector2u( 0, 0 );
@@ -400,29 +400,21 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( Tileset ) );
-			sb.Append( " " + nameof( ID ) + "=\"" );
-			sb.Append( ID );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " + nameof( Texture ) + "=\"" );
-			sb.Append( Texture );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( CellSize, nameof( CellSize ), 1 ) );
+			sb.Append( '<' ).Append( nameof( Tileset ) ).Append( ' ' )
+				.Append( nameof( ID ) ).Append( "=\"" ).Append( ID ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Texture ) ).Append( "=\"" ).Append( Texture ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( CellSize, nameof( CellSize ), 1 ) );
 
 			if( Offset.X != 0.0f || Offset.Y != 0.0f )
 				sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
 			if( Padding.X != 0.0f || Padding.Y != 0.0f )
 				sb.AppendLine( Xml.ToString( Padding, nameof( Padding ), 1 ) );
 
-			sb.Append( "</" );
-			sb.Append( nameof( Tileset ) );
-			sb.AppendLine( ">" );
-
+			sb.Append( "</" ).Append( nameof( Tileset ) ).Append( '>' );
 			return sb.ToString();
 		}
 
@@ -443,6 +435,31 @@ namespace MiGfx
 				   CellSize.Equals( other.CellSize ) &&
 				   Offset.Equals( other.Offset ) &&
 				   Padding.Equals( other.Padding );
+		}
+		
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as Tileset );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( ID, Texture, CellSize, Offset, Padding );
 		}
 
 		private string   m_id;

@@ -36,10 +36,10 @@ namespace MiGfx.Test
 			Logger.Log( "Running Animation Tests..." );
 
 			// Create a new animation with an ID.
-			Animation a1 = new Animation( "test" );
+			Animation a1 = new( "test" );
 
 			// [SANITY CHECK] Ensure ID set correctly.
-			if( a1.ID.ToLower() != "test" )
+			if( a1.ID.ToLower() is not "test" )
 				return Logger.LogReturn( "Failed: Animation ID did not get set correctly with constructor.", false );
 
 			// Add frames to animation.
@@ -47,7 +47,7 @@ namespace MiGfx.Test
 				a1.Add( new Frame( new FloatRect( 0, 0, 24, 24 ), Time.FromSeconds( 1.0f ) ) );
 
 			// [SANITY CHECK] Ensure frames added correctly.
-			if( a1.Count != 10 )
+			if( a1.Count is not 10 )
 				return Logger.LogReturn( "Failed: Frame did not get added to the animation correctly.", false );
 			if( a1.Length != Time.FromSeconds( 1.0f * 10 ) )
 				return Logger.LogReturn( "Failed: Animation length is incorrect.", false );
@@ -68,19 +68,19 @@ namespace MiGfx.Test
 			{ }
 
 			// Ensure object loaded successfully.
-			if( a2 == null )
+			if( a2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Animation from file.", false );
 			// [SANITY CHECK] Ensure loaded object is the same.
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Animation has incorrect values.", false );
 
 			// Create an xml file string from ToString().
-			string xml = Xml.Header + "\r\n" + a1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ a1 }";
 			// Load object from xml string.
 			Animation x = XmlLoadable.FromXml<Animation>( xml );
 
 			// Ensure object loaded successfully.
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load Animation from xml.", false );
 			// [SANITY CHECK] Ensure loaded object is the same.
 			if( !x.Equals( a1 ) )

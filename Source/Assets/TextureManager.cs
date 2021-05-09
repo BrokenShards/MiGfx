@@ -61,7 +61,7 @@ namespace MiGfx
 
 			try
 			{
-				Texture tex = new Texture( path );
+				Texture tex = new( path );
 				m_assets.Add( path, tex );
 			}
 			catch

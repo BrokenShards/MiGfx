@@ -37,7 +37,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running FillBar Tests..." );
 
-			FillBar b1 = new FillBar();
+			FillBar b1 = new();
 
 			if( !BinarySerializable.ToFile( b1, FillBarPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize FillBar to file.", false );
@@ -51,15 +51,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( b2 == null )
+			if( b2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize FillBar from file.", false );
 			if( !b2.Equals( b1 ) )
 				return Logger.LogReturn( "Failed: Deserialized FillBar has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + b1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ b1 }";
 			FillBar x = XmlLoadable.FromXml<FillBar>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load FillBar from xml.", false );
 
 			if( !x.Equals( b1 ) )
@@ -75,12 +75,12 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running FillBar Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
 			MiEntity ent = FillBar.Create( "tester", window, 0, 0, 4000, Color.Blue, FillBar.LabelType.ValueMax );
 
-			if( ent == null )
+			if( ent is null )
 				return Logger.LogReturn( "Failed: Unable to create FillBar entity.", false );
 
 			using( ent )
@@ -94,7 +94,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is FillBar displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -116,7 +116,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: FillBar did not display correctly (user input).", false );
 			}
 

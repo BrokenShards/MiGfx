@@ -54,6 +54,9 @@ namespace MiGfx
 		/// </param>
 		public TextBoxData( TextBoxData t )
 		{
+			if( t is null )
+				throw new ArgumentNullException( nameof( t ) );
+
 			Color      = t.Color;
 			Text       = new TextStyle( t.Text );
 			TextOffset = t.TextOffset;
@@ -101,10 +104,10 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load TextBoxData from null stream.", false, LogType.Error );
 
-			if( Text == null )
+			if( Text is null )
 				Text = new TextStyle();
 			if( !Text.LoadFromStream( br ) )
 				return Logger.LogReturn( "Failed loading TextBoxData's Text from stream.", false, LogType.Error );
@@ -116,7 +119,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading TextBoxData from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading TextBoxData from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -132,10 +135,10 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save TextBoxData to null stream.", false, LogType.Error );
 
-			if( Text == null )
+			if( Text is null )
 				Text = new TextStyle();
 			if( !Text.SaveToStream( bw ) )
 				return Logger.LogReturn( "Failed saving TextBoxData's Text to stream.", false, LogType.Error );
@@ -147,7 +150,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving TextBoxData to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving TextBoxData to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -163,23 +166,23 @@ namespace MiGfx
 		/// </returns>
 		public virtual bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load TextBoxData from a null xml element.", false, LogType.Error );
 
 			XmlElement color = element[ nameof( Color ) ],
 					   txt   = element[ nameof( TextStyle ) ],
 					   off   = element[ nameof( TextOffset ) ];
 
-			if( txt == null )
+			if( txt is null )
 				return Logger.LogReturn( "Failed loading TextBoxData: No TextStyle xml element.", false, LogType.Error );
-			if( off == null )
+			if( off is null )
 				return Logger.LogReturn( "Failed loading TextBoxData: No TextOffset xml element.", false, LogType.Error );
 
-			Color? col = color != null ? Xml.ToColor( color ) : null;
+			Color? col = color is not null ? Xml.ToColor( color ) : null;
 
-			if( color != null && !col.HasValue )
+			if( color is not null && !col.HasValue )
 				return Logger.LogReturn( "Failed loading TextBoxData: Unable to parse Color element.", false, LogType.Error );
-			else if( color == null )
+			else if( color is null )
 				col = Color.White;
 
 			Color = col.Value;
@@ -193,7 +196,6 @@ namespace MiGfx
 				return Logger.LogReturn( "Failed loading TextBoxData: Unable to parse TextOffset xml element.", false, LogType.Error );
 
 			TextOffset = o.Value;
-
 			return true;
 		}
 
@@ -205,21 +207,14 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( nameof( TextBoxData ) );
-			sb.AppendLine( ">" );
-
-			sb.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) );
-			sb.AppendLine( XmlLoadable.ToString( Text, 1 ) );
-			sb.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( nameof( TextBoxData ) );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( nameof( TextBoxData ) ).AppendLine( ">" )
+				
+				.AppendLine( Xml.ToString( Color, nameof( Color ), 1 ) )
+				.AppendLine( XmlLoadable.ToString( Text, 1 ) )
+				.AppendLine( Xml.ToString( TextOffset, nameof( TextOffset ), 1 ) )
+				
+				.Append( "</" ).Append( nameof( TextBoxData ) ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -233,10 +228,34 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( TextBoxData other )
 		{
-			return other != null &&
+			return other is not null &&
 				   Color.Equals( other.Color ) &&
 				   Text.Equals( other.Text ) &&
 				   TextOffset.Equals( other.TextOffset );
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as TextBoxData );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( Color, Text, TextOffset );
 		}
 	}
 	/// <summary>
@@ -305,7 +324,7 @@ namespace MiGfx
 		/// </param>
 		public void SetString( string str )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Parent.GetComponent<Label>().String             = new string( str.ToCharArray() );
@@ -342,7 +361,7 @@ namespace MiGfx
 		public override void OnAdd()
 		{
 			Sprite spr = Parent.GetComponent<Sprite>();
-			spr.Image = new ImageInfo( FolderPaths.UI + "TextBox.png" );
+			spr.Image = new ImageInfo( $"{ FolderPaths.UI }TextBox.png" );
 
 			if( !spr.Image.IsTextureValid )
 				return;
@@ -351,40 +370,21 @@ namespace MiGfx
 
 			Parent.GetComponent<Transform>().Size = new Vector2f( size.X, ( Parent.GetComponent<TextListener>().AllowNewline ? size.Y / 3u : size.Y / 6u ) );
 
-			Vector2f off = new Vector2f();
-
-			switch( Parent.GetComponent<Label>().Allign )
+			Vector2f off = Parent.GetComponent<Label>().Allign switch
 			{
-				case Allignment.TopLeft:
-					off = new Vector2f( 12, 8 );
-					break;
-				case Allignment.Top:
-					off = new Vector2f( 0, 8 );
-					break;
-				case Allignment.TopRight:
-					off = new Vector2f( -12, 8 );
-					break;
+				Allignment.TopLeft     => new Vector2f( 12, 8 ),
+				Allignment.Top         => new Vector2f( 0, 8 ),
+				Allignment.TopRight    => new Vector2f( -12, 8 ),
 
-				case Allignment.Left:
-					off = new Vector2f( 12, 0 );
-					break;
-				case Allignment.Middle:
-					off = new Vector2f();
-					break;
-				case Allignment.Right:
-					off = new Vector2f( -12, 0 );
-					break;
+				Allignment.Left        => new Vector2f( 12, 0 ),				
+				Allignment.Right       => new Vector2f( -12, 0 ),
 
-				case Allignment.BottomLeft:
-					off = new Vector2f( 12, -8 );
-					break;
-				case Allignment.Bottom:
-					off = new Vector2f( 0, -8 );
-					break;
-				case Allignment.BottomRight:
-					off = new Vector2f( -12, -8 );
-					break;
-			}
+				Allignment.BottomLeft  => new Vector2f( 12, -8 ),
+				Allignment.Bottom      => new Vector2f( 0, -8 ),
+				Allignment.BottomRight => new Vector2f( -12, -8 ),
+
+				_ => new Vector2f()
+			};
 
 			TextBox box = Parent.GetComponent<TextBox>();
 
@@ -398,7 +398,7 @@ namespace MiGfx
 		{
 			CorrectData();
 
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Sprite spr = Parent.GetComponent<Sprite>();
@@ -411,7 +411,7 @@ namespace MiGfx
 
 			Texture tex = spr.Image.Texture;
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Vector2u size = tex.Size;
 				bool newline = Parent.GetComponent<TextListener>().AllowNewline;
@@ -428,7 +428,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnUpdate( float dt )
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Sprite spr = Parent.GetComponent<Sprite>();
@@ -445,7 +445,7 @@ namespace MiGfx
 
 			Texture tex = spr.Image.Texture;
 
-			if( tex != null )
+			if( tex is not null )
 			{
 				Vector2u size = tex.Size;
 				bool newline = Parent.GetComponent<TextListener>().AllowNewline;
@@ -543,31 +543,16 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "         " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( XmlLoadable.ToString( SelectedData, 1 ) );
-			sb.AppendLine( XmlLoadable.ToString( DeselectedData, 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.Append( ">" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "         " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\">" )
+				
+				.AppendLine( XmlLoadable.ToString( SelectedData, 1 ) )
+				.AppendLine( XmlLoadable.ToString( DeselectedData, 1 ) )
+				
+				.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -585,6 +570,30 @@ namespace MiGfx
 			       SelectedData.Equals( other.SelectedData ) &&
 			       DeselectedData.Equals( other.DeselectedData );
 		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as TextBox );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( SelectedData, DeselectedData );
+		}
 
 		/// <summary>
 		///   Clones this object.
@@ -599,18 +608,18 @@ namespace MiGfx
 
 		private void CorrectData()
 		{
-			if( SelectedData == null )
+			if( SelectedData is null )
 				SelectedData = new TextBoxData();
 			else
 			{
-				if( SelectedData.Text == null )
+				if( SelectedData.Text is null )
 					SelectedData.Text = new TextStyle();
 			}
-			if( DeselectedData == null )
+			if( DeselectedData is null )
 				DeselectedData = new TextBoxData( SelectedData );
 			else
 			{
-				if( DeselectedData.Text == null )
+				if( DeselectedData.Text is null )
 					DeselectedData.Text = new TextStyle( SelectedData.Text );
 			}
 		}
@@ -633,7 +642,7 @@ namespace MiGfx
 		/// <returns></returns>
 		public static MiEntity Create( string id, RenderWindow window = null, Allignment allign = default, bool multi = false )
 		{
-			MiEntity ent = new MiEntity( id, window );
+			MiEntity ent = new( id, window );
 			
 			if( !ent.AddNewComponent<TextBox>() )
 			{
@@ -642,7 +651,7 @@ namespace MiGfx
 			}
 
 			Sprite spr = ent.GetComponent<Sprite>();
-			spr.Image = new ImageInfo( FolderPaths.UI + "TextBox.png" );
+			spr.Image = new ImageInfo( $"{ FolderPaths.UI }TextBox.png" );
 
 			if( !spr.Image.IsTextureValid )
 			{
@@ -657,40 +666,21 @@ namespace MiGfx
 
 			ent.GetComponent<Transform>().Size = new Vector2f( size.X, ( multi ? size.Y / 3u : size.Y / 6u ) );
 
-			Vector2f off = new Vector2f();
-
-			switch( allign )
+			Vector2f off = ent.GetComponent<Label>().Allign switch
 			{
-				case Allignment.TopLeft:
-					off = new Vector2f(  12,  8 );
-					break;
-				case Allignment.Top:
-					off = new Vector2f(   0,  8 );
-					break;
-				case Allignment.TopRight:
-					off = new Vector2f( -12,  8 );
-					break;
+				Allignment.TopLeft     => new Vector2f( 12, 8 ),
+				Allignment.Top         => new Vector2f( 0, 8 ),
+				Allignment.TopRight    => new Vector2f( -12, 8 ),
 
-				case Allignment.Left:
-					off = new Vector2f(  12,  0 );
-					break;
-				case Allignment.Middle:
-					off = new Vector2f();
-					break;
-				case Allignment.Right:
-					off = new Vector2f( -12,  0 );
-					break;
+				Allignment.Left        => new Vector2f( 12, 0 ),				
+				Allignment.Right       => new Vector2f( -12, 0 ),
 
-				case Allignment.BottomLeft:
-					off = new Vector2f(  12, -8 );
-					break;
-				case Allignment.Bottom:
-					off = new Vector2f(   0, -8 );
-					break;
-				case Allignment.BottomRight:
-					off = new Vector2f( -12, -8 );
-					break;
-			}
+				Allignment.BottomLeft  => new Vector2f( 12, -8 ),
+				Allignment.Bottom      => new Vector2f( 0, -8 ),
+				Allignment.BottomRight => new Vector2f( -12, -8 ),
+
+				_ => new Vector2f()
+			};
 
 			TextBox box = ent.GetComponent<TextBox>();
 

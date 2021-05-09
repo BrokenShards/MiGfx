@@ -37,7 +37,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running TextBox Tests..." );
 
-			TextBox t1 = new TextBox( new TextBoxData() );
+			TextBox t1 = new( new TextBoxData() );
 
 			if( !BinarySerializable.ToFile( t1, TextBoxPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize TextBox to file.", false );
@@ -51,15 +51,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( t2 == null )
+			if( t2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize TextBox from file.", false );
 			if( !t2.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Deserialized TextBox has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + t1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ t1 }";
 			TextBox x = XmlLoadable.FromXml<TextBox>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
 			if( !x.Equals( t1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
@@ -73,12 +73,12 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running TextBox Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
 			MiEntity ent = TextBox.Create( "tester", window, Allignment.Middle, true );
 
-			if( ent == null )
+			if( ent is null )
 				return Logger.LogReturn( "Failed: Unable to create TextBox.", false );
 
 			using( ent )
@@ -96,7 +96,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is textbox displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -113,7 +113,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: TextBox did not display correctly (user input).", false );
 			}
 

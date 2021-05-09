@@ -60,8 +60,8 @@ namespace MiGfx
 		public TextStyle( TextStyle i )
 		:	this()
 		{
-			if( i == null )
-				throw new ArgumentNullException();
+			if( i is null )
+				throw new ArgumentNullException( nameof( i ) );
 
 			FontPath     = new string( i.FontPath.ToCharArray() );
 			Size         = i.Size;
@@ -95,8 +95,8 @@ namespace MiGfx
 		public TextStyle( string font, uint size = 24, uint style = 0, Color? fill = null, float line = 0.0f, Color? outline = null )
 		:	base()
 		{
-			FontPath     = FolderPaths.Fonts + "FallingSky.otf";
-			Size         = size == 0 ? 20 : size;
+			FontPath     = font ?? FolderPaths.Fonts + "FallingSky.otf";
+			Size         = size is 0 ? 20 : size;
 			Style        = style;
 			Outline      = line < 0.0f ? 0.0f : line;
 			FillColor    = fill ?? new Color( 255, 255, 255, 255 );
@@ -108,7 +108,7 @@ namespace MiGfx
 		/// </summary>
 		public bool IsFontValid
 		{
-			get { return Assets.Manager.Font.Get( FontPath ) != null; }
+			get { return Assets.Manager.Font.Get( FontPath ) is not null; }
 		}
 
 		/// <summary>
@@ -180,7 +180,7 @@ namespace MiGfx
 		/// </param>
 		public void Apply( ref Text t )
 		{
-			if( t == null )
+			if( t is null )
 				return;
 
 			t.Font             = Assets.Manager.Font.Get( FontPath );
@@ -202,7 +202,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load TextStyle from null stream.", false, LogType.Error );
 
 			try
@@ -216,7 +216,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading TextStyle from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading TextStyle from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -232,7 +232,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save TextStyle to null stream.", false, LogType.Error );
 
 			try
@@ -248,7 +248,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving TextStyle to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving TextStyle to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -265,7 +265,7 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load TextStyle from null xml element.", false, LogType.Error );
 
 			if( !element.HasAttribute( nameof( FontPath ) ) )
@@ -276,7 +276,7 @@ namespace MiGfx
 			XmlElement ocol = element[ nameof( OutlineColor ) ];
 
 			Color? f = Xml.ToColor( element[ nameof( FillColor ) ] ),
-				   o = ocol != null ? Xml.ToColor( ocol ) : null;
+				   o = ocol is not null ? Xml.ToColor( ocol ) : null;
 
 			if( !f.HasValue )
 				return Logger.LogReturn( "Failed loading TextStyle: FillColor element missing or invalid.", false, LogType.Error );
@@ -284,7 +284,7 @@ namespace MiGfx
 			FontPath  = element.GetAttribute( nameof( FontPath ) );
 			FillColor = f.Value;
 
-			if( ocol != null )
+			if( ocol is not null )
 			{
 				if( !o.HasValue )
 					return Logger.LogReturn( "Failed loading TextStyle: Unable to parse OutlineColor element.", false, LogType.Error );
@@ -303,7 +303,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading TextStyle: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading TextStyle: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -317,35 +317,28 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( TextStyle ) );
+			string name = nameof( TextStyle );
 
-			sb.Append( " " );
-			sb.Append( nameof( FontPath ) );
-			sb.Append( "=\"" );
-			sb.Append( FontPath ?? string.Empty );
-			sb.AppendLine( "\"" );
+			for( int i = 0; i < name.Length; i++ )
+				sb.Append( ' ' );
 
-			sb.Append( "           " + nameof( Size ) + "=\"" );
-			sb.Append( Size );
-			sb.AppendLine( "\"" );
+			string space = sb.ToString();
+			sb.Clear();			
 
-			sb.Append( "           " + nameof( Style ) + "=\"" );
-			sb.Append( Style );
-			sb.AppendLine( "\"" );
+			sb.Append( '<' ).Append( name ).Append( ' ' );
 
-			sb.Append( "           " + nameof( Outline ) + "=\"" );
-			sb.Append( Outline );
-			sb.AppendLine( "\">" );
+			sb.Append( nameof( FontPath ) ).Append( "=\"" ).Append( FontPath ?? string.Empty ).AppendLine( "\"" );
 
-			sb.AppendLine( Xml.ToString( FillColor,    nameof( FillColor ), 1 ) );
-			sb.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) );
+			sb.Append( space ).Append( nameof( Size ) ).Append( "=\"" ).Append( Size ).AppendLine( "\"" );			
+			sb.Append( space ).Append( nameof( Style ) ).Append( "=\"" ).Append( Style ).AppendLine( "\"" );			
+			sb.Append( space ).Append( nameof( Outline ) ).Append( "=\"" ).Append( Outline ).AppendLine( "\">" );
 
-			sb.Append( "</" );
-			sb.Append( nameof( TextStyle ) );
-			sb.AppendLine( ">" );
+			sb.AppendLine().AppendLine( Xml.ToString( FillColor, nameof( FillColor ), 1 ) ).AppendLine();
+			sb.AppendLine( Xml.ToString( OutlineColor, nameof( OutlineColor ), 1 ) ).AppendLine();
+
+			sb.AppendLine().Append( "</" ).Append( name ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -368,6 +361,30 @@ namespace MiGfx
 				   Outline      == other.Outline   &&
 				   FillColor.Equals( other.FillColor ) &&
 				   OutlineColor.Equals( other.OutlineColor );
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as TextStyle );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( FontPath, Size, Style, Outline, FillColor, OutlineColor );
 		}
 
 		private uint  m_size;

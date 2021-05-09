@@ -68,7 +68,7 @@ namespace MiGfx
 			}
 			try
 			{
-				SoundBuffer snd = new SoundBuffer( path );
+				SoundBuffer snd = new( path );
 				m_assets.Add( path, snd );
 			}
 			catch
@@ -86,6 +86,7 @@ namespace MiGfx
 		{
 			base.Dispose();
 			MusicTrack?.Dispose();
+			System.GC.SuppressFinalize( this );
 		}
 	}
 }

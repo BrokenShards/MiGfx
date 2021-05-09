@@ -76,14 +76,14 @@ namespace MiGfx
 		{
 			get
 			{
-				if( Parent == null || Selector?.Parent == null )
+				if( Parent is null || Selector?.Parent is null )
 					return false;
 
 				return Selector.Selected == Parent;
 			}
 			set
 			{
-				if( Parent == null || Selector?.Parent == null )
+				if( Parent is null || Selector?.Parent is null )
 					throw new InvalidOperationException();
 
 				if( value )
@@ -158,24 +158,11 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append( "<" );
-			sb.Append( TypeName );
-
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "            " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"/>" );
-
-			return sb.ToString();
+			return new StringBuilder()
+				.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "            " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"/>" ).ToString();
 		}
 
 		/// <summary>

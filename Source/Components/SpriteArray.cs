@@ -56,15 +56,12 @@ namespace MiGfx
 		public SpriteArray( SpriteArray s )
 		:	base( s )
 		{
-			if( s == null )
-				throw new ArgumentNullException();
+			Sprites     = new List<SpriteInfo>( s.Sprites.Count );
+			TexturePath = s.TexturePath is null ? null : new string( s.TexturePath.ToCharArray() );
 
-			Sprites     = new List<SpriteInfo>();
-			TexturePath = s.TexturePath == null ? null : new string( s.TexturePath.ToCharArray() );
-
-			foreach( SpriteInfo sp in s.Sprites )
-				if( sp != null )
-					Sprites.Add( new SpriteInfo( sp ) );
+			for( int i = 0; i < s.Sprites.Count; i++ )
+				if( s.Sprites[ i ] is not null )
+					Sprites.Add( new SpriteInfo( s.Sprites[ i ] ) );
 
 			m_verts = new VertexArray( PrimitiveType.Quads, 4 );
 
@@ -132,7 +129,7 @@ namespace MiGfx
 		{
 			get
 			{
-				if( Sprites.Count == 0 )
+				if( Sprites.Count is 0 )
 					return default;
 				
 				float left  = 0, top    = 0,
@@ -140,7 +137,7 @@ namespace MiGfx
 
 				for( uint i = 0; i < m_verts.VertexCount; i++ )
 				{
-					if( i == 0 )
+					if( i is 0 )
 					{
 						left   = m_verts[ i ].Position.X;
 						right  = m_verts[ i ].Position.X;
@@ -191,23 +188,23 @@ namespace MiGfx
 		/// </summary>
 		public override void Refresh()
 		{
-			if( Parent == null )
+			if( Parent is null )
 				return;
 
 			Texture tex = Texture;
 
-			if( tex != null )
+			if( tex is not null )
 			{
-				foreach( SpriteInfo si in Sprites )
+				for( int i = 0; i < Sprites.Count; i++ )
 				{
-					FloatRect rect = si.Rect;
+					FloatRect rect = Sprites[ i ].Rect;
 
-					if( rect.Width == 0 )
+					if( rect.Width is 0 )
 						rect.Width = tex.Size.X - rect.Left;
-					if( rect.Height == 0 )
+					if( rect.Height is 0 )
 						rect.Height = tex.Size.Y - rect.Top;
 
-					si.Rect = rect;
+					Sprites[ i ].Rect = rect;
 				}
 			}
 
@@ -224,7 +221,7 @@ namespace MiGfx
 		/// </param>
 		protected override void OnDraw( RenderTarget target, RenderStates states )
 		{
-			if( Sprites.Count == 0 )
+			if( Sprites.Count is 0 )
 				return;
 
 			states.Texture = Texture;
@@ -237,7 +234,7 @@ namespace MiGfx
 			{
 				m_verts = new VertexArray( PrimitiveType.Quads, (uint)( 4 * Sprites.Count ) );
 
-				if( t != null )
+				if( t is not null )
 					for( int i = 0; i < Sprites.Count; i++ )
 						for( uint v = 0; v < 4; v++ )
 							m_verts[ ( (uint)i * 4u ) + v ] = Sprites[ i ].GetVertex( v, t.GlobalBounds, t.Scale );
@@ -260,17 +257,16 @@ namespace MiGfx
 			if( !base.LoadFromStream( br ) )
 				return false;
 
-			Sprites = new List<SpriteInfo>();
-
 			try
 			{
 				TexturePath = br.ReadString();
 
 				int count = br.ReadInt32();
+				Sprites = new List<SpriteInfo>( count );
 
 				for( int i = 0; i < count; i++ )
 				{
-					SpriteInfo info = new SpriteInfo();
+					SpriteInfo info = new();
 
 					if( !info.LoadFromStream( br ) )
 						return Logger.LogReturn( "Failed loading SpriteArray's SpriteInfo from stream.", false, LogType.Error );
@@ -280,7 +276,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading SpriteArray from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading SpriteArray from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -310,7 +306,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving SpriteArray to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving SpriteArray to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -339,7 +335,7 @@ namespace MiGfx
 
 			foreach( XmlNode n in list )
 			{
-				SpriteInfo info = new SpriteInfo();
+				SpriteInfo info = new();
 
 				if( !info.LoadFromXml( (XmlElement)n ) )
 					return Logger.LogReturn( "Failed loading SpriteArray: Failed loading SpriteInfo.", false, LogType.Error );
@@ -358,37 +354,19 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( TypeName );
+			sb.Append( '<' ).Append( TypeName ).Append( ' ' )
+				.Append( nameof( Enabled ) ).Append( "=\"" ).Append( Enabled ).AppendLine( "\"" )
+				.Append( "        " )
+				.Append( nameof( Visible ) ).Append( "=\"" ).Append( Visible ).AppendLine( "\"" )
+				.Append( "        " )
+				.Append( nameof( TexturePath ) ).Append( "=\"" ).Append( TexturePath ).AppendLine( "\">" );
 
-			sb.Append( " " );
-			sb.Append( nameof( Enabled ) );
-			sb.Append( "=\"" );
-			sb.Append( Enabled );
-			sb.AppendLine( "\"" );
+			for( int i = 0; i < Sprites.Count; i++ )
+				sb.AppendLine( XmlLoadable.ToString( Sprites[ i ], 1 ) );
 
-			sb.Append( "        " );
-			sb.Append( nameof( Visible ) );
-			sb.Append( "=\"" );
-			sb.Append( Visible );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "        " );
-			sb.Append( nameof( TexturePath ) );
-			sb.Append( "=\"" );
-			sb.Append( TexturePath );
-			sb.AppendLine( "\">" );
-
-			foreach( SpriteInfo si in Sprites )
-				sb.AppendLine( XmlLoadable.ToString( si, 1 ) );
-
-			sb.Append( "</" );
-			sb.Append( TypeName );
-			sb.AppendLine( ">" );
-
-			return sb.ToString();
+			return sb.Append( "</" ).Append( TypeName ).Append( '>' ).ToString();
 		}
 
 		/// <summary>
@@ -420,6 +398,30 @@ namespace MiGfx
 					return false;
 
 			return true;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as SpriteArray );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( base.GetHashCode(), OverrideTexture, Sprites, TexturePath );
 		}
 
 		/// <summary>

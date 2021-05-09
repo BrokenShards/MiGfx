@@ -1,59 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30621.155
+VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{B241CAFB-294A-4822-A83C-07589C62662E}"
-	ProjectSection(SolutionItems) = preProject
-		Dependencies\MiCore.dll = Dependencies\MiCore.dll
-		Dependencies\MiInput.dll = Dependencies\MiInput.dll
-		Dependencies\XInputDotNetPure.dll = Dependencies\XInputDotNetPure.dll
-		Dependencies\XInputInterface.dll = Dependencies\XInputInterface.dll
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiGfx", "MiGfx.csproj", "{69360A5E-7FED-483E-BF93-63DE0604E218}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiGfx", "MiGfx.csproj", "{12DDFD76-8249-43E8-A4D0-AF314D0C6647}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiGfxTest", "MiGfxTest\MiGfxTest.csproj", "{0123893B-7F02-4462-9BE1-051B4D2F4C07}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiGfxTest", "MiGfxTest\MiGfxTest.csproj", "{93CD2160-B946-4433-BBE3-C16B9F7FF3A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Debug|x64.ActiveCfg = Debug|x64
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Debug|x64.Build.0 = Debug|x64
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Debug|x86.ActiveCfg = Debug|x86
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Debug|x86.Build.0 = Debug|x86
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Release|Any CPU.Build.0 = Release|Any CPU
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Release|x64.ActiveCfg = Release|x64
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Release|x64.Build.0 = Release|x64
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Release|x86.ActiveCfg = Release|x86
-		{12DDFD76-8249-43E8-A4D0-AF314D0C6647}.Release|x86.Build.0 = Release|x86
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Debug|x64.ActiveCfg = Debug|x64
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Debug|x64.Build.0 = Debug|x64
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Debug|x86.ActiveCfg = Debug|x86
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Debug|x86.Build.0 = Debug|x86
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Release|x64.ActiveCfg = Release|x64
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Release|x64.Build.0 = Release|x64
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Release|x86.ActiveCfg = Release|x86
-		{0123893B-7F02-4462-9BE1-051B4D2F4C07}.Release|x86.Build.0 = Release|x86
+		{69360A5E-7FED-483E-BF93-63DE0604E218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69360A5E-7FED-483E-BF93-63DE0604E218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69360A5E-7FED-483E-BF93-63DE0604E218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69360A5E-7FED-483E-BF93-63DE0604E218}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93CD2160-B946-4433-BBE3-C16B9F7FF3A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93CD2160-B946-4433-BBE3-C16B9F7FF3A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93CD2160-B946-4433-BBE3-C16B9F7FF3A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93CD2160-B946-4433-BBE3-C16B9F7FF3A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {81A309E2-4BC7-4900-94D0-89BE56696912}
+		SolutionGuid = {E547959B-3CEF-4E62-9E25-AC5415328DFC}
 	EndGlobalSection
 EndGlobal

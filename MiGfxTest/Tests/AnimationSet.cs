@@ -33,13 +33,13 @@ namespace MiGfx.Test
 		{
 			AnimationDB db = DatabaseManager.Instance.Get<AnimationDB, Animation>();
 
-			if( db == null )
+			if( db is null )
 				return Logger.LogReturn( "Unable to get AnimationDB.", false );
 
 			// Create and add animations.
 			for( int i = 0; i < 10; i++ )
 			{
-				Animation anim = new Animation( "as" + i.ToString() );
+				Animation anim = new( "as" + i.ToString() );
 
 				for( int f = 0; f < 3; f++ )
 					anim.Add( new Frame( new FloatRect( f * 512, 0, 512, 512 ), Time.FromSeconds( 1.0f ) ) );
@@ -67,7 +67,7 @@ namespace MiGfx.Test
 			AnimationDB db = DatabaseManager.Instance.Get<AnimationDB, Animation>();
 
 			// Create animation set.
-			AnimationSet a1 = new AnimationSet();
+			AnimationSet a1 = new();
 
 			// Create and add animations.
 			foreach( var v in db )
@@ -78,7 +78,7 @@ namespace MiGfx.Test
 			}
 
 			// Ensure all animations were actually added.
-			if( a1.Count != 10 )
+			if( a1.Count is not 10 )
 				return Logger.LogReturn( "Failed: Not all Animations were added to AnimationSet.", false );
 
 			// Write object to a binary file.
@@ -96,18 +96,18 @@ namespace MiGfx.Test
 			{ }
 
 			// Ensure object loaded and is the same.
-			if( a2 == null )
+			if( a2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize AnimationSet from file.", false );
 			if( !a2.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Deserialized AnimationSet has incorrect values.", false );
 
 			// Create an xml file string from ToString().
-			string xml = Xml.Header + "\r\n" + a1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ a1 }";
 			// Load object from xml string.
 			AnimationSet x = XmlLoadable.FromXml<AnimationSet>( xml );
 
 			// Ensure object loaded and is the same.
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load AnimationSet from xml.", false );
 			if( !x.Equals( a1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded AnimationSet has incorrect values.", false );

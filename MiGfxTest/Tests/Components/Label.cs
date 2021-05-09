@@ -36,7 +36,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Label Tests..." );
 
-			Label l1 = new Label( "Test" );
+			Label l1 = new( "Test" );
 
 			if( !BinarySerializable.ToFile( l1, LabelPath, true ) )
 				return Logger.LogReturn( "Failed: Unable to serialize Label to file.", false );
@@ -50,15 +50,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( l2 == null )
+			if( l2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize Label from file.", false );
 			if( !l2.Equals( l1 ) )
 				return Logger.LogReturn( "Failed: Deserialized Label has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + l1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ l1 }";
 			Label x = XmlLoadable.FromXml<Label>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load Label from xml.", false );
 			if( !x.Equals( l1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded Label has incorrect values.", false );
@@ -72,10 +72,10 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running Label Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			using( MiEntity ent = new MiEntity( "tester", window ) )
+			using( MiEntity ent = new( "tester", window ) )
 			{
 				if( !ent.AddNewComponent<Label>() )
 					return Logger.LogReturn( "Failed: Unable to add Label to test entity.", false );
@@ -91,7 +91,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is label text displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -108,7 +108,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: Label did not display correctly (user input).", false );
 			}
 

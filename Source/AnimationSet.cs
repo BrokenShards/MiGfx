@@ -51,8 +51,8 @@ namespace MiGfx
 		/// </param>
 		public AnimationSet( AnimationSet a )
 		{
-			if( a == null )
-				throw new ArgumentNullException();
+			if( a is null )
+				throw new ArgumentNullException( nameof( a ) );
 
 			m_anims = new List<string>( a.Count );
 
@@ -80,7 +80,7 @@ namespace MiGfx
 		/// </summary>
 		public bool Empty
 		{
-			get { return Count == 0; }
+			get { return Count is 0; }
 		}
 		/// <summary>
 		///   The amount of animations the set contains.
@@ -279,7 +279,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Cannot load AnimationSet from null stream.", false, LogType.Error );
 
 			try
@@ -292,7 +292,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading AnimationSet from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading AnimationSet from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -308,7 +308,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Cannot save AnimationSet to null stream.", false, LogType.Error );
 
 			RemoveAll();
@@ -322,7 +322,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving AnimationSet to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving AnimationSet to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -339,7 +339,7 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load AnimationSet from a null XmlElement.", false, LogType.Error );
 
 			RemoveAll();
@@ -354,7 +354,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading AnimationSet: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading AnimationSet: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -368,27 +368,18 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( AnimationSet ) );
-			sb.AppendLine( ">" );
+			sb.Append( '<' ).Append( nameof( AnimationSet ) ).AppendLine( ">" );
 
 			foreach( var a in m_anims )
 			{
-				sb.Append( "\t<" );
-				sb.Append( nameof( Animation ) );
-				sb.Append( ">" );				
-				sb.Append( a );
-				sb.Append( "</" );
-				sb.Append( nameof( Animation ) );
-				sb.AppendLine( ">" );
+				sb.Append( "\t<" ).Append( nameof( Animation ) ).Append( '>' )
+					.Append( a )
+					.Append( "</" ).Append( nameof( Animation ) ).AppendLine( ">" );
 			}
 
-			sb.Append( "</" );
-			sb.Append( nameof( AnimationSet ) );
-			sb.AppendLine( ">" );
-
+			sb.Append( "</" ).Append( nameof( AnimationSet ) ).Append( '>' );
 			return sb.ToString();
 		}
 
@@ -403,7 +394,7 @@ namespace MiGfx
 		/// </returns>
 		public bool Equals( AnimationSet other )
 		{
-			if( other == null || Count != other.Count )
+			if( other is null || Count != other.Count )
 				return false;
 
 			for( int i = 0; i < Count; i++ )
@@ -412,7 +403,31 @@ namespace MiGfx
 
 			return true;
 		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as AnimationSet );
+		}
 
-		private List<string> m_anims;
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return m_anims.GetHashCode();
+		}
+
+		private readonly List<string> m_anims;
 	}
 }

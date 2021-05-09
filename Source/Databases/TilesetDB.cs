@@ -43,7 +43,7 @@ namespace MiGfx
 		{
 			get
 			{
-				return FolderPaths.Databases + "tileset.db";
+				return $"{ FolderPaths.Databases }tileset.db";
 			}
 		}
 	}

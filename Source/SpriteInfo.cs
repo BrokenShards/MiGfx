@@ -61,8 +61,8 @@ namespace MiGfx
 		/// </exception>
 		public SpriteInfo( SpriteInfo i )
 		{
-			if( i == null )
-				throw new ArgumentNullException();
+			if( i is null )
+				throw new ArgumentNullException( nameof( i ) );
 			
 			Offset         = i.Offset;
 			Size           = i.Size;
@@ -246,7 +246,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool LoadFromStream( BinaryReader br )
 		{
-			if( br == null )
+			if( br is null )
 				return Logger.LogReturn( "Failed loading SpriteInfo from null stream.", false, LogType.Error );
 
 			try
@@ -261,7 +261,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed loading SpriteInfo from stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed loading SpriteInfo from stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -277,7 +277,7 @@ namespace MiGfx
 		/// </returns>
 		public override bool SaveToStream( BinaryWriter bw )
 		{
-			if( bw == null )
+			if( bw is null )
 				return Logger.LogReturn( "Failed saving SpriteInfo to null stream.", false, LogType.Error );
 
 			try
@@ -291,7 +291,7 @@ namespace MiGfx
 			}
 			catch( Exception e )
 			{
-				return Logger.LogReturn( "Failed saving SpriteInfo to stream: " + e.Message, false, LogType.Error );
+				return Logger.LogReturn( $"Failed saving SpriteInfo to stream: { e.Message }", false, LogType.Error );
 			}
 
 			return true;
@@ -308,7 +308,7 @@ namespace MiGfx
 		/// </returns>
 		public bool LoadFromXml( XmlElement element )
 		{
-			if( element == null )
+			if( element is null )
 				return Logger.LogReturn( "Cannot load SpriteInfo from a null XmlElement.", false, LogType.Error );
 
 			Offset = default;
@@ -318,19 +318,19 @@ namespace MiGfx
 					   rect   = element[ nameof( Rect ) ],
 					   color  = element[ nameof( Color ) ];
 
-			if( size == null )
+			if( size is null )
 				return Logger.LogReturn( "Failed loading SpriteInfo: No Size element.", false, LogType.Error );
-			if( rect == null )
+			if( rect is null )
 				return Logger.LogReturn( "Failed loading SpriteInfo: No Rect element.", false, LogType.Error );
 
-			Vector2f?  off = offset != null ? Xml.ToVec2f( offset ) : null;
+			Vector2f?  off = offset is not null ? Xml.ToVec2f( offset ) : null;
 			Vector2f?  siz = Xml.ToVec2f( size );
 			FloatRect? rec = Xml.ToFRect( rect );
-			Color?     col = color != null ? Xml.ToColor( color ) : null;
+			Color?     col = color is not null ? Xml.ToColor( color ) : null;
 
-			if( offset != null && !off.HasValue )
+			if( offset is not null && !off.HasValue )
 				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Offset element.", false, LogType.Error );
-			else if( offset == null )
+			else if( offset is null )
 				off = new Vector2f();
 
 			if( !siz.HasValue )
@@ -338,9 +338,9 @@ namespace MiGfx
 			if( !rec.HasValue )
 				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Rect element.", false, LogType.Error );
 
-			if( color != null && !col.HasValue )
+			if( color is not null && !col.HasValue )
 				return Logger.LogReturn( "Failed loading SpriteInfo: Unable to parse Color element.", false, LogType.Error );
-			else if( color == null )
+			else if( color is null )
 				col = Color.White;
 
 			Offset = off.Value;
@@ -385,37 +385,21 @@ namespace MiGfx
 		/// </returns>
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
-			sb.Append( "<" );
-			sb.Append( nameof( SpriteInfo ) );
-
-			sb.Append( " " );
-			sb.Append( nameof( Orientation ) );
-			sb.Append( "=\"" );
-			sb.Append( Orientation );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "            " );
-			sb.Append( nameof( FlipHorizontal ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipHorizontal );
-			sb.AppendLine( "\"" );
-
-			sb.Append( "            " );
-			sb.Append( nameof( FlipVertical ) );
-			sb.Append( "=\"" );
-			sb.Append( FlipVertical );
-			sb.AppendLine( "\">" );
-
-			sb.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) );
-			sb.AppendLine( Xml.ToString( Size,   nameof( Size ),   1 ) );
-			sb.AppendLine( Xml.ToString( Rect,   nameof( Rect ),   1 ) );
-			sb.AppendLine( Xml.ToString( Color,  nameof( Color ),  1 ) );
-
-			sb.Append( "</" );
-			sb.Append( nameof( SpriteInfo ) );
-			sb.AppendLine( ">" );
+			sb.Append( '<' ).Append( nameof( SpriteInfo ) ).Append( ' ' )
+				.Append( nameof( Orientation ) ).Append( "=\"" ).Append( Orientation ).AppendLine( "\"" )
+				.Append( "            " )
+				.Append( nameof( FlipHorizontal ) ).Append( "=\"" ).Append( FlipHorizontal ).AppendLine( "\"" )
+				.Append( "            " )
+				.Append( nameof( FlipVertical ) ).Append( "=\"" ).Append( FlipVertical ).AppendLine( "\">" )
+				
+				.AppendLine( Xml.ToString( Offset, nameof( Offset ), 1 ) )
+				.AppendLine( Xml.ToString( Size,   nameof( Size ),   1 ) )
+				.AppendLine( Xml.ToString( Rect,   nameof( Rect ),   1 ) )
+				.AppendLine( Xml.ToString( Color,  nameof( Color ),  1 ) )
+				
+				.Append( "</" ).Append( nameof( SpriteInfo ) ).Append( '>' );
 
 			return sb.ToString();
 		}
@@ -439,6 +423,30 @@ namespace MiGfx
 				   Orientation    == other.Orientation &&
 				   FlipHorizontal == other.FlipHorizontal &&
 				   FlipVertical   == other.FlipVertical;
+		}
+		/// <summary>
+		///   If this object has the same values of the other object.
+		/// </summary>
+		/// <param name="obj">
+		///   The other object to check against.
+		/// </param>
+		/// <returns>
+		///   True if both objects are concidered equal and false if they are not.
+		/// </returns>
+		public override bool Equals( object obj )
+		{
+			return Equals( obj as SpriteInfo );
+		}
+
+		/// <summary>
+		///   Serves as the default hash function.
+		/// </summary>
+		/// <returns>
+		///   A hash code for the current object.
+		/// </returns>
+		public override int GetHashCode()
+		{
+			return HashCode.Combine( Offset, Size, Rect, Color, Orientation, FlipHorizontal, FlipVertical );
 		}
 
 		Vector2f m_size;

@@ -37,7 +37,7 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running CheckBox Tests..." );
 
-			CheckBox c1 = new CheckBox();
+			CheckBox c1 = new();
 
 			if( c1.Checked )
 				return Logger.LogReturn( "Failed: Default constructed object with incorrect checked value.", false );
@@ -53,15 +53,15 @@ namespace MiGfx.Test
 			catch
 			{ }
 
-			if( c2 == null )
+			if( c2 is null )
 				return Logger.LogReturn( "Failed: Unable to deserialize CheckBox from file.", false );
 			if( !c2.Equals( c1 ) )
 				return Logger.LogReturn( "Failed: Deserialized CheckBox has incorrect values.", false );
 
-			string xml = Xml.Header + "\r\n" + c1.ToString();
+			string xml = $"{ Xml.Header }\r\n{ c1 }";
 			CheckBox x = XmlLoadable.FromXml<CheckBox>( xml );
 
-			if( x == null )
+			if( x is null )
 				return Logger.LogReturn( "Failed: Unable to load CheckBox from xml.", false );
 			if( !x.Equals( c1 ) )
 				return Logger.LogReturn( "Failed: Xml loaded CheckBox has incorrect values.", false );
@@ -75,10 +75,10 @@ namespace MiGfx.Test
 		{
 			Logger.Log( "Running CheckBox Visual Tests..." );
 
-			if( window == null || !window.IsOpen )
+			if( window is null || !window.IsOpen )
 				return Logger.LogReturn( "Failed: Test window is null or closed.", false );
 
-			MiEntity ent = new MiEntity( "selector", window );
+			MiEntity ent = new( "selector", window );
 
 			using( ent )
 			{
@@ -90,7 +90,7 @@ namespace MiGfx.Test
 
 				MiEntity chk = CheckBox.Create( "tester", window );
 
-				if( chk == null )
+				if( chk is null )
 					return Logger.LogReturn( "Failed: Unable to create CheckBox.", false );
 
 				Transform tran = chk.GetComponent<Transform>();
@@ -106,7 +106,7 @@ namespace MiGfx.Test
 				Logger.Log( "Is checkbox displayed on window? (y/n)" );
 				bool? inp = null;
 
-				while( window.IsOpen && inp == null )
+				while( window.IsOpen && inp is null )
 				{
 					window.DispatchEvents();
 
@@ -123,7 +123,7 @@ namespace MiGfx.Test
 					window.Display();
 				}
 
-				if( inp == null || !inp.Value )
+				if( inp is null || !inp.Value )
 					return Logger.LogReturn( "Failed: CheckBox did not display correctly (user input).", false );
 			}
 
